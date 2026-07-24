@@ -1,0 +1,17 @@
+{
+  "name": "EcoClean Connect",
+  "short_name": "EcoClean",
+  "description": "Crowdsourced pollution reporting and community clean-up",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f5132",
+  "theme_color": "#198754",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoClean Connect — Admin</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <img src="icon.svg" class="brand-icon" />
+      <div><h1>Admin Panel</h1><p class="tagline">Verify clean-ups & issue rewards</p></div>
+    </div>
+    <nav class="topnav"><a href="index.html">Map</a><a href="dashboard.html">Dashboard</a></nav>
+  </header>
+
+  <main class="admin-main">
+    <div id="login" class="card">
+      <h2>Admin access</h2>
+      <label>Admin key
+        <input type="password" id="adminKey" placeholder="enter key" />
+      </label>
+      <button id="loginBtn" class="primary-btn">Enter</button>
+      <p id="loginMsg" class="form-msg"></p>
+    </div>
+
+    <section id="panel" class="hidden">
+      <div class="card">
+        <h2>📢 Post community alert</h2>
+        <input type="text" id="alertTitle" placeholder="Title" />
+        <textarea id="alertBody" rows="2" placeholder="Message to the community"></textarea>
+        <button id="postAlert" class="primary-btn">Post alert</button>
+      </div>
+
+      <h2>Pending verification</h2>
+      <div id="pending" class="report-list"></div>
+
+      <h2>Verified clean-ups</h2>
+      <div id="verified" class="report-list"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="js/admin.js"></script>
+</body>
+</html>
