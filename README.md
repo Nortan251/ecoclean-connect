@@ -1,3 +1,12 @@
+---
+title: EcoClean Connect
+emoji: 🌱
+colorFrom: green
+colorTo: white
+sdk: docker
+app_port: 7860
+---
+
 # EcoClean Connect — MVP
 
 A **crowdsourced pollution-reporting and community clean-up platform** built as a
