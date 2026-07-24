@@ -36,33 +36,30 @@ npm start
 - Admin: `http://localhost:3000/admin.html` → admin key is `ecoclean-admin`
   (set `ADMIN_KEY` env var to change it; on Render set it in the dashboard).
 
-## Deploy free (so others can actually use it)
-The repo includes a **`render.yaml` blueprint**, so Render can deploy the whole app
-(frontend + backend) from this GitHub repo in a couple of clicks.
+## Deploy free (NO credit card required)
+> **Render now asks for a card even on its free tier, and Glitch shut down in 2025.**
+> The options below are free and do **not** require a bank card.
 
-**Option A — let the assistant push for you (recommended)**
-1. Create a free [GitHub](https://github.com) account (if you don't have one).
-2. Generate a **fine-grained Personal Access Token**:
-   GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens →
-   Generate. Give it a name, set access to "All repositories" or just this one, and grant
-   **"Repositories: Read and Write"**. Copy the token.
-3. Paste the token to the assistant. It will create the repo and push the code.
-4. Create a free [Render](https://render.com) account and connect your GitHub (one-time).
-   Then either click the **Deploy to Render** button below, or Render → New → **Blueprint**
-   → select the `ecoclean-connect` repo → Deploy.
-5. In Render → **Environment**, set `ADMIN_KEY` to a secret of your choice (used by the
-   admin panel). Done — you get a live `https://ecoclean-connect.onrender.com` URL.
+### Easiest: Replit (free, no card)
+1. Give the assistant a GitHub fine-grained token (or create the repo yourself). The
+   assistant pushes all files to GitHub. (GitHub itself is free, no card.)
+2. Sign up at [replit.com](https://replit.com) with Google/GitHub — **no card needed**.
+3. **New Repl → Import from GitHub →** pick `ecoclean-connect` → wait for the import.
+4. Click **Run**. Replit runs `npm start` and gives a public URL
+   (`https://<repl>.<user>.repl.co` or `.replit.app`). Share that link.
+   - The free **Run** URL is enough for a pilot/demo. (Replit's *Deployments*
+     always-on URL is a paid add-on — not required to be live.)
+5. Admin key defaults to `ecoclean-admin`. To set your own: Repl → 🔒 **Secrets** →
+   add `ADMIN_KEY` = your secret.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/YOUR_GITHUB_USERNAME/ecoclean-connect)
+### Robust alternative: Hugging Face Spaces (free, no card, persistent URL)
+HF Spaces hosts Docker apps for free, no card. Ask the assistant to add a `Dockerfile`
+and Space config; then create a Space, link the GitHub repo, and you get a persistent
+`https://<user>-<space>.hf.space` URL. Best if you want an always-on link without paying.
 
-**Option B — do it yourself**
-1. Push this folder to a GitHub repo.
-2. In Render, New → **Blueprint** → connect the repo → Deploy (uses `render.yaml`).
-3. Set `ADMIN_KEY` in Render → Environment.
-
-> **Notes:** Render's free filesystem is ephemeral, so uploaded photos reset on redeploy.
-> For production, swap JSON storage for Postgres/Supabase and photos for object storage.
-> HTTPS is automatic on Render, which is required for phone geolocation + "add to home screen".
+### If you get a card later: Render
+Use the included `render.yaml` blueprint (Render → New → Blueprint → repo → Deploy).
+Better for a real pilot (always-on, custom domain), but needs a card to verify.
 
 ## Founder notes (for college applications)
 This is a **genuine prototype you can own and explain**:
