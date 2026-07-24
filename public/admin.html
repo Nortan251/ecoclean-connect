@@ -12,38 +12,48 @@
   <header class="app-header">
     <div class="brand">
       <img src="icon.svg" class="brand-icon" />
-      <div><h1>Admin Panel</h1><p class="tagline">Verify clean-ups & issue rewards</p></div>
+      <div><h1>Admin Panel</h1><p class="tagline" data-i18n="dash_sub">Impact at a glance</p></div>
     </div>
-    <nav class="topnav"><a href="index.html">Map</a><a href="dashboard.html">Dashboard</a></nav>
+    <nav class="topnav">
+      <a href="index.html" data-i18n="btn_open_map">Map</a>
+      <a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a>
+      <select id="langSelect" class="lang-select" aria-label="Language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="ar">العربية</option>
+      </select>
+    </nav>
   </header>
 
   <main class="admin-main">
     <div id="login" class="card">
-      <h2>Admin access</h2>
-      <label>Admin key
-        <input type="password" id="adminKey" placeholder="enter key" />
+      <h2 data-i18n="admin_access">Admin access</h2>
+      <label class="field">
+        <span data-i18n="admin_key">Admin key</span>
+        <input type="password" id="adminKey" placeholder="••••" />
       </label>
-      <button id="loginBtn" class="primary-btn">Enter</button>
+      <button id="loginBtn" class="primary-btn" data-i18n="enter">Enter</button>
       <p id="loginMsg" class="form-msg"></p>
     </div>
 
     <section id="panel" class="hidden">
       <div class="card">
-        <h2>📢 Post community alert</h2>
-        <input type="text" id="alertTitle" placeholder="Title" />
-        <textarea id="alertBody" rows="2" placeholder="Message to the community"></textarea>
-        <button id="postAlert" class="primary-btn">Post alert</button>
+        <h2 data-i18n="post_alert">Post community alert</h2>
+        <input type="text" id="alertTitle" data-i18n-ph="alert_title_ph" placeholder="Title" />
+        <textarea id="alertBody" rows="2" data-i18n-ph="alert_body_ph" placeholder="Message"></textarea>
+        <button id="postAlert" class="primary-btn" data-i18n="post_alert_btn">Post alert</button>
       </div>
 
-      <h2>Pending verification</h2>
+      <h2 data-i18n="pending">Pending verification</h2>
       <div id="pending" class="report-list"></div>
 
-      <h2>Verified clean-ups</h2>
+      <h2 data-i18n="verified_title">Verified clean-ups</h2>
       <div id="verified" class="report-list"></div>
     </section>
   </main>
 
   <div id="toast" class="toast hidden"></div>
+  <script src="js/i18n.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

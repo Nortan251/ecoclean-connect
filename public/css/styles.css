@@ -40,8 +40,41 @@ body {
 .alert b { color: #5b4500; }
 
 /* Map */
-main { padding: 0; }
-#map { position: absolute; top: 60px; left: 0; right: 0; bottom: 0; z-index: 1; }
+/* Map view (shown after landing) */
+#mapView { position: fixed; top: 60px; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; z-index: 900; }
+#alerts { flex: 0 0 auto; padding: 8px 12px 0; }
+#map { flex: 1 1 auto; position: relative; }
+
+/* Language selector */
+.lang-select { margin-left: 10px; border: none; border-radius: 8px; padding: 5px 8px; font-size: .8rem; background: rgba(255,255,255,.22); color: #fff; cursor: pointer; }
+.lang-select option { color: #111; }
+
+/* Landing */
+.landing { max-width: 780px; margin: 0 auto; padding: 26px 16px 70px; }
+.hero { text-align: center; padding: 26px 8px 8px; }
+.hero-badge { display: inline-block; background: #e8f3ec; color: var(--green-dark); padding: 6px 14px; border-radius: 20px; font-size: .8rem; font-weight: 600; margin-bottom: 14px; }
+.hero h1 { font-size: 1.7rem; margin: 0 0 12px; line-height: 1.25; }
+.hero p { color: var(--muted); font-size: 1rem; max-width: 560px; margin: 0 auto 22px; line-height: 1.5; }
+.hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.ghost-btn-2 { background: #fff; color: var(--green-dark); border: 2px solid var(--green); border-radius: 10px; padding: 13px 20px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+.ghost-btn-2:active { background: #e8f3ec; }
+.features { margin-top: 36px; }
+.features h2 { text-align: center; font-size: 1.2rem; margin-bottom: 18px; }
+.feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.feature-card { background: var(--card); border-radius: 14px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.feature-card .fi { font-size: 1.6rem; margin-bottom: 8px; }
+.feature-card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.feature-card p { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.45; }
+
+/* Form fields (label text translated via data-i18n span) */
+.field { display: block; font-size: .82rem; margin: 10px 0; color: var(--text); }
+.field > span { display: block; margin-bottom: 4px; }
+.field input, .field select, .field textarea { width: 100%; }
+
+/* RTL tweaks for Arabic */
+[dir="rtl"] .topnav a { margin-left: 0; margin-right: 12px; }
+[dir="rtl"] .lang-select { margin-left: 0; margin-right: 10px; }
+[dir="rtl"] .loc-row { flex-direction: row-reverse; }
 
 /* FAB */
 .fab {

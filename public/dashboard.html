@@ -12,19 +12,28 @@
   <header class="app-header">
     <div class="brand">
       <img src="icon.svg" class="brand-icon" />
-      <div><h1>Dashboard</h1><p class="tagline">Impact at a glance</p></div>
+      <div><h1 data-i18n="dash_title">Dashboard</h1><p class="tagline" data-i18n="dash_sub">Impact at a glance</p></div>
     </div>
-    <nav class="topnav"><a href="index.html">Map</a><a href="admin.html">Admin</a></nav>
+    <nav class="topnav">
+      <a href="index.html" data-i18n="btn_open_map">Map</a>
+      <a href="admin.html" data-i18n="nav_admin">Admin</a>
+      <select id="langSelect" class="lang-select" aria-label="Language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="ar">العربية</option>
+      </select>
+    </nav>
   </header>
 
   <main class="dash">
     <div class="stats" id="stats"></div>
-    <h2>By category</h2>
+    <h2 data-i18n="by_category">By category</h2>
     <div id="cats"></div>
-    <h2>Recent activity</h2>
+    <h2 data-i18n="recent_activity">Recent activity</h2>
     <div id="recent" class="report-list"></div>
   </main>
 
+  <script src="js/i18n.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>

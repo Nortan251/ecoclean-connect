@@ -14,62 +14,84 @@
 <body>
   <header class="app-header">
     <div class="brand">
-      <img src="icon.svg" alt="" class="brand-icon" />
+      <img src="icon.svg" class="brand-icon" />
       <div>
         <h1>EcoClean Connect</h1>
-        <p class="tagline">Report pollution. Mobilize your community.</p>
+        <p class="tagline" data-i18n="tagline">Report pollution. Mobilize your community.</p>
       </div>
     </div>
     <nav class="topnav">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="admin.html">Admin</a>
+      <a href="#" id="navMap" data-i18n="btn_open_map">Open Map</a>
+      <a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="admin.html" data-i18n="nav_admin">Admin</a>
+      <select id="langSelect" class="lang-select" aria-label="Language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="ar">العربية</option>
+      </select>
     </nav>
   </header>
 
-  <section id="alerts" class="alerts"></section>
+  <!-- LANDING -->
+  <section id="landing" class="landing">
+    <div class="hero">
+      <div class="hero-badge">🌱 EcoClean Connect</div>
+      <h1 data-i18n="hero_sub">Crowdsourced pollution reporting for Morocco</h1>
+      <p data-i18n="hero_desc">Turn every citizen into a guardian of their neighborhood. Spot pollution, report it in seconds, and watch your community clean up — with real rewards.</p>
+      <div class="hero-cta">
+        <button id="heroOpenMap" class="primary-btn" data-i18n="btn_open_map">Open Map</button>
+        <button id="heroReport" class="ghost-btn-2" data-i18n="btn_report">Report Pollution</button>
+      </div>
+    </div>
+    <div class="features">
+      <h2 data-i18n="features_title">How it works</h2>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="fi">📍</div><h3 data-i18n="f1_t">Report</h3><p data-i18n="f1_d">Drop a pin, snap a photo, pick a category. Takes 30 seconds.</p></div>
+        <div class="feature-card"><div class="fi">✅</div><h3 data-i18n="f2_t">Verify</h3><p data-i18n="f2_d">Community leaders confirm clean-ups with before/after photos.</p></div>
+        <div class="feature-card"><div class="fi">🎁</div><h3 data-i18n="f3_t">Reward</h3><p data-i18n="f3_d">Verified action earns civic reward vouchers.</p></div>
+        <div class="feature-card"><div class="fi">📢</div><h3 data-i18n="f4_t">Mobilize</h3><p data-i18n="f4_d">Live map and alerts keep the whole neighborhood engaged.</p></div>
+      </div>
+    </div>
+  </section>
 
-  <main>
+  <!-- MAP VIEW -->
+  <main id="mapView" class="hidden">
+    <section id="alerts" class="alerts"></section>
     <div id="map"></div>
   </main>
 
-  <button id="reportBtn" class="fab">+ Report Pollution</button>
+  <button id="reportBtn" class="fab hidden">+ <span data-i18n="btn_report">Report Pollution</span></button>
 
   <!-- Report modal -->
   <div id="reportModal" class="modal hidden">
     <div class="modal-card">
       <div class="modal-head">
-        <h2>Report a pollution site</h2>
+        <h2 data-i18n="report_title">Report a pollution site</h2>
         <button id="closeModal" class="icon-btn" aria-label="Close">&times;</button>
       </div>
       <form id="reportForm">
-        <label>Your name (optional)
-          <input type="text" name="reporterName" placeholder="Anonymous" />
+        <label class="field">
+          <span data-i18n="your_name">Your name (optional)</span>
+          <input type="text" name="reporterName" data-i18n-ph="your_name_ph" placeholder="Anonymous" />
         </label>
-        <label>Category
-          <select name="category" required>
-            <option value="illegal_dumping">Illegal Dumping</option>
-            <option value="water">Water Pollution</option>
-            <option value="air_smoke">Air / Smoke</option>
-            <option value="plastic_marine">Plastic / Marine</option>
-            <option value="other">Other</option>
-          </select>
+        <label class="field">
+          <span data-i18n="category">Category</span>
+          <select name="category" id="categorySelect" required></select>
         </label>
-        <label>Photo (required)
+        <label class="field">
+          <span data-i18n="photo">Photo (required)</span>
           <input type="file" name="photo" accept="image/*" capture="environment" required />
         </label>
-        <label>Description
-          <textarea name="description" rows="3" placeholder="What's happening here?"></textarea>
+        <label class="field">
+          <span data-i18n="description">Description</span>
+          <textarea name="description" rows="3" data-i18n-ph="description_ph" placeholder="What's happening here?"></textarea>
         </label>
         <div class="loc-row">
-          <label>Latitude
-            <input type="number" step="any" name="lat" id="latInput" required />
-          </label>
-          <label>Longitude
-            <input type="number" step="any" name="lng" id="lngInput" required />
-          </label>
+          <label class="field"><span data-i18n="lat">Latitude</span><input type="number" step="any" name="lat" id="latInput" required /></label>
+          <label class="field"><span data-i18n="lng">Longitude</span><input type="number" step="any" name="lng" id="lngInput" required /></label>
         </div>
-        <button type="button" id="useLoc" class="ghost-btn">📍 Use my location</button>
-        <button type="submit" class="primary-btn">Submit report</button>
+        <button type="button" id="useLoc" class="ghost-btn" data-i18n="use_location">📍 Use my location</button>
+        <button type="submit" class="primary-btn" data-i18n="submit">Submit report</button>
         <p id="formMsg" class="form-msg"></p>
       </form>
     </div>
@@ -78,6 +100,7 @@
   <div id="toast" class="toast hidden"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
