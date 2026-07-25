@@ -2,10 +2,16 @@ const { supabase } = require('./supabase');
 
 const BUCKET = 'ecoclean';
 
+// IMPORTANT: PostgREST (what supabase-js talks to) does NOT understand SQL-style
+// "column AS alias". If you write that, it strips the whitespace and searches for
+// a column literally named e.g. "after_photoasafterphoto", which fails with
+// "column ... does not exist" on EVERY select AND on insert/update .select().
+// The supported rename syntax is "alias:column", which yields the camelCase keys
+// the frontend expects (beforePhoto, createdAt, ...).
 const REPORT_SELECT =
-  'id, reporter_name as reporterName, category, description, lat, lng, before_photo as beforePhoto, after_photo as afterPhoto, status, verification_notes as verificationNotes, reward_code as rewardCode, reward_issued as rewardIssued, created_at as createdAt, verified_at as verifiedAt';
+  'id, reporterName:reporter_name, category, description, lat, lng, beforePhoto:before_photo, afterPhoto:after_photo, status, verificationNotes:verification_notes, rewardCode:reward_code, rewardIssued:reward_issued, createdAt:created_at, verifiedAt:verified_at';
 
-const ALERT_SELECT = 'id, title, body, created_at as createdAt';
+const ALERT_SELECT = 'id, title, body, createdAt:created_at';
 
 function readJson(req) {
   return new Promise((resolve, reject) => {
@@ -50,6 +56,8 @@ function requireAdmin(req, res) {
 // should never have to decode "relation public.reports does not exist".
 function friendlyDbError(msg) {
   msg = msg == null ? '' : String(msg);
+  if (/schema cache|PGRST204|could not find the .* column/i.test(msg))
+    return 'A database query references a column that does not exist (check supabase/schema.sql matches the code, then redeploy).';
   if (/does not exist|42P01/i.test(msg))
     return 'Database tables are missing. In Supabase open SQL Editor and run the contents of supabase/schema.sql (it creates the tables AND the storage bucket), then try again.';
   if (/bucket[\s\S]{0,40}not found|not found[\s\S]{0,40}bucket/i.test(msg))
