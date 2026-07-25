@@ -4,11 +4,10 @@
  * app.js emits a single 'ecoclean:reported' event on a successful submit (with
  * the category / name / coords, captured before the form resets). We listen for
  * it and show a celebratory, accessible dialog: an animated checkmark, a short
- * burst of confetti, a category-specific impact line, a live community stat, and
- * two actions — jump to the new pin on the map, or report another. It is fully
- * self-contained (injects its own styles + markup), trilingual (EN/FR/AR), and
- * keyboard/screen-reader friendly (role=dialog, focus management, Esc to close).
- * It also detects the offline case and reassures the user their report is queued.
+ * burst of confetti, a category-specific impact line, a live community stat, a
+ * SHARE action (via EcoShare), and two actions — jump to the new pin on the map,
+ * or report another. Fully self-contained (injects its own styles + markup),
+ * trilingual (EN/FR/AR), keyboard/screen-reader friendly, and offline-aware.
  * ==========================================================================*/
 (function () {
   'use strict';
@@ -20,6 +19,8 @@
       offline: 'You’re offline — we saved it and will publish it the moment you reconnect.',
       verifiedLine: '{n} site(s) already cleaned thanks to people like you. 🌍',
       view: 'See it on the map', another: 'Report another', close: 'Close',
+      share: 'Share this win',
+      shareText: 'I just reported {cat} pollution and joined the cleanup movement. Add your voice:',
     },
     fr: {
       thanksName: 'Merci, {name} !', thanks: 'Merci, Gardien(ne) !',
@@ -27,6 +28,8 @@
       offline: 'Vous êtes hors ligne — nous l’avons enregistré et le publierons dès la reconnexion.',
       verifiedLine: '{n} site(s) déjà nettoyé(s) grâce à des gens comme vous. 🌍',
       view: 'Voir sur la carte', another: 'Signaler autre chose', close: 'Fermer',
+      share: 'Partager ce succès',
+      shareText: 'Je viens de signaler une pollution de type {cat} et je rejoins le mouvement de nettoyage. Ajoutez votre voix :',
     },
     ar: {
       thanksName: 'شكرًا لك يا {name}!', thanks: 'شكرًا لك أيها الحارس!',
@@ -34,6 +37,8 @@
       offline: 'أنت غير متصل — حفظناه وسننشره فور عودتك للإنترنت.',
       verifiedLine: 'تم تنظيف {n} موقع بفضل أشخاص مثلك. 🌍',
       view: 'عرضه على الخريطة', another: 'بلاغ آخر', close: 'إغلاق',
+      share: 'شارك هذا الإنجاز',
+      shareText: 'أبلغت للتو عن تلوث من نوع {cat} وانضممت إلى حركة التنظيف. أضف صوتك:',
     },
   };
   const IMPACT = {
@@ -118,6 +123,7 @@
         '<p class="eco-ty-impact">' + esc(imp) + '</p>' +
         '<p class="eco-ty-sub">' + esc(offline ? s.offline : s.sub) +
           (verified > 0 ? ' ' + fill(s.verifiedLine, { n: verified }) : '') + '</p>' +
+        '<button class="ghost-btn eco-ty-share" data-act="share">🌱 ' + esc(s.share) + '</button>' +
         '<div class="eco-ty-actions">' +
           '<button class="primary-btn" data-act="view">' + esc(s.view) + '</button>' +
           '<button class="ghost-btn" data-act="another">' + esc(s.another) + '</button>' +
@@ -129,6 +135,12 @@
     if (viewBtn) viewBtn.focus();
     overlay.querySelectorAll('[data-close]').forEach((n) => n.addEventListener('click', close));
     overlay.querySelector('[data-act="view"]').addEventListener('click', () => { close(); openMapAt(detail); });
+    overlay.querySelector('[data-act="share"]').addEventListener('click', () => {
+      const catTxt = typeof window.catLabel === 'function' ? catLabel(detail.category) : (detail.category || '');
+      const text = fill(s.shareText, { cat: catTxt });
+      if (window.EcoShare && window.EcoShare.share) window.EcoShare.share({ title: 'EcoClean Connect', text: text, url: location.href });
+      else if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text + ' ' + location.href);
+    });
     overlay.querySelector('[data-act="another"]').addEventListener('click', () => {
       close();
       if (typeof openModal === 'function') openModal();      // global from app.js
@@ -154,6 +166,7 @@
       '.eco-ty h2{margin:6px 0 8px;font-size:1.25rem;color:#0f5132;}' +
       '.eco-ty-impact{margin:0 0 6px;font-size:.95rem;color:#1f2d27;line-height:1.45;}' +
       '.eco-ty-sub{margin:0 0 16px;font-size:.82rem;color:#6b7c74;line-height:1.4;}' +
+      '.eco-ty-share{width:100%;margin:0 0 10px;}' +
       '.eco-ty-actions{display:flex;gap:10px;}' +
       '.eco-ty-actions .primary-btn,.eco-ty-actions .ghost-btn{flex:1;width:auto;margin-top:0;}' +
       '.eco-ty-svg{width:64px;height:64px;margin:0 auto;display:block;}' +

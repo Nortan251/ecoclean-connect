@@ -27,9 +27,9 @@
  * already-open tabs immediately (users get fixes without a manual reload).
  * ==========================================================================*/
 
-const SHELL = 'ecoclean-shell-v6';   // same-origin app shell (pre-cached on install)
-const RUNTIME = 'ecoclean-runtime-v6'; // CDN libs + live-data cache + misc runtime gets
-const TILES = 'ecoclean-tiles-v6';   // OSM tiles, size-bounded
+const SHELL = 'ecoclean-shell-v7';   // same-origin app shell (pre-cached on install)
+const RUNTIME = 'ecoclean-runtime-v7'; // CDN libs + live-data cache + misc runtime gets
+const TILES = 'ecoclean-tiles-v7';   // OSM tiles, size-bounded
 const MAX_TILES = 400;               // cap so offline map tiles can't blow the quota
 
 // Pre-cache the same-origin app shell. IMPORTANT: only same-origin URLs go here,
@@ -41,7 +41,7 @@ const SHELL_ASSETS = [
   './css/styles.css', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png',
   './js/i18n.js', './js/ecoclean-addons.js', './js/app.js',
   './js/camera-location.js', './js/validation.js', './js/trust-system.js',
-  './js/map-sync.js', './js/cluster.js', './js/realtime.js', './js/install-prompt.js', './js/offline-submit.js', './js/thankyou.js',
+  './js/map-sync.js', './js/cluster.js', './js/realtime.js', './js/install-prompt.js', './js/offline-submit.js', './js/thankyou.js', './js/share.js', './js/offline-banner.js',
   './js/dashboard.js', './js/rewards.js', './js/gamification.js', './js/analytics.js',
   './js/admin.js', './js/verification.js', './js/dispatch.js',
 ];
