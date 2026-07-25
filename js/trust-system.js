@@ -24,14 +24,17 @@
     }));
   }
 
-  // Downvotes only count when cast by a high-trust user; hide at 3+.
+  // Per-report flag count: hide ONLY the marker that reaches 3+ downvotes.
   function evaluateFlags() {
     const votes = getVotes();
-    const flagged = Object.values(votes).filter(v => v === 'down').length;
-    if (flagged >= 3) {
-      window.EcoClean.maps.forEach(map =>
-        map.eachLayer(l => { if (l._reportId && flagged >= 3) map.removeLayer(l); }));
-    }
+    const counts = {};
+    Object.entries(votes).forEach(([id, v]) => { if (v === 'down') counts[id] = (counts[id] || 0) + 1; });
+    Object.entries(counts).forEach(([id, n]) => {
+      if (n >= 3) {
+        window.EcoClean.maps.forEach(map =>
+          map.eachLayer(l => { if (l._reportId === id) map.removeLayer(l); }));
+      }
+    });
   }
 
   window.addEventListener('ecoclean:mapready', map => {

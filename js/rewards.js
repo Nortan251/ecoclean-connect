@@ -27,8 +27,8 @@
     vouchers.forEach(v => { if (window.QRCode) new QRCode(document.getElementById('qr-' + v.token), v.token); });
     const p = document.querySelector('#points'); if (p) p.textContent = EcoStore.get('points', 0) + ' pts';
   }
-  // Award points when verification.js flips a report to Cleaned.
-  window.addEventListener('storage', e => { if (e.key === 'ecoclean:cleanedStatus') addPoints(POINTS_PER_CLEAN); });
+  // Award points when verification.js flips a report to Cleaned (same-tab event).
+  window.addEventListener('ecoclean:cleaned', () => addPoints(POINTS_PER_CLEAN));
 
   const w = document.querySelector('#wallet');
   if (w) {

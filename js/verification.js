@@ -12,8 +12,8 @@
     EcoStore.set(CLEANED, st);
     const badge = document.querySelector('[data-id="' + id + '"] .badge');
     if (badge) badge.textContent = 'Cleaned ✅';
-    // Notify rewards.js (storage event) to award points.
-    localStorage.setItem('ecoclean:cleanedStatus', JSON.stringify(st));
+    // Notify rewards.js (same-tab custom event) to award points.
+    window.dispatchEvent(new CustomEvent('ecoclean:cleaned'));
   }
 
   const btn = document.querySelector('#markCleaned');
