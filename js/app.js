@@ -151,6 +151,16 @@ async function handleReport(e) {
       msg.textContent = '❌ ' + (err.error || t('err_fail'));
       return;
     }
+    // Additive hook: tell the thank-you module what was just reported.
+    // Captured BEFORE form.reset() so the values are still available.
+    window.dispatchEvent(new CustomEvent('ecoclean:reported', {
+      detail: {
+        category: form.category.value,
+        reporterName: form.reporterName.value,
+        lat: form.lat.value,
+        lng: form.lng.value,
+      },
+    }));
     form.reset();
     populateCategories($('#categorySelect'));
     closeModal();
