@@ -7,6 +7,34 @@ const escapeHtml = (s) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
   );
 
+async function fileToResizedDataUrl(file, maxDim = 1024, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function showToast(m) {
   const x = $('#toast');
   x.textContent = m;
@@ -54,16 +82,24 @@ async function load() {
     btn.addEventListener('click', async (e) => {
       const card = e.target.closest('.report');
       const id = card.dataset.id;
-      const fd = new FormData();
       const af = card.querySelector('.afterPhoto').files[0];
-      if (af) fd.append('afterPhoto', af);
-      fd.append('notes', card.querySelector('.notes').value);
+      const notes = card.querySelector('.notes').value;
       const rc = card.querySelector('.rewardCode').value.trim();
-      if (rc) fd.append('rewardCode', rc);
-      const r = await api('/api/reports/' + id + '/verify', { method: 'POST', body: fd });
+      const payload = { notes: notes };
+      if (rc) payload.rewardCode = rc;
+      if (af) {
+        try { payload.photo = await fileToResizedDataUrl(af); } catch (err) {}
+      }
+      const r = await fetch('/api/reports/' + id + '/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
       if (r.ok) {
         showToast(t('verified'));
         load();
+      } else {
+        alert('Verify failed');
       }
     });
   });

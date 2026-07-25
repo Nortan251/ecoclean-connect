@@ -1,98 +1,52 @@
----
-title: EcoClean Connect
-emoji: 🌱
-colorFrom: green
-colorTo: white
-sdk: docker
-app_port: 7860
----
-
 # EcoClean Connect — MVP
 
 A **crowdsourced pollution-reporting and community clean-up platform** built as a
-Progressive Web App (PWA). It runs in any browser on **iOS and Android** (and desktop),
-and can be added to the home screen like a native app.
+Progressive Web App (PWA). It runs in any browser on **iOS and Android**, installs to
+the home screen, and ships in **English / French / Arabic** (Arabic is right-to-left).
 
-> Built by a student founder as a real, working prototype. The code is intentionally
-> simple and heavily commented so its creator can understand, explain, and extend it.
+> Built by a student founder as a real, working prototype.
 
-## Features (MVP)
-- **Geo-tagged reporting** — citizens tap a pin, take a photo, pick a category, and submit
-  a pollution site (location auto-detected or entered manually).
-- **Public map** — Leaflet + OpenStreetMap (no API key / no billing). Red pins = reported,
-  green pins = verified clean-up. Before/after photos in the popup.
-- **Admin verification** — an admin reviews the "before" photo, uploads an "after" photo,
-  adds notes, and verifies. The pin flips red → green.
-- **Reward engine (pilot)** — on verification, the admin can issue a manual voucher code
-  (e.g. `MARJANE-AB12`), matching the proposal's "manual fulfillment" pilot workflow.
-- **Community alerts** — admins post announcements shown at the top of the map.
-- **Dashboard** — live stats (total / reported / verified) and breakdowns by category.
+## Features
+- Landing screen + map, geo-tagged reporting (photo + GPS + category)
+- Public map (red = reported, green = verified) with before/after photos
+- Admin verification + manual reward vouchers
+- Community alerts + live dashboard
+- EN / FR / AR language switcher with RTL layout
 
-## Tech stack
-- **Backend:** Node.js + Express + Multer (file uploads). Data stored in JSON files
-  (no database server needed for an MVP).
-- **Frontend:** Vanilla HTML/CSS/JS + Leaflet. Installable PWA via `manifest.json` + `sw.js`.
-- **No native modules, no paid APIs** → installs and deploys anywhere for free.
+## Architecture
+- **Frontend:** static PWA (vanilla HTML/CSS/JS + Leaflet) at the repo root.
+- **Backend:** Vercel serverless functions in `api/` (Node).
+- **Database + storage:** Supabase (Postgres + Storage bucket `ecoclean`).
+- No long-running server, no credit card required to deploy.
 
-## Run locally
-```bash
-npm install
-npm start
-# open http://localhost:3000
-```
-- Map: `http://localhost:3000/`
-- Dashboard: `http://localhost:3000/dashboard.html`
-- Admin: `http://localhost:3000/admin.html` → admin key is `ecoclean-admin`
-  (set `ADMIN_KEY` env var to change it; on Render set it in the dashboard).
+## Environment variables (set in Vercel)
+- `SUPABASE_URL` — your Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` — Supabase service-role key (server-only, never expose)
 
-## Deploy free (NO credit card required)
-> **Render now asks for a card even on its free tier, and Glitch shut down in 2025.**
-> The options below are free and do **not** require a bank card.
+## Database setup (one time)
+In Supabase → **SQL Editor**, run `supabase/schema.sql` (creates `reports` + `alerts`
+tables). Create the Storage bucket `ecoclean` (public) in Supabase → **Storage**.
 
-### Easiest: Replit (free, no card)
-1. Give the assistant a GitHub fine-grained token (or create the repo yourself). The
-   assistant pushes all files to GitHub. (GitHub itself is free, no card.)
-2. Sign up at [replit.com](https://replit.com) with Google/GitHub — **no card needed**.
-3. **New Repl → Import from GitHub →** pick `ecoclean-connect` → wait for the import.
-4. Click **Run**. Replit runs `npm start` and gives a public URL
-   (`https://<repl>.<user>.repl.co` or `.replit.app`). Share that link.
-   - The free **Run** URL is enough for a pilot/demo. (Replit's *Deployments*
-     always-on URL is a paid add-on — not required to be live.)
-5. Admin key defaults to `ecoclean-admin`. To set your own: Repl → 🔒 **Secrets** →
-   add `ADMIN_KEY` = your secret.
+## Deploy (Vercel — free, no card, no watermark)
+1. Push this repo to GitHub.
+2. Vercel → **Add New → Project → Import** `ecoclean-connect` from GitHub.
+3. Add the two env vars above (Project → Settings → Environment Variables).
+4. Deploy → you get `https://<project>.vercel.app` (clean, no "made with" badge).
+5. Every `git push` redeploys automatically.
 
-### Robust alternative: Hugging Face Spaces (free, no card, persistent URL)
-HF Spaces hosts Docker apps for free, no card. Ask the assistant to add a `Dockerfile`
-and Space config; then create a Space, link the GitHub repo, and you get a persistent
-`https://<user>-<space>.hf.space` URL. Best if you want an always-on link without paying.
-
-### If you get a card later: Render
-Use the included `render.yaml` blueprint (Render → New → Blueprint → repo → Deploy).
-Better for a real pilot (always-on, custom domain), but needs a card to verify.
+## Local development
+`npm install`, then run the Vercel CLI with `vercel dev`. Set the env vars in a local
+`.env` file (gitignored) for testing.
 
 ## Founder notes (for college applications)
-This is a **genuine prototype you can own and explain**:
-- You designed the data model (reports with before/after photos, status, reward).
-- You chose a PWA so it works on both iOS and Android without App Store friction.
-- You used open-source maps to keep it free to run.
-- Next honest steps you can do yourself (and talk about): add user accounts, swap JSON for
-  a real database (Supabase), add SMS voucher delivery, and run a real pilot in one Casablanca
-  neighborhood. Each is a concrete engineering decision you can describe in an interview.
+You designed the data model, chose a PWA for iOS+Android without App Store friction,
+used open-source maps, and integrated a real Postgres backend (Supabase). Honest next
+steps: run a 1-neighborhood Casablanca pilot, add SMS voucher delivery, add user accounts.
 
 ## Project structure
 ```
-ecoclean-connect/
-├── server.js            # Express API + static hosting
-├── package.json
-├── data/                # JSON "database" (reports.json, alerts.json)
-├── uploads/             # user photos (gitignored)
-└── public/
-    ├── index.html       # map + report flow (citizen app)
-    ├── admin.html       # verify + reward + alerts
-    ├── dashboard.html   # stats
-    ├── css/styles.css
-    ├── js/{app,admin,dashboard}.js
-    ├── manifest.json    # PWA config
-    ├── sw.js            # service worker (offline shell)
-    └── icon.svg
+index.html  admin.html  dashboard.html  manifest.json  sw.js  icon.svg
+css/   js/ (i18n.js, app.js, admin.js, dashboard.js)
+api/   serverless functions: reports, [id]/verify, stats, alerts
+supabase/schema.sql
 ```

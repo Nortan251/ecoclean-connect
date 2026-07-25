@@ -1,6 +1,4 @@
 node_modules/
-uploads/*
-!uploads/.gitkeep
-data/*.json
 .env
+.vercel
 .DS_Store

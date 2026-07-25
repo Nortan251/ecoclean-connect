@@ -93,18 +93,59 @@ function getLocation() {
   });
 }
 
+async function fileToResizedDataUrl(file, maxDim = 1024, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function handleReport(e) {
   e.preventDefault();
   const form = e.target;
   const msg = $('#formMsg');
-  const fd = new FormData(form);
-  if (!fd.get('photo') || !fd.get('lat') || !fd.get('lng')) {
+  const file = form.photo.files[0];
+  if (!file || !form.lat.value || !form.lng.value) {
     msg.textContent = t('err_required');
     return;
   }
   msg.textContent = t('submitting');
   try {
-    const res = await fetch('/api/reports', { method: 'POST', body: fd });
+    const photo = await fileToResizedDataUrl(file);
+    const payload = {
+      photo,
+      lat: form.lat.value,
+      lng: form.lng.value,
+      category: form.category.value,
+      description: form.description.value,
+      reporterName: form.reporterName.value,
+    };
+    const res = await fetch('/api/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       msg.textContent = '❌ ' + (err.error || t('err_fail'));
