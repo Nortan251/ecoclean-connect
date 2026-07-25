@@ -53,12 +53,16 @@ async function api(path, opts = {}) {
 }
 
 function cardHtml(r) {
-  const before = `<img src="${r.beforePhoto}" class="thumb" alt="before" />`;
+  // Labeled Before/After thumbnails so the verification decision is unambiguous.
+  const fig = (src, alt, label) =>
+    `<figure class="ba" style="margin:0"><img src="${src}" class="thumb" alt="${alt}" /><figcaption style="margin:2px 0 0;font-size:.7rem;text-align:center;color:#6b7c74">${label}</figcaption></figure>`;
   if (r.status === 'verified') {
-    const after = r.afterPhoto ? `<img src="${r.afterPhoto}" class="thumb" alt="after" />` : '';
+    const before = fig(r.beforePhoto, 'before', 'Before');
+    const after = r.afterPhoto ? fig(r.afterPhoto, 'after', 'After ✅') : '';
     const reward = r.rewardIssued ? `<p class="reward">🎁 ${escapeHtml(r.rewardCode)}</p>` : '';
     return `<div class="card report"><div class="report-imgs">${before}${after}</div><div><b>${catLabel(r.category)}</b> <span class="badge green">${t('verified')}</span><p>${escapeHtml(r.description)}</p>${reward}<small>${new Date(r.verifiedAt).toLocaleString()}</small></div></div>`;
   }
+  const before = fig(r.beforePhoto, 'before', 'Before');
   return `<div class="card report" data-id="${r.id}"><div class="report-imgs">${before}</div><div><b>${catLabel(r.category)}</b> <span class="badge red">${t('reported')}</span><p>${escapeHtml(r.description)}</p>
     <label class="field"><span data-i18n="after_photo">After photo</span><input type="file" class="afterPhoto" accept="image/*" /></label>
     <label class="field"><span data-i18n="notes">Notes</span><input type="text" class="notes" /></label>

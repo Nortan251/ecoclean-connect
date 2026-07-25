@@ -30,19 +30,21 @@
       window.EcoClean.maps.push(this);
       window.dispatchEvent(new CustomEvent('ecoclean:mapready', { detail: this }));
       return ret;
-    };
+    }
   }
 
-  // Backend status (reported/verified) -> spec status (active/review/cleaned).
-  // "cleaned" is a net-new local flag stored in localStorage.
+  // Backend status -> map status. A verified (after-photo confirmed) cleanup is
+  // "cleaned" => GREEN on the map. (An earlier version mapped verified to a
+  // "review"/yellow state that nothing ever produced; green is the intuitive
+  // "problem resolved" colour and also keeps cleaned sites out of dispatch routes.)
   window.EcoClean.statusOf = function (id) {
     if (EcoStore.get('cleanedStatus', {})[id]) return 'cleaned';
     const r = window.EcoClean.reports.find(x => x.id === id);
     if (!r) return 'active';
-    return r.status === 'verified' ? 'review' : 'active';
+    return r.status === 'verified' ? 'cleaned' : 'active';
   };
 
-  // Tag Leaflet circleMarkers with their report id by matching coordinates.
+  // Tag Leaflet markers with their report id by matching coordinates.
   window.EcoClean.tagMarkers = function () {
     window.EcoClean.maps.forEach(map => {
       map.eachLayer(l => {
@@ -55,11 +57,18 @@
     });
   };
 
-  // Read-only fetch of core reports from your existing API.
+  // Read-only fetch of core reports from your existing API. Fires a single
+  // "ecoclean:data" event afterwards so every piece of derived UI (the rewards
+  // wallet, quests, analytics) can refresh from one source of truth instead of
+  // each module polling the API on its own timer.
   window.EcoData = {
     async load() {
-      try { const d = await (await fetch('/api/reports')).json(); window.EcoClean.reports = d || []; return d || []; }
-      catch (e) { return []; }
+      try {
+        const d = await (await fetch('/api/reports')).json();
+        window.EcoClean.reports = d || [];
+      } catch (e) { /* keep last-known reports so the UI never blanks offline */ }
+      window.dispatchEvent(new CustomEvent('ecoclean:data', { detail: window.EcoClean.reports }));
+      return window.EcoClean.reports;
     }
   };
 

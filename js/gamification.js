@@ -22,6 +22,7 @@
         const c = EcoStore.get('questClaimed', {}); c[b.dataset.q] = true; EcoStore.set('questClaimed', c);
         EcoStore.set('points', EcoStore.get('points', 0) + (QUESTS.find(q => q.id === b.dataset.q).points));
         render();
+        window.dispatchEvent(new CustomEvent('ecoclean:bonus')); // tell the rewards wallet to refresh
       });
     }
     const lb = document.querySelector('#leaderboard'); if (lb) {

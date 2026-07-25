@@ -2,6 +2,13 @@
    Pending -> Verified -> Cleaned state machine. 'Verified' reuses your existing
    /api/reports/:id/verify endpoint; 'Cleaned' is net-new local state. */
 (function () {
+  // The top "After Cleanup photo / Mark Cleaned" card is an early, disconnected
+  // prototype: its button has no .report ancestor, so markCleaned() never ran,
+  // and it duplicates the real per-card verify flow in admin.js. Hide it so the
+  // admin panel has one unambiguous verification path (after-photo -> /verify).
+  const _ve = document.querySelector('#verifyExtras');
+  if (_ve) _ve.classList.add('hidden');
+
   const CLEANED = 'cleanedStatus'; // localStorage map { [reportId]: true }
 
   function statusOf(id) { return EcoStore.get(CLEANED, {})[id] ? 'cleaned' : null; }
