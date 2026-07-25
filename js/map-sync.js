@@ -18,12 +18,19 @@
   async function flush() {
     const q = EcoStore.get(QUEUE, []);
     if (!q.length) return;
+    // "Survivor" drain: only drop an item once the server actually ACKs it.
+    // A thrown fetch() means the network was unreachable, so we KEEP that item
+    // for the next attempt — this gives at-least-once delivery with zero silent
+    // data loss (the old version cleared the whole queue unconditionally, which
+    // could delete reports if a retry ran against a dead/captive-portal link).
+    const survivors = [];
     for (const item of q) {
       try {
         await fetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item) });
-      } catch (e) { continue; }
+        // resolved (any HTTP status) => server received it; do not re-queue
+      } catch (e) { survivors.push(item); }      // unreachable => keep for later
     }
-    EcoStore.set(QUEUE, []);
+    EcoStore.set(QUEUE, survivors);
     await window.EcoData.load();
     window.EcoClean.tagMarkers();
     refreshMarkers();

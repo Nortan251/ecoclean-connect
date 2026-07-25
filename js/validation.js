@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * Enforces, entirely on the client and WITHOUT editing app.js:
  *   1. File-type whitelist  (JPG / PNG only)
- *   2. File-size ceiling     (<= 5 MB)
+ *   2. File-size ceiling     (<= 10 MB)
  *   3. EXIF capture-time freshness  (rejects "old gallery photo" fraud)
  *   4. Submission rate-limit (1 report / 60 s, persisted in localStorage)
  *   5. Input-side XSS scrubbing (defense-in-depth on top of app.js output escaping)
@@ -26,8 +26,8 @@
   'use strict';
 
   /* ---- Tunable policy constants (single source of truth) ------------------ */
-  const MAX_MB        = 5;                       // hard image-size ceiling
-  const MAX_BYTES     = MAX_MB * 1024 * 1024;    // 5 MB in bytes
+  const MAX_MB        = 10;                      // hard image-size ceiling (phone cameras ~5-7 MB)
+  const MAX_BYTES     = MAX_MB * 1024 * 1024;    // derived from MAX_MB (in bytes)
   const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
   const ALLOWED_EXT   = /\.(jpe?g|png)$/i;       // fallback when browser reports ""
   const MAX_AGE_MIN   = 60;                      // EXIF photo must be <= 60 min old
