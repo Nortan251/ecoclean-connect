@@ -92,7 +92,7 @@ async function load() {
       }
       const r = await fetch('/api/reports/' + id + '/verify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
         body: JSON.stringify(payload),
       });
       if (r.ok) {

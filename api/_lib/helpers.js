@@ -36,4 +36,13 @@ async function uploadPhoto(dataUrl) {
   return `${process.env.SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
 }
 
-module.exports = { BUCKET, REPORT_SELECT, ALERT_SELECT, readJson, uploadPhoto };
+function requireAdmin(req, res) {
+  const key = req.headers['x-admin-key'];
+  if (key !== (process.env.ADMIN_KEY || 'ecoclean-admin')) {
+    res.status(401).json({ error: 'unauthorized' });
+    return false;
+  }
+  return true;
+}
+
+module.exports = { BUCKET, REPORT_SELECT, ALERT_SELECT, readJson, uploadPhoto, requireAdmin };

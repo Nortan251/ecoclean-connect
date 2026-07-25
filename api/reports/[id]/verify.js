@@ -1,8 +1,9 @@
 const { supabase } = require('../../_lib/supabase');
-const { REPORT_SELECT, readJson, uploadPhoto } = require('../../_lib/helpers');
+const { REPORT_SELECT, readJson, uploadPhoto, requireAdmin } = require('../../_lib/helpers');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!requireAdmin(req, res)) return;
 
   const id = req.query.id;
   let body;

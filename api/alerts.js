@@ -1,5 +1,5 @@
 const { supabase } = require('./_lib/supabase');
-const { ALERT_SELECT, readJson } = require('./_lib/helpers');
+const { ALERT_SELECT, readJson, requireAdmin } = require('./_lib/helpers');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -12,6 +12,7 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
+    if (!requireAdmin(req, res)) return;
     let body;
     try {
       body = await readJson(req);
