@@ -27,21 +27,21 @@
  * already-open tabs immediately (users get fixes without a manual reload).
  * ==========================================================================*/
 
-const SHELL = 'ecoclean-shell-v4';   // same-origin app shell (pre-cached on install)
-const RUNTIME = 'ecoclean-runtime-v4'; // CDN libs + live-data cache + misc runtime gets
-const TILES = 'ecoclean-tiles-v4';   // OSM tiles, size-bounded
+const SHELL = 'ecoclean-shell-v5';   // same-origin app shell (pre-cached on install)
+const RUNTIME = 'ecoclean-runtime-v5'; // CDN libs + live-data cache + misc runtime gets
+const TILES = 'ecoclean-tiles-v5';   // OSM tiles, size-bounded
 const MAX_TILES = 400;               // cap so offline map tiles can't blow the quota
 
 // Pre-cache the same-origin app shell. IMPORTANT: only same-origin URLs go here,
 // because addAll() is all-or-nothing — a single unreachable CDN file at install
-// time would abort the whole installation. CDN libs (incl. markercluster) are
-// cached lazily at runtime by the cache-first rule in the fetch handler.
+// time would abort the whole installation. CDN libs (incl. markercluster and the
+// Supabase realtime client) are cached lazily at runtime by the cache-first rule.
 const SHELL_ASSETS = [
   './', './index.html', './dashboard.html', './admin.html',
   './css/styles.css', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png',
   './js/i18n.js', './js/ecoclean-addons.js', './js/app.js',
   './js/camera-location.js', './js/validation.js', './js/trust-system.js',
-  './js/map-sync.js', './js/cluster.js', './js/install-prompt.js', './js/offline-submit.js',
+  './js/map-sync.js', './js/cluster.js', './js/realtime.js', './js/install-prompt.js', './js/offline-submit.js',
   './js/dashboard.js', './js/rewards.js', './js/gamification.js', './js/analytics.js',
   './js/admin.js', './js/verification.js', './js/dispatch.js',
 ];
