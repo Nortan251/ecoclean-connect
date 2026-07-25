@@ -44,6 +44,17 @@
         <button id="postAlert" class="primary-btn" data-i18n="post_alert_btn">Post alert</button>
       </div>
 
+      <div id="verifyExtras" class="card">
+        <h2>After Cleanup photo</h2>
+        <label class="field"><span>After photo</span><input type="file" id="afterPhoto" accept="image/*" /></label>
+        <button id="markCleaned" class="primary-btn">Mark Cleaned</button>
+      </div>
+      <div id="dispatch" class="card">
+        <h2>Cleanup Dispatch</h2>
+        <button id="clusterBtn" class="primary-btn">Group active (2km)</button>
+        <div id="routeList"></div>
+      </div>
+
       <h2 data-i18n="pending">Pending verification</h2>
       <div id="pending" class="report-list"></div>
 
@@ -54,6 +65,9 @@
 
   <div id="toast" class="toast hidden"></div>
   <script src="js/i18n.js"></script>
+  <script src="js/ecoclean-addons.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/verification.js"></script>
+  <script src="js/dispatch.js"></script>
 </body>
 </html>
