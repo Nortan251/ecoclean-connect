@@ -1,10 +1,11 @@
 const { supabase } = require('./_lib/supabase');
+const { friendlyDbError } = require('./_lib/helpers');
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') return res.status(405).end();
 
   const { data, error } = await supabase.from('reports').select('status, category');
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
 
   const byCategory = {
     illegal_dumping: 0,

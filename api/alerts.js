@@ -1,5 +1,5 @@
 const { supabase } = require('./_lib/supabase');
-const { ALERT_SELECT, readJson, requireAdmin } = require('./_lib/helpers');
+const { ALERT_SELECT, readJson, requireAdmin, friendlyDbError } = require('./_lib/helpers');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
       .from('alerts')
       .select(ALERT_SELECT)
       .order('created_at', { ascending: false });
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
     return res.status(200).json(data || []);
   }
 
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       .insert({ title: body.title, body: body.body || '' })
       .select(ALERT_SELECT)
       .single();
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
     return res.status(201).json(data);
   }
 

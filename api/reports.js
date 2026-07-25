@@ -1,5 +1,5 @@
 const { supabase } = require('./_lib/supabase');
-const { REPORT_SELECT, readJson, uploadPhoto } = require('./_lib/helpers');
+const { REPORT_SELECT, readJson, uploadPhoto, friendlyDbError } = require('./_lib/helpers');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
       .from('reports')
       .select(REPORT_SELECT)
       .order('created_at', { ascending: false });
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
     return res.status(200).json(data || []);
   }
 
@@ -36,10 +36,12 @@ module.exports = async (req, res) => {
         })
         .select(REPORT_SELECT)
         .single();
-      if (error) return res.status(500).json({ error: error.message });
+      if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
       return res.status(201).json(data);
     } catch (e) {
-      return res.status(500).json({ error: String(e) });
+      // uploadPhoto throws the raw storage error OBJECT; surface its .message,
+      // otherwise String(obj) would render as the useless "[object Object]".
+      return res.status(500).json({ error: friendlyDbError(e && e.message ? e.message : String(e)) });
     }
   }
 
