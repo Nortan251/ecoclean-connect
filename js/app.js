@@ -4,9 +4,12 @@ let map, markerLayer, mapInited = false;
 const $ = (s) => document.querySelector(s);
 
 function initMap() {
-  map = L.map('map', { zoomControl: true }).setView(MAP_CENTER, 13);
+  // attributionControl:false -> we replace the default (ugly) credits bar with a
+  // compact, compliant (i) chip below (Mapbox-style: credits hidden until tap/hover).
+  map = L.map('map', { zoomControl: true, attributionControl: false }).setView(MAP_CENTER, 13);
   // Clean, modern basemap (CARTO Positron) so the coloured pins / clusters /
-  // heatmap pop. Attribution covers both the OpenStreetMap data and CARTO tiles.
+  // heatmap pop. The attribution string is kept on the layer and surfaced via the
+  // compact chip below (required by the OSM / CARTO / Leaflet licences).
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     maxZoom: 20,
     subdomains: 'abcd',
@@ -15,6 +18,38 @@ function initMap() {
   markerLayer = L.layerGroup().addTo(map);
   $('#latInput').value = MAP_CENTER[0];
   $('#lngInput').value = MAP_CENTER[1];
+
+  // --- compact map chrome: sleek zoom box + collapsible credits chip ----------
+  if (!document.getElementById('eco-mapctrl-style')) {
+    const st = document.createElement('style'); st.id = 'eco-mapctrl-style';
+    st.textContent =
+      '.leaflet-control-zoom{border:none!important;box-shadow:0 4px 12px rgba(16,40,30,.15)!important;border-radius:12px!important;overflow:hidden;}' +
+      '.leaflet-control-zoom a{border:none!important;color:#0a5c3f!important;font-weight:700!important;width:34px!important;height:34px!important;line-height:34px!important;background:#fff!important;}' +
+      '.leaflet-control-zoom a:hover{background:linear-gradient(135deg,#198754,#0d9488)!important;color:#fff!important;}' +
+      '.leaflet-control-zoom-in{border-bottom:1px solid #eef2ef!important;}' +
+      '.eco-attr{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}' +
+      '.eco-attr-btn{width:24px;height:24px;border-radius:50%;border:1px solid rgba(25,135,84,.2);background:rgba(255,255,255,.92);color:#0a5c3f;font-size:13px;font-style:italic;font-family:Georgia,serif;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);font-weight:700;}' +
+      '.eco-attr-panel{max-height:0;opacity:0;overflow:hidden;transition:max-height .25s ease,opacity .2s ease,padding .2s ease;background:rgba(255,255,255,.94);border-radius:10px;font-size:10px;color:#5d7268;padding:0 8px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-width:72vw;text-align:right;}' +
+      '.eco-attr-panel.open{max-height:90px;opacity:1;padding:6px 8px;}' +
+      '.eco-attr-panel a{color:#0d9488;text-decoration:none;}';
+    document.head.appendChild(st);
+  }
+  const EcoInfoCtl = L.Control.extend({
+    options: { position: 'bottomright' },
+    onAdd: function () {
+      const wrap = L.DomUtil.create('div', 'eco-attr');
+      wrap.innerHTML = '<button class="eco-attr-btn" type="button" aria-label="Map data credits" aria-expanded="false">i</button>' +
+        '<div class="eco-attr-panel"><a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a> | &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a></div>';
+      L.DomEvent.disableClickPropagation(wrap);
+      const btn = wrap.querySelector('.eco-attr-btn'), panel = wrap.querySelector('.eco-attr-panel');
+      const set = (o) => { panel.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o)); };
+      btn.addEventListener('click', () => set(!panel.classList.contains('open')));
+      wrap.addEventListener('mouseenter', () => set(true));
+      wrap.addEventListener('mouseleave', () => set(false));
+      return wrap;
+    },
+  });
+  new EcoInfoCtl().addTo(map);
 }
 
 const pinStyle = (status) => ({
