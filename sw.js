@@ -24,8 +24,8 @@
  * already-open tabs quickly (a single reload then shows the fresh code).
  * ==========================================================================*/
 
-const SHELL = 'ecoclean-shell-v11';   // same-origin app shell (pre-cached on install)
-const RUNTIME = 'ecoclean-runtime-v11'; // CDN libs + live-data cache + misc runtime gets
+const SHELL = 'ecoclean-shell-v12';   // same-origin app shell (pre-cached on install)
+const RUNTIME = 'ecoclean-runtime-v12'; // CDN libs + live-data cache + misc runtime gets
 const TILES = 'ecoclean-tiles-v11';   // map tiles, size-bounded
 const MAX_TILES = 400;               // cap so offline map tiles can't blow the quota
 
@@ -38,7 +38,7 @@ const SHELL_ASSETS = [
   './', './index.html', './dashboard.html', './admin.html',
   './css/styles.css', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png',
   './js/i18n.js', './js/ecoclean-addons.js', './js/app.js',
-  './js/camera-location.js', './js/validation.js', './js/photo-trust.js', './js/trust-system.js',
+  './js/camera-location.js', './js/validation.js', './js/photo-trust.js', './js/photo-quality.js', './js/dup-detect.js', './js/trust-system.js',
   './js/map-sync.js', './js/cluster.js', './js/heatmap.js', './js/map-place.js',
   './js/compare.js', './js/map-filter.js', './js/realtime.js', './js/install-prompt.js',
   './js/offline-submit.js', './js/opening.js', './js/landing-fx.js', './js/thankyou.js',

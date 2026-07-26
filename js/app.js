@@ -160,7 +160,30 @@ function getLocation() {
   });
 }
 
-async function fileToResizedDataUrl(file, maxDim = 1024, quality = 0.7) {
+/* ============================================================================
+ * fileToResizedDataUrl — client-side image COMPRESSION before upload.
+ * ----------------------------------------------------------------------------
+ * A 12 MP phone JPEG is ~5-7 MB; uploading that over Moroccan 4G is slow and it
+ * bloats Supabase storage. We downscale on a <canvas> and re-encode as JPEG.
+ * Parameter choices (the engineering trade-off, useful for essays):
+ *   maxDim = 1280  → long edge capped at 1280 CSS px. A pollution photo only
+ *                    ever needs to prove "what is at this spot", and 1280 px is
+ *                    sharp enough for the public before/after slider while being
+ *                    ~1/9th the pixels of a 12 MP sensor. (1024 was too soft for
+ *                    side-by-side comparison.) Area, hence bytes, scale with the
+ *                    SQUARE of the linear reduction — this is why capping the
+ *                    long edge is so effective.
+ *   quality = 0.78 → JPEG quality knob (0..1). 0.78 sits just past the perceptual
+ *                    "knee" of the rate/distortion curve: visible detail is kept
+ *                    but file size is roughly halved vs 0.92. Below ~0.7 the
+ *                    8x8 DCT blocking artefacts start to look like image content
+ *                    and would confuse a human (or future ML) reviewer.
+ * Output is a base64 data URL because the existing API expects `photo` inline in
+ * JSON. (Base64 adds ~33% wire overhead vs a raw Blob/multipart upload — the next
+ * efficiency step would be toBlob() + FormData, but that changes the server
+ * contract, so it is deferred.)
+ * ==========================================================================*/
+async function fileToResizedDataUrl(file, maxDim = 1280, quality = 0.78) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -177,7 +200,12 @@ async function fileToResizedDataUrl(file, maxDim = 1024, quality = 0.7) {
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        const ctx = canvas.getContext('2d');
+        // Bilinear smoothing so the downscale doesn't leave jagged edges on
+        // text/signage in the photo (helps both humans and any later ML triage).
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
       img.onerror = reject;

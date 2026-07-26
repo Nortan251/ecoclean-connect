@@ -87,7 +87,11 @@
        * styles appended at any point in <head> (unlike hard-coded #fff). */
       '.eco-filter-toggle{display:inline-flex;align-items:center;gap:6px;background:var(--surface,#fff);border:1px solid var(--border-strong,#cfe2d8);color:var(--accent-dark,#0a5c3f);border-radius:999px;padding:7px 13px;font-size:.8rem;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(16,40,30,.18);font-family:inherit;}' +
       '.eco-filter-toggle.on{background:var(--accent-grad,linear-gradient(135deg,#198754,#0d9488));color:var(--on-accent,#fff);border-color:transparent;}' +
-      '.eco-fcount{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:rgba(255,255,255,.92);color:#0a5c3f;font-size:.7rem;font-weight:800;}' +
+      '.eco-fcount{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--surface,#fff);color:var(--accent-dark,#0a5c3f);font-size:.7rem;font-weight:800;}' +
+      /* [hidden] must win: an explicit `display` above would otherwise beat the
+       * UA [hidden]{display:none} rule (authored CSS > UA at equal specificity),
+       * leaving an empty white dot. !important keeps the toggle clean when idle. */
+      '.eco-fcount[hidden]{display:none!important;}' +
       '.eco-filter-panel{align-self:stretch;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;max-height:0;opacity:0;overflow:hidden;transition:max-height .25s ease,opacity .2s ease,padding .2s ease;background:rgba(var(--surface-rgb,255,255,255),.95);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid var(--border-strong,#cfe2d8);border-radius:14px;box-shadow:0 8px 24px rgba(16,40,30,.18);padding:0;}' +
       '.eco-filter-panel.open{max-height:120px;opacity:1;padding:8px;}' +
       '.eco-filter-panel::-webkit-scrollbar{height:0;}' +
