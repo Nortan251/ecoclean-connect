@@ -63,39 +63,13 @@
     }
   } catch (e) {}
 
-  // --- live impact stat strip (count-up) -----------------------------------
-  try {
-    const hero = document.querySelector('.hero');
-    if (hero) {
-      fetch('/api/stats', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((st) => {
-        if (!st) return;
-        const L = lang();
-        const chips = [
-          { n: st.total || 0, label: { en: 'reports', fr: 'signalements', ar: 'بلاغات' } },
-          { n: st.reported || 0, label: { en: 'active', fr: 'actifs', ar: 'نشطة' } },
-          { n: st.verified || 0, label: { en: 'cleaned', fr: 'nettoyés', ar: 'منظَّفة' } },
-        ];
-        const strip = document.createElement('div');
-        strip.className = 'hero-stats';
-        chips.forEach((c) => {
-          const chip = document.createElement('div');
-          chip.className = 'eco-chip';
-          chip.innerHTML = '<b data-to="' + c.n + '">0</b><span>' + (c.label[L] || c.label.en) + '</span>';
-          strip.appendChild(chip);
-        });
-        const cta = hero.querySelector('.hero-cta');
-        if (cta) cta.insertAdjacentElement('afterend', strip); else hero.appendChild(strip);
-        strip.querySelectorAll('b[data-to]').forEach((b) => {
-          const to = +b.dataset.to || 0;
-          if (reduce || to === 0) { b.textContent = to; return; }
-          const dur = 900, t0 = performance.now();
-          (function step(t) { const k = Math.min(1, (t - t0) / dur); b.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); })(t0);
-        });
-      }).catch(() => {});
-    }
-  } catch (e) {}
+  // --- live impact stat strip — REMOVED (v2) --------------------------------
+  // The count-up "reports / active / cleaned" chips that used to render under
+  // the hero CTA were cut on purpose: they duplicated the Dashboard KPIs and
+  // crowded the landing page. /api/stats still powers the Dashboard analytics;
+  // if we ever want a single live counter back, re-add one chip here.
 
-  // --- scroll reveal --------------------------------------------------------
+    // --- scroll reveal --------------------------------------------------------
   try {
     const io = ('IntersectionObserver' in window)
       ? new IntersectionObserver((ents) => { ents.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0.12 })

@@ -5,7 +5,10 @@
  * count badge while any filter is active. Filtering is applied at render time
  * inside app.js loadReports (EcoFilter.apply), so the clustered pins reflect the
  * selection while EcoClean.reports (heatmap/quests/leaderboard) keeps the full
- * dataset. Localized; tapping the map closes the panel. */
+ * dataset. Localized; tapping the map closes the panel.
+ * Theming: injected colours are written as var(--token, lightFallback), so the
+ * pill/panel/chips follow html[data-theme="dark"] via the custom-property
+ * cascade with no duplicate dark-mode CSS. */
 (function () {
   'use strict';
   var CATS = ['illegal_dumping', 'water', 'air_smoke', 'plastic_marine', 'other'];
@@ -77,14 +80,19 @@
     st.textContent =
       '#eco-filterwrap{position:absolute;top:10px;left:10px;right:10px;z-index:1100;display:flex;flex-direction:column;align-items:flex-start;gap:6px;pointer-events:none;}' +
       '#eco-filterwrap > *{pointer-events:auto;}' +
-      '.eco-filter-toggle{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfe2d8;color:#0a5c3f;border-radius:999px;padding:7px 13px;font-size:.8rem;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(16,40,30,.18);font-family:inherit;}' +
-      '.eco-filter-toggle.on{background:linear-gradient(135deg,#198754,#0d9488);color:#fff;border-color:transparent;}' +
+      /* Theme-aware styling: every colour reads a :root design token with a
+       * light-mode fallback — var(--surface,#fff) etc. When theme.js flips
+       * html[data-theme="dark"] and redefines the tokens, this runtime-injected
+       * UI re-themes with ZERO extra CSS, because custom properties cascade into
+       * styles appended at any point in <head> (unlike hard-coded #fff). */
+      '.eco-filter-toggle{display:inline-flex;align-items:center;gap:6px;background:var(--surface,#fff);border:1px solid var(--border-strong,#cfe2d8);color:var(--accent-dark,#0a5c3f);border-radius:999px;padding:7px 13px;font-size:.8rem;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(16,40,30,.18);font-family:inherit;}' +
+      '.eco-filter-toggle.on{background:var(--accent-grad,linear-gradient(135deg,#198754,#0d9488));color:var(--on-accent,#fff);border-color:transparent;}' +
       '.eco-fcount{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:rgba(255,255,255,.92);color:#0a5c3f;font-size:.7rem;font-weight:800;}' +
-      '.eco-filter-panel{align-self:stretch;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;max-height:0;opacity:0;overflow:hidden;transition:max-height .25s ease,opacity .2s ease,padding .2s ease;background:rgba(255,255,255,.95);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid #cfe2d8;border-radius:14px;box-shadow:0 8px 24px rgba(16,40,30,.18);padding:0;}' +
+      '.eco-filter-panel{align-self:stretch;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;max-height:0;opacity:0;overflow:hidden;transition:max-height .25s ease,opacity .2s ease,padding .2s ease;background:rgba(var(--surface-rgb,255,255,255),.95);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid var(--border-strong,#cfe2d8);border-radius:14px;box-shadow:0 8px 24px rgba(16,40,30,.18);padding:0;}' +
       '.eco-filter-panel.open{max-height:120px;opacity:1;padding:8px;}' +
       '.eco-filter-panel::-webkit-scrollbar{height:0;}' +
-      '.eco-fchip{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border:1px solid #cfe2d8;background:#fff;color:#0a5c3f;border-radius:999px;padding:6px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;flex:0 0 auto;}' +
-      '.eco-fchip.on{background:linear-gradient(135deg,#198754,#0d9488);color:#fff;border-color:transparent;}' +
+      '.eco-fchip{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border:1px solid var(--border-strong,#cfe2d8);background:var(--surface,#fff);color:var(--accent-dark,#0a5c3f);border-radius:999px;padding:6px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;flex:0 0 auto;}' +
+      '.eco-fchip.on{background:var(--accent-grad,linear-gradient(135deg,#198754,#0d9488));color:var(--on-accent,#fff);border-color:transparent;}' +
       '.leaflet-top.leaflet-left{top:46px!important;transition:top .25s ease;}' +
       '#map.eco-filter-open .leaflet-top.leaflet-left{top:100px!important;}';
     document.head.appendChild(st);
