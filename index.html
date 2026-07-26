@@ -24,6 +24,26 @@
   <link rel="stylesheet" href="css/styles.css?v=4" />
 </head>
 <body>
+  <style id="eco-splash-css">
+    #eco-splash{position:fixed;inset:0;z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#0f5132,#198754 55%,#0d9488);color:#fff;font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;animation:eco-splash-autohide .5s ease 2.4s forwards;}
+    #eco-splash .es-logo{width:84px;height:84px;border-radius:22px;background:#fff;padding:8px;box-shadow:0 12px 30px rgba(0,0,0,.3);animation:eco-splash-pop .5s cubic-bezier(.2,1.4,.4,1) both;}
+    #eco-splash .es-name{font-size:1.4rem;font-weight:800;letter-spacing:-.02em;}
+    #eco-splash .es-tag{font-size:.8rem;opacity:.85;margin-top:-4px;text-align:center;padding:0 20px;}
+    #eco-splash .es-dots{display:flex;gap:6px;margin-top:8px;}
+    #eco-splash .es-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.85);animation:eco-splash-bounce 1s infinite ease-in-out;}
+    #eco-splash .es-dots i:nth-child(2){animation-delay:.15s;}
+    #eco-splash .es-dots i:nth-child(3){animation-delay:.3s;}
+    @keyframes eco-splash-pop{0%{transform:scale(.6);opacity:0;}100%{transform:scale(1);opacity:1;}}
+    @keyframes eco-splash-bounce{0%,80%,100%{transform:translateY(0);opacity:.5;}40%{transform:translateY(-7px);opacity:1;}}
+    @keyframes eco-splash-autohide{to{opacity:0;visibility:hidden;}}
+    @media (prefers-reduced-motion: reduce){#eco-splash .es-logo,#eco-splash .es-dots i{animation:none;}#eco-splash{animation:eco-splash-autohide .01s linear 1.2s forwards;}}
+  </style>
+  <div id="eco-splash" role="status" aria-label="EcoClean Connect is loading">
+    <img class="es-logo" src="icon.svg" alt="" />
+    <div class="es-name">EcoClean Connect</div>
+    <div class="es-tag">Report pollution. Mobilize your community.</div>
+    <div class="es-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>
   <header class="app-header">
     <div class="brand">
       <img src="icon.svg" class="brand-icon" />
@@ -134,5 +154,6 @@
   <script src="js/offline-banner.js"></script>
   <script src="js/a11y.js"></script>
   <script src="js/landing-fx.js"></script>
+  <script src="js/opening.js"></script>
 </body>
 </html>

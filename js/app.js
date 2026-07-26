@@ -19,6 +19,25 @@ function initMap() {
   $('#latInput').value = MAP_CENTER[0];
   $('#lngInput').value = MAP_CENTER[1];
 
+  // Loading shimmer over the map until the first tiles paint (clean loading state).
+  if (!document.getElementById('eco-maploader-style')) {
+    const ls = document.createElement('style'); ls.id = 'eco-maploader-style';
+    ls.textContent =
+      '.eco-map-loader{position:absolute;inset:0;z-index:450;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#eef5f1,#e6f0ea);transition:opacity .4s ease;}' +
+      '.eco-map-loader.hide{opacity:0;pointer-events:none;}' +
+      '.eco-map-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(25,135,84,.2);border-top-color:#198754;animation:eco-map-spin .8s linear infinite;}' +
+      '@keyframes eco-map-spin{to{transform:rotate(360deg);}}';
+    document.head.appendChild(ls);
+  }
+  const mapBox = document.getElementById('map');
+  if (mapBox) {
+    const ld = document.createElement('div'); ld.className = 'eco-map-loader'; ld.innerHTML = '<div class="eco-map-spin"></div>';
+    mapBox.appendChild(ld);
+    const kill = () => { ld.classList.add('hide'); setTimeout(() => { if (ld.parentNode) ld.parentNode.removeChild(ld); }, 450); };
+    try { map.whenReady(() => map.once('load', kill)); } catch (e) {}
+    setTimeout(kill, 6000); // safety if the 'load' event never fires
+  }
+
   // --- compact map chrome: sleek zoom box + collapsible credits chip ----------
   if (!document.getElementById('eco-mapctrl-style')) {
     const st = document.createElement('style'); st.id = 'eco-mapctrl-style';
