@@ -105,8 +105,11 @@ async function loadReports() {
   try {
     const res = await fetch('/api/reports');
     const reports = await res.json();
+    // Optional map filter (category / verified-only), applied at render time only.
+    // EcoClean.reports (heatmap / quests / leaderboard) still sees the full dataset.
+    const list = window.EcoFilter ? EcoFilter.apply(reports) : reports;
     markerLayer.clearLayers();
-    reports.forEach((r) => {
+    list.forEach((r) => {
       L.circleMarker([r.lat, r.lng], pinStyle(r.status))
         .addTo(markerLayer)
         .bindPopup(popupHtml(r));
