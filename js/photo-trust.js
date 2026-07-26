@@ -8,6 +8,8 @@
  * block. It is PURELY INFORMATIONAL — the hard enforcement (block stale photos,
  * rate-limit, size/type) stays in validation.js. That separation of *explanation*
  * from *enforcement* is deliberate and is itself a clean design point.
+ * It also surfaces the live GPS accuracy (± metres) so a pin that is a few
+ * metres off reads as "that's the hardware limit", not as a bug.
  * ==========================================================================*/
 (function () {
   'use strict';
@@ -68,7 +70,7 @@
   function liveGPS() {
     return new Promise((res) => {
       if (!navigator.geolocation) return res(null);
-      navigator.geolocation.getCurrentPosition((p) => res({ lat: p.coords.latitude, lng: p.coords.longitude }), () => res(null), { enableHighAccuracy: true, timeout: 8000 });
+      navigator.geolocation.getCurrentPosition((p) => res({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }), () => res(null), { enableHighAccuracy: true, timeout: 8000 });
     });
   }
   function distKm(a, b) {
@@ -111,6 +113,8 @@
       else if (hasExifGps && !live) html = '✅ ' + fill(s.fresh, { min: ageMin }) + ' <span style="color:#6b7c74">' + s.gpsNoLive + '</span>';
       else html = '✅ ' + fill(s.fresh, { min: ageMin });
     }
+    // Surface the live GPS accuracy so a pin a few metres off reads as expected.
+    if (live && live.acc != null) html += ' <span style="color:#6b7c74">· ±' + Math.round(live.acc) + ' m</span>';
     set(html, color);
   }
 
