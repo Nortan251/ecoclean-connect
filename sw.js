@@ -66,7 +66,7 @@ self.addEventListener('fetch', (e) => {
   try { url = new URL(req.url); } catch (_) { return; }
 
   if (url.pathname.startsWith('/api/'))                 return e.respondWith(networkFirst(req, RUNTIME));
-  if (url.hostname.includes('tile.openstreetmap.org'))  return e.respondWith(cacheFirstBounded(req, TILES, MAX_TILES));
+  if (url.hostname.includes('tile.openstreetmap.org') || url.hostname.includes('basemaps.cartocdn.com'))  return e.respondWith(cacheFirstBounded(req, TILES, MAX_TILES));
   if (url.hostname === 'unpkg.com' || url.hostname.endsWith('.jsdelivr.net'))
                                                         return e.respondWith(cacheFirst(req, RUNTIME));
   if (req.mode === 'navigate')                          return e.respondWith(networkFirst(req, SHELL, './index.html'));

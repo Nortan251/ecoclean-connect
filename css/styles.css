@@ -225,3 +225,24 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--t
 .bar-row > span { width: 120px; flex-shrink: 0; font-weight: 600; }
 .bar-row .bar { flex: 1; background: #e7efe9; height: 14px; border-radius: 99px; overflow: hidden; }
 .bar-row .bar-fill { height: 100%; background: var(--grad); }
+
+/* === v3 polish — extra "cool", purely additive (never disturbs layout) === */
+.app-header { background: linear-gradient(135deg, rgba(25,135,84,.9), rgba(13,148,136,.9)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.app-header::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); }
+.topnav a { position: relative; }
+.topnav a::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 0; height: 2px; border-radius: 2px; background: #fff; transition: width .25s ease, left .25s ease; }
+.topnav a:hover::after { width: 56%; left: 22%; }
+.hero { margin-top: 6px; background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.22)); border: 1px solid rgba(255,255,255,.7); box-shadow: var(--sh-1); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.primary-btn, .ghost-btn-2, .fab { position: relative; overflow: hidden; }
+.primary-btn::after, .ghost-btn-2::after, .fab::after { content: ''; position: absolute; top: 0; left: -130%; width: 60%; height: 100%; background: linear-gradient(120deg, transparent, rgba(255,255,255,.4), transparent); transform: skewX(-18deg); transition: left .6s ease; pointer-events: none; }
+.primary-btn:hover::after, .ghost-btn-2:hover::after, .fab:hover::after { left: 150%; }
+.features h2 { position: relative; }
+.features h2::after { content: ''; display: block; width: 46px; height: 3px; border-radius: 3px; background: var(--grad); margin: 10px auto 0; }
+.card h2 { position: relative; }
+.card h2::after { content: ''; display: block; width: 40px; height: 3px; border-radius: 3px; background: var(--grad); margin: 8px 0 0; }
+.card { transition: border-color .2s, box-shadow .2s, transform .2s; }
+.card:hover { border-color: rgba(13,148,136,.28); }
+.stat { transition: transform .2s, box-shadow .2s; }
+.stat:hover { transform: translateY(-3px); box-shadow: var(--sh-2); }
+.eco-pin svg { filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
+.eco-cluster svg { filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }

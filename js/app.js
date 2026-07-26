@@ -5,9 +5,12 @@ const $ = (s) => document.querySelector(s);
 
 function initMap() {
   map = L.map('map', { zoomControl: true }).setView(MAP_CENTER, 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap',
+  // Clean, modern basemap (CARTO Positron) so the coloured pins / clusters /
+  // heatmap pop. Attribution covers both the OpenStreetMap data and CARTO tiles.
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+    maxZoom: 20,
+    subdomains: 'abcd',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
   }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
   $('#latInput').value = MAP_CENTER[0];
