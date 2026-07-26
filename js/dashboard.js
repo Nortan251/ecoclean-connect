@@ -7,10 +7,34 @@ const escapeHtml = (s) =>
   );
 
 async function load() {
-  const [stats, reports] = await Promise.all([
-    fetch('/api/stats').then((r) => r.json()),
-    fetch('/api/reports').then((r) => r.json()),
-  ]);
+  // Skeleton placeholders while the network resolves (perceived-performance polish).
+  if (!document.getElementById('eco-dash-skel-style')) {
+    const sk = document.createElement('style'); sk.id = 'eco-dash-skel-style';
+    sk.textContent =
+      '.skel{background:linear-gradient(90deg,#e7efe9 25%,#f1f6f3 37%,#e7efe9 63%);background-size:400% 100%;animation:eco-shimmer 1.2s ease infinite;border-radius:6px;}' +
+      '.skel-b{height:1.5rem;width:55%;margin:0 auto 6px;}.skel-s{height:.7rem;width:65%;margin:0 auto;}' +
+      '.skel-l{width:90px;height:.9rem;}.skel-fill{width:60%;height:100%;}' +
+      '.skel-thumb{width:96px;height:72px;border-radius:8px;flex:0 0 auto;}' +
+      '.skel-line{height:.85rem;width:80%;margin:6px 0;}.skel-line.short{width:45%;}' +
+      '@keyframes eco-shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}';
+    document.head.appendChild(sk);
+  }
+  $('#stats').innerHTML = '<div class="stat"><div class="skel skel-b"></div><div class="skel skel-s"></div></div><div class="stat"><div class="skel skel-b"></div><div class="skel skel-s"></div></div><div class="stat"><div class="skel skel-b"></div><div class="skel skel-s"></div></div>';
+  $('#cats').innerHTML = '<div class="bar-row"><div class="skel skel-l"></div><div class="bar"><div class="skel skel-fill"></div></div></div>'.repeat(3);
+  $('#recent').innerHTML = '<div class="card report"><div class="skel skel-thumb"></div><div style="flex:1"><div class="skel skel-line"></div><div class="skel skel-line short"></div></div></div>'.repeat(3);
+
+  let stats, reports;
+  try {
+    [stats, reports] = await Promise.all([
+      fetch('/api/stats').then((r) => r.json()),
+      fetch('/api/reports').then((r) => r.json()),
+    ]);
+  } catch (e) {
+    $('#stats').innerHTML = `<p class="muted">${t('no_activity')}</p>`;
+    $('#cats').innerHTML = '';
+    $('#recent').innerHTML = '';
+    return;
+  }
 
   $('#stats').innerHTML = `
     <div class="stat"><b>${stats.total}</b><span>${t('total_reports')}</span></div>
