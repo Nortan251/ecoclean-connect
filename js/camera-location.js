@@ -1,13 +1,14 @@
 /* camera-location.js — accuracy-aware location fusion for the report pin.
  * Two sensors can tell us where a report happened: the device's live, high-
- * accuracy geolocation, and the GPS embedded in the photo's EXIF. The old code
- * let EXIF *overwrite* the live fix, which is backwards: a phone photo's EXIF
- * GPS is often coarser (or from a slightly different moment) than a real-time
- * high-accuracy fix, so the pin could land a few metres off where the user
- * actually stands. We now FUSE the two: the live fix wins whenever its reported
- * accuracy is good; EXIF is the fallback when live GPS is missing or poor (e.g.
- * indoors). EXIF GPS still feeds the anti-fraud checks in photo-trust.js /
- * validation.js regardless — fusion only changes which coordinate pins the map. */
+ * accuracy geolocation, and the GPS embedded in the photo's EXIF. We FUSE them:
+ * the live fix wins whenever its reported accuracy is good; EXIF is the fallback
+ * when live GPS is missing or poor (e.g. indoors). EXIF GPS still feeds the
+ * anti-fraud checks in photo-trust.js / validation.js regardless.
+ *
+ * MANUAL OVERRIDE: if the user explicitly picks a spot (taps the map, or hits
+ * "Use my location"), map-place.js sets window.EcoManualPin = true. While that
+ * flag is set we do NOT auto-apply any sensor fix — explicit user intent beats
+ * the sensors, so a deliberately chosen pin isn't yanked away by GPS/EXIF. */
 (function () {
   const latIn = () => document.querySelector('#latInput');
   const lngIn = () => document.querySelector('#lngInput');
@@ -17,9 +18,8 @@
 
   function apply(lat, lng) { const a = latIn(), o = lngIn(); if (a) a.value = lat.toFixed(6); if (o) o.value = lng.toFixed(6); }
   function choose() {
+    if (window.EcoManualPin) return;             // respect an explicit manual placement
     if (live && exifGps) {
-      // Sensor fusion: trust the real-time fix when it is accurate; otherwise the
-      // photo's embedded GPS is the better bet (live accuracy degrades indoors).
       if (live.acc == null || live.acc <= LIVE_ACC_THRESHOLD) apply(live.lat, live.lng);
       else apply(exifGps.lat, exifGps.lng);
     } else if (live) apply(live.lat, live.lng);
@@ -27,6 +27,7 @@
   }
 
   function getLiveGPS() {
+    if (window.EcoManualPin) return;             // don't overwrite a manual pin on modal open
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (p) => { live = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }; choose(); },
@@ -57,7 +58,7 @@
   if (photo) photo.addEventListener('change', async (e) => {
     const exif = await readExif(e.target.files[0]);
     exifGps = (exif && exif.lat != null) ? { lat: exif.lat, lng: exif.lng } : null;
-    choose();   // re-pick the best source (no longer blindly overwrites the live fix)
+    choose();   // no-op while EcoManualPin is set (manual placement preserved)
   });
   ['#heroReport', '#reportBtn'].forEach((s) => { const b = document.querySelector(s); if (b) b.addEventListener('click', getLiveGPS); });
 
