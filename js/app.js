@@ -201,7 +201,7 @@ async function handleReport(e) {
     };
     const res = await fetch('/api/reports', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, (window.EcoAuth && EcoAuth.getToken()) ? { 'Authorization': 'Bearer ' + EcoAuth.getToken() } : {}),
       body: JSON.stringify(payload),
     });
     if (!res.ok) {

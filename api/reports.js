@@ -1,5 +1,6 @@
 const { supabase } = require('./_lib/supabase');
 const { REPORT_SELECT, readJson, uploadPhoto, friendlyDbError } = require('./_lib/helpers');
+const { verifyUser } = require('./_lib/auth');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -21,6 +22,9 @@ module.exports = async (req, res) => {
     if (!body.photo || !body.lat || !body.lng) {
       return res.status(400).json({ error: 'photo and location required' });
     }
+    // If the reporter is signed in, attribute the report to them (server-verified
+    // from the access token — never trust a client-supplied id). Anonymous stays null.
+    const user = await verifyUser(req);
     try {
       const before = await uploadPhoto(body.photo);
       const { data, error } = await supabase
@@ -33,14 +37,13 @@ module.exports = async (req, res) => {
           lng: parseFloat(body.lng),
           before_photo: before,
           status: 'reported',
+          reporter_user_id: user ? user.id : null,
         })
         .select(REPORT_SELECT)
         .single();
       if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
       return res.status(201).json(data);
     } catch (e) {
-      // uploadPhoto throws the raw storage error OBJECT; surface its .message,
-      // otherwise String(obj) would render as the useless "[object Object]".
       return res.status(500).json({ error: friendlyDbError(e && e.message ? e.message : String(e)) });
     }
   }

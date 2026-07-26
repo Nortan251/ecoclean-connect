@@ -13,14 +13,13 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'invalid json' });
   }
 
-  const patch = { status: 'verified', verified_at: new Date().toISOString() };
+  // Read the reporter + rewarded flag BEFORE updating, so we award exactly once.
+  const { data: cur } = await supabase.from('reports').select('reporter_user_id, rewarded').eq('id', id).single();
+
+  const patch = { status: 'verified', verified_at: new Date().toISOString(), rewarded: true };
   if (body.notes) patch.verification_notes = body.notes;
   if (body.photo) {
-    try {
-      patch.after_photo = await uploadPhoto(body.photo);
-    } catch (e) {
-      /* keep going without after-photo if upload fails */
-    }
+    try { patch.after_photo = await uploadPhoto(body.photo); } catch (e) { /* keep going without after-photo */ }
   }
   if (body.rewardCode) {
     patch.reward_code = body.rewardCode;
@@ -34,5 +33,12 @@ module.exports = async (req, res) => {
     .select(REPORT_SELECT)
     .single();
   if (error) return res.status(500).json({ error: error.message });
+
+  // Server-side, tamper-proof reward: credit the reporter (if they were signed in)
+  // once, via a security-definer function that bypasses RLS.
+  if (cur && cur.reporter_user_id && !cur.rewarded) {
+    try { await supabase.rpc('award_points', { uid: cur.reporter_user_id, amt: 20 }); } catch (e) {}
+  }
+
   return res.status(200).json(data);
 };
