@@ -44,3 +44,10 @@ Right now `/api/push/send` is a manual/test trigger. To fire alerts automaticall
 `api/reports/[id]/verify.js`: read `push_subscriptions` whose `city` matches the
 report's city and send to them. The plumbing (table, keys, SW handler, payload
 shape) is all already in place — only the trigger line is missing by design.
+
+---
+### Note on the Vercel Hobby 12-function cap
+All four push routes live in ONE file (`api/push.js`, routed by subpath) and the
+weekly leaderboard is merged into `api/leaderboard.js?range=week` — so the whole
+app stays at exactly 12 serverless functions (the Hobby limit). If you ever add a
+new `api/*.js` file, you'll need to merge two again (or upgrade to Pro).

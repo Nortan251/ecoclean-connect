@@ -51,7 +51,7 @@
     if (myRank > 0) bodyEl.querySelector('.wb-you').textContent = t().rank + ': #' + myRank;
   }
   function load() {
-    fetch('/api/leaderboard-weekly', { cache: 'no-store' })
+    fetch('/api/leaderboard?range=week', { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : []; })
       .then(render)
       .catch(function () { ensureCard(); if (bodyEl) { bodyEl.innerHTML = '<p class="muted"></p>'; bodyEl.querySelector('p').textContent = t().err; } });
