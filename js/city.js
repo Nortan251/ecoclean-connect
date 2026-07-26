@@ -37,14 +37,32 @@
     var lng = parseFloat(EcoStore.get(LS.lng, NaN));
     return { name: name, lat: isFinite(lat) ? lat : null, lng: isFinite(lng) ? lng : null };
   }
-  function set(name, lat, lng) {
+  function set(name, lat, lng, noFly, noFilter) {
     EcoStore.set(LS.name, name || null);
     if (isFinite(lat)) EcoStore.set(LS.lat, String(lat));
     if (isFinite(lng)) EcoStore.set(LS.lng, String(lng));
-    window.dispatchEvent(new CustomEvent('ecoclean:city', { detail: get() }));
+    // Drive the MAP: constrain the rendered pins to this city's radius (EcoFilter)
+    // and fly the view to it. This is what makes the chip useful — the city is now
+    // a real spatial filter, not a label. noFly/noFilter=true for silent detect &
+    // boot (pre-fill the chip without yanking the camera or hiding pins).
+    if (!noFilter) {
+      if (name && isFinite(lat) && window.EcoFilter && EcoFilter.setCity) EcoFilter.setCity(lat, lng, CITY_RADIUS_KM);
+      else if (window.EcoFilter && EcoFilter.clearCity) EcoFilter.clearCity();
+    }
+    window.dispatchEvent(new CustomEvent('ecoclean:city', { detail: get(), noFly: !!noFly }));
+    if (!noFly && !noFilter && name && isFinite(lat) && window.EcoMap && EcoMap.flyTo) EcoMap.flyTo(lat, lng, 12);
+    if (!noFilter && window.loadReports) window.loadReports();   // re-filter pins to the city
     render();
   }
 
+  /* Forward-geocode a typed city name -> coords (Nominatim search). */
+  function forward(name) {
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(name) + '&accept-language=' + lang();
+    return fetch(url, { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (arr) { return (arr && arr[0]) ? { lat: parseFloat(arr[0].lat), lng: parseFloat(arr[0].lon) } : null; })
+      .catch(function () { return null; });
+  }
   /* Reverse-geocode lat/lng -> city name via Nominatim. Returns {name,lat,lng}. */
   function reverse(lat, lng) {
     var url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=10&accept-language=' + lang();
@@ -66,16 +84,21 @@
   /* Auto-detect if we have no city yet. Silent: never prompts, never blocks UI. */
   function autoDetect() {
     if (get().name) return Promise.resolve(get());
-    return geolocate().then(function (g) { return g ? reverse(g.lat, g.lng) : null; }).then(function (c) { if (c) set(c.name, c.lat, c.lng); return get(); });
+    return geolocate().then(function (g) { return g ? reverse(g.lat, g.lng) : null; }).then(function (c) { if (c) set(c.name, c.lat, c.lng, true, true); return get(); });  // detect = pre-fill only
   }
   function manualSet() {
-    var name = window.prompt(t().prompt, get().name || '');
-    if (name === null) return;                 // cancelled
+    var cur = get();
+    var name = window.prompt(t().prompt, cur.name || '');
+    if (name === null) return;                 // cancelled -> no change
     name = name.trim();
-    if (!name) return;
-    var g = get();
-    set(name, g.lat, g.lng);                   // keep existing coords if any
-    if (!isFinite(g.lat)) geolocate().then(function (p) { if (p) { EcoStore.set(LS.lat, String(p.lat)); EcoStore.set(LS.lng, String(p.lng)); render(); } });
+    if (!name) { set(null, null, null); if (window.EcoMap && EcoMap.get && EcoMap.get()) { var m = EcoMap.get(); if (m && m._ecoHome) m.flyTo(m._ecoHome.c, m._ecoHome.z); } return; } // cleared -> drop filter
+    // Remember the first (home) view so "clear" can return to it.
+    var m0 = window.EcoMap && EcoMap.get && EcoMap.get();
+    if (m0 && !m0._ecoHome) m0._ecoHome = { c: m0.getCenter(), z: m0.getZoom() };
+    forward(name).then(function (g) {
+      if (g) set(name, g.lat, g.lng);
+      else { set(name, cur.lat, cur.lng); }    // unknown name: keep label + old coords
+    });
   }
 
   /* Count reports within CITY_RADIUS_KM of the city anchor (client-side). */
@@ -106,16 +129,23 @@
     if (!ensureChip()) return;
     var g = get(), c = countNear();
     var label = g.name || t().none;
-    chip.innerHTML = '<span aria-hidden="true">🏙️</span> <span class="ec-name"></span>' + (c != null ? ' <span class="ec-count"></span>' : '');
+    var active = !!(g.name && isFinite(g.lat));
+    chip.classList.toggle('ec-active', active);
+    chip.innerHTML = '<span aria-hidden="true">🏙️</span> <span class="ec-name"></span>' + (active ? ' <span class="ec-fx">⛶</span>' : '') + (c != null ? ' <span class="ec-count"></span>' : '');
     chip.querySelector('.ec-name').textContent = label;
     if (c != null) chip.querySelector('.ec-count').textContent = '· ' + fill(t().count, c);
-    chip.title = t().detect + (g.name ? ': ' + g.name : '');
+    chip.title = active ? (t().detect + ': ' + g.name + ' — ' + (lang() === 'ar' ? 'اضغط للتغيير أو المسح' : (lang() === 'fr' ? 'toucher pour changer/effacer' : 'tap to change / clear'))) : t().detect;
   }
 
   document.addEventListener('ecoclean:data', render);     // recount when reports load
   document.addEventListener('ecoclean:city', render);
   document.addEventListener('change', function (e) { if (e.target && e.target.id === 'langSelect') render(); });
-  function boot() { render(); autoDetect(); }
+  function boot() {
+    var g = get();
+    if (g.name && isFinite(g.lat) && window.EcoFilter && EcoFilter.setCity) EcoFilter.setCity(g.lat, g.lng, CITY_RADIUS_KM); // re-apply a city the user previously CONFIRMED
+    render();
+    autoDetect();
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
   window.EcoCity = { get: get, set: set, detect: autoDetect, countNear: countNear, reverse: reverse, CITY_RADIUS_KM: CITY_RADIUS_KM };
@@ -124,7 +154,10 @@
     var st = document.createElement('style'); st.id = 'eco-city-style';
     st.textContent =
       '.eco-city-chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface-2,rgba(255,255,255,.16));color:var(--text,#fff);border:1px solid var(--border-strong,rgba(255,255,255,.28));border-radius:999px;padding:5px 11px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;margin-left:2px;white-space:nowrap;}' +
-      '.eco-city-chip .ec-count{color:var(--muted,#cfe);font-weight:600;font-size:.72rem;}';
+      '.eco-city-chip .ec-count{color:var(--muted,#cfe);font-weight:600;font-size:.72rem;}' +
+      '.eco-city-chip.ec-active{background:var(--accent-grad,linear-gradient(135deg,#198754,#0d9488));color:var(--on-accent,#fff);border-color:transparent;}' +
+      '.eco-city-chip.ec-active .ec-count{color:rgba(255,255,255,.85);}' +
+      '.eco-city-chip .ec-fx{font-size:.7rem;opacity:.9;}';
     document.head.appendChild(st);
   }
 })();

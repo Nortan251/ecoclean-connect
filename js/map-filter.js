@@ -15,10 +15,21 @@
   var ICONS = { illegal_dumping: '🗑️', water: '💧', air_smoke: '💨', plastic_marine: '🌊', other: '📍' };
   var cats = {}; CATS.forEach(function (c) { cats[c] = false; });
   var onlyVerified = false;
+  var cityGeo = null; // {lat,lng,km} optional spatial constraint set by the city chip
   var anyCat = function () { return CATS.some(function (c) { return cats[c]; }); };
   var activeCount = function () { return CATS.filter(function (c) { return cats[c]; }).length + (onlyVerified ? 1 : 0); };
   var catLabel = function (k) { return (typeof window.catLabel === 'function' ? window.catLabel(k) : k); };
-  function applyFilter(reports) { return (reports || []).filter(function (r) { return (!anyCat() || cats[r.category]) && (!onlyVerified || r.status === 'verified'); }); }
+  var inCity = function (r) {
+    if (!cityGeo || r.lat == null || r.lng == null) return true;
+    var d = (window.EcoGeo && EcoGeo.distanceKm) ? EcoGeo.distanceKm(cityGeo.lat, cityGeo.lng, +r.lat, +r.lng) : 0;
+    return d <= cityGeo.km;
+  };
+  function applyFilter(reports) { return (reports || []).filter(function (r) { return inCity(r) && (!anyCat() || cats[r.category]) && (!onlyVerified || r.status === 'verified'); }); }
+  // City is a *spatial view*, not a category filter, so it intentionally does NOT
+  // raise the pill's count badge — but it DOES narrow the rendered pins (loadReports
+  // calls EcoFilter.apply). setCity/clearCity are driven by js/city.js.
+  function setCity(lat, lng, km) { cityGeo = { lat: +lat, lng: +lng, km: +km }; }
+  function clearCity() { cityGeo = null; }
   function refresh() { if (typeof window.loadReports === 'function') window.loadReports(); }
 
   var wrap, toggle, panel, countEl, mapEl;
@@ -71,7 +82,7 @@
     labels(); sync();
   }
 
-  window.EcoFilter = { apply: applyFilter };
+  window.EcoFilter = { apply: applyFilter, setCity: setCity, clearCity: clearCity };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build();
   document.addEventListener('change', function (e) { if (e.target && e.target.id === 'langSelect') labels(); });
 

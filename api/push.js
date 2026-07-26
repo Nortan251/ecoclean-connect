@@ -21,7 +21,10 @@ function readBody(req) { try { return JSON.parse(req.body || '{}'); } catch (e) 
 
 async function vapidPublic(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
-  if (!configured()) return res.status(503).json({ error: 'push not configured', hint: 'set VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT in Vercel' });
+  if (!configured()) {
+    const missing = ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT'].filter((k) => !process.env[k]);
+    return res.status(503).json({ error: 'push not configured', missing, hint: 'add the missing Vercel env vars, then REDEPLOY (env vars only take effect on a successful deploy)' });
+  }
   return res.status(200).json({ publicKey: process.env.VAPID_PUBLIC_KEY });
 }
 

@@ -279,6 +279,9 @@ function showMap() {
   if (!mapInited) {
     initMap();
     mapInited = true;
+    // Tiny additive seam: expose the (otherwise module-local) Leaflet map so
+    // other modules (city.js) can fly to a city without us wiring them in here.
+    window.EcoMap = { flyTo: function (lat, lng, z) { if (map) map.flyTo([lat, lng], z || 12, { duration: 0.8 }); }, get: function () { return map; } };
   }
   setTimeout(() => map && map.invalidateSize(), 250);
   loadReports();
