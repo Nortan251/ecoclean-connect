@@ -1,6 +1,7 @@
 /* opening.js — app opening experience (index only), trilingual: a branded splash
- * (self-hiding via CSS fallback so it never traps users) + a one-time onboarding
- * overlay (report -> verify -> earn). The splash tagline is localized immediately. */
+ * (self-hiding via CSS fallback so it never traps users), a one-time onboarding
+ * overlay (report -> verify -> earn), AND a persistent "?" help button that replays
+ * that tour on demand (window.EcoOnboard.show()). Reduced-motion aware. */
 (function () {
   'use strict';
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -36,6 +37,7 @@
     document.head.appendChild(st);
   }
 
+  // --- splash hide -----------------------------------------------------------
   function hideSplash() {
     var el = document.getElementById('eco-splash'); if (!el || el.dataset.hiding) return; el.dataset.hiding = '1';
     el.style.animation = 'none';
@@ -49,11 +51,14 @@
   if (document.readyState === 'complete') readyHide(); else window.addEventListener('load', readyHide);
   setTimeout(hideSplash, 4000);
 
-  function onboard() {
-    try { if (localStorage.getItem('eco_onboarded')) return; } catch (e) { return; }
+  // --- onboarding overlay (replayable) --------------------------------------
+  var openOverlay = null;
+  function showOnboard(markDone) {
+    if (openOverlay) return;
     var steps = S().steps; var i = 0;
     var ov = document.createElement('div'); ov.className = 'eco-onb';
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'EcoClean Connect');
+    openOverlay = ov;
     function draw() {
       var s = steps[i]; var tx = S();
       ov.innerHTML = '<div class="eco-onb-card">' +
@@ -62,14 +67,36 @@
         '<div class="eco-onb-dots" aria-hidden="true">' + steps.map(function (_, k) { return '<span class="' + (k === i ? 'on' : '') + '"></span>'; }).join('') + '</div>' +
         '<div class="eco-onb-actions"><button class="eco-onb-skip" type="button">' + tx.skip + '</button>' +
         '<button class="eco-onb-next primary-btn" type="button">' + (i === steps.length - 1 ? tx.done : tx.next) + '</button></div>' +
-      '</div>';
+        '</div>';
       ov.querySelector('.eco-onb-skip').addEventListener('click', done);
       ov.querySelector('.eco-onb-next').addEventListener('click', function () { if (i < steps.length - 1) { i++; draw(); } else done(); });
     }
-    function done() { try { localStorage.setItem('eco_onboarded', '1'); } catch (e) {} ov.classList.add('eco-onb-hide'); setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, reduce ? 0 : 300); }
+    function done() {
+      if (markDone) { try { localStorage.setItem('eco_onboarded', '1'); } catch (e) {} }
+      ov.classList.add('eco-onb-hide'); openOverlay = null;
+      setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, reduce ? 0 : 300);
+    }
     draw(); document.body.appendChild(ov);
     requestAnimationFrame(function () { ov.classList.add('eco-onb-show'); });
   }
-  var ob = setInterval(function () { if (!document.getElementById('eco-splash')) { clearInterval(ob); onboard(); } }, 120);
-  setTimeout(function () { clearInterval(ob); onboard(); }, 4200);
+  window.EcoOnboard = { show: function () { showOnboard(false); } };
+
+  // (auto-show only on first visit; the help button handles replays)
+  function autoFirst() { try { if (!localStorage.getItem('eco_onboarded')) showOnboard(true); } catch (e) { showOnboard(true); } }
+  var ob = setInterval(function () { if (!document.getElementById('eco-splash')) { clearInterval(ob); autoFirst(); } }, 120);
+  setTimeout(function () { clearInterval(ob); autoFirst(); }, 4200);
+
+  // --- persistent "?" help button to replay the tour ------------------------
+  (function helpBtn() {
+    var b = document.createElement('button'); b.type = 'button'; b.id = 'eco-help-btn'; b.className = 'eco-help-btn';
+    b.setAttribute('aria-label', 'How it works'); b.textContent = '?';
+    b.addEventListener('click', function () { window.EcoOnboard.show(); });
+    document.body.appendChild(b);
+    if (!document.getElementById('eco-help-style')) {
+      var hs = document.createElement('style'); hs.id = 'eco-help-style';
+      hs.textContent = '.eco-help-btn{position:fixed;left:18px;bottom:18px;z-index:1100;width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,#198754,#0d9488);color:#fff;font-size:1.25rem;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(13,148,136,.4);font-family:inherit;line-height:1;}' +
+        '.eco-help-btn:active{transform:scale(.95);}';
+      document.head.appendChild(hs);
+    }
+  })();
 })();
