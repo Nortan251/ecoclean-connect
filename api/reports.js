@@ -42,6 +42,12 @@ module.exports = async (req, res) => {
         .select(REPORT_SELECT)
         .single();
       if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
+      // Server-side streak v2: an accepted report = an active day. Advance the
+      // reporter's streak (idempotent per day). Fire-and-forget + guarded so a
+      // missing RPC (migration not yet run) never breaks report creation.
+      if (user && user.id) {
+        supabase.rpc('record_daily_activity', { uid: user.id }).catch(() => {});
+      }
       return res.status(201).json(data);
     } catch (e) {
       return res.status(500).json({ error: friendlyDbError(e && e.message ? e.message : String(e)) });

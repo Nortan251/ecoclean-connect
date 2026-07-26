@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     .upsert({ id: user.id, display_name: (user.user_metadata && user.user_metadata.display_name) || 'Guardian' }, { onConflict: 'id', ignoreDuplicates: true });
 
   const [{ data: profile }, { data: vouchers }, { count: myReports }, { data: myReportsList }] = await Promise.all([
-    supabase.from('profiles').select('display_name, points, claimed_quests').eq('id', user.id).single(),
+    supabase.from('profiles').select('display_name, points, claimed_quests, streak_cur, streak_best').eq('id', user.id).single(),
     supabase.from('vouchers').select('code, points, created_at').eq('user_id', user.id).order('created_at', { ascending: false }),
     supabase.from('reports').select('id', { count: 'exact', head: true }).eq('reporter_user_id', user.id),
     supabase.from('reports').select(REPORT_SELECT).eq('reporter_user_id', user.id).order('created_at', { ascending: false }).limit(20),
@@ -27,6 +27,8 @@ module.exports = async (req, res) => {
     email: user.email,
     displayName: profile ? profile.display_name : 'Guardian',
     points: profile ? profile.points : 0,
+    streakCur: profile ? (profile.streak_cur || 0) : 0,
+    streakBest: profile ? (profile.streak_best || 0) : 0,
     claimedQuests: profile && Array.isArray(profile.claimed_quests) ? profile.claimed_quests : [],
     vouchers: vouchers || [],
     myReports: myReports || 0,

@@ -38,6 +38,10 @@ module.exports = async (req, res) => {
   // once, via a security-definer function that bypasses RLS.
   if (cur && cur.reporter_user_id && !cur.rewarded) {
     try { await supabase.rpc('award_points', { uid: cur.reporter_user_id, amt: 20 }); } catch (e) {}
+    // Server-side streak v2: on top of the flat +20, grant a tiered streak bonus
+    // (the "multiplier") read from the reporter's current streak. Guarded so a
+    // missing RPC (migration not yet run) degrades to the flat reward only.
+    try { await supabase.rpc('apply_streak_bonus', { uid: cur.reporter_user_id }); } catch (e) {}
   }
 
   return res.status(200).json(data);

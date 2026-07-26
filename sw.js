@@ -24,8 +24,8 @@
  * already-open tabs quickly (a single reload then shows the fresh code).
  * ==========================================================================*/
 
-const SHELL = 'ecoclean-shell-v14';   // same-origin app shell (pre-cached on install)
-const RUNTIME = 'ecoclean-runtime-v14'; // CDN libs + live-data cache + misc runtime gets
+const SHELL = 'ecoclean-shell-v15';   // same-origin app shell (pre-cached on install)
+const RUNTIME = 'ecoclean-runtime-v15'; // CDN libs + live-data cache + misc runtime gets
 const TILES = 'ecoclean-tiles-v11';   // map tiles, size-bounded
 const MAX_TILES = 400;               // cap so offline map tiles can't blow the quota
 
@@ -45,9 +45,32 @@ const SHELL_ASSETS = [
   './js/share.js', './js/share-card.js', './js/offline-banner.js', './js/a11y.js', './js/auth.js',
   './js/account-ui.js', './js/static-i18n.js', './js/export-data.js',
   './js/dashboard.js', './js/rewards.js', './js/gamification.js', './js/analytics.js',
-  './js/streak.js', './js/weekly-board.js',
+  './js/streak.js', './js/weekly-board.js', './js/push.js', './js/city.js',
   './js/admin.js', './js/verification.js', './js/dispatch.js',
 ];
+
+// ---- Web Push: show a notification when the server pushes an alert, and open
+// the right page when the user taps it. The payload shape matches /api/push/send
+// ({title, body, url, icon}). self.registration.showNotification returns a
+// promise we wait on so the SW stays alive until the notification is displayed.
+self.addEventListener('push', (e) => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch (err) { data = { title: 'EcoClean Connect', body: 'New activity near you.' }; }
+  const title = data.title || 'EcoClean Connect';
+  const opts = { body: data.body || '', icon: data.icon || '/icon-192.png', badge: '/icon-192.png', data: { url: data.url || '/dashboard.html' }, tag: 'eco-push' };
+  e.waitUntil(self.registration.showNotification(title, opts));
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/dashboard.html';
+  // Focus an existing tab to that URL if open, else open a new one.
+  e.waitUntil((async () => {
+    const target = new URL(url, self.location.origin).href;
+    const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const w of wins) { if (w.url === target && 'focus' in w) return w.focus(); }
+    if (self.clients.openWindow) return self.clients.openWindow(target);
+  })());
+});
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(SHELL).then((c) => c.addAll(SHELL_ASSETS)).then(() => self.skipWaiting()));
