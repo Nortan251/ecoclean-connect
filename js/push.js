@@ -98,7 +98,7 @@
       if (!cfg.ok) {
         var miss = cfg.missing && cfg.missing.length ? cfg.missing.join(', ') : 'VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT';
         bodyEl.innerHTML = '<p class="pu-msg"></p>';
-        bodyEl.querySelector('.pu-msg').textContent = (lang() === 'ar' ? 'التنبيهات غير مهيأة: أضف ' : (lang() === 'fr' ? 'Alertes non configurées : ajoute ' : 'Alerts not live yet: add ')) + miss + (lang() === 'ar' ? ' في Vercel ثم أعد النشر.' : (lang() === 'fr' ? ' dans Vercel puis redéploie.' : ' in Vercel, then REDEPLOY (env vars only apply on a successful deploy).'));
+        bodyEl.querySelector('.pu-msg').textContent = (lang() === 'ar' ? 'التنبيهات غير مهيأة: أضف ' : (lang() === 'fr' ? 'Alertes non configurées : ajoute ' : 'Alerts not live yet: add ')) + miss + (lang() === 'ar' ? ' في Vercel ثم أعد النشر.' : (lang() === 'fr' ? ' dans Vercel puis redéploie.' : ' in Vercel (Settings → Environment Variables, Production), then REDEPLOY from the Deployments tab — env vars only apply on a successful deploy.'));
         return;
       }
       var city = (window.EcoCity && EcoCity.get) ? EcoCity.get().name : null;

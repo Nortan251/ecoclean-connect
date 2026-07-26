@@ -1,3 +1,6 @@
 {
-  "version": 2
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/push/:id", "destination": "/api/push?id=:id" }
+  ]
 }
