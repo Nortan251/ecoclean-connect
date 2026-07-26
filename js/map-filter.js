@@ -1,9 +1,11 @@
-/* map-filter.js — category + verified-only filters, hidden behind a "⚙ Filter"
- * button so the map stays clean (ADDITIVE). Tapping the pill opens a frosted panel
- * of chips; the pill shows a count badge while any filter is active. Filtering is
- * applied at render time inside app.js loadReports (EcoFilter.apply), so the clustered
- * pins reflect the selection while EcoClean.reports (heatmap/quests/leaderboard) keeps
- * the full dataset. Localized; tapping the map closes the panel. */
+/* map-filter.js — category + verified-only filters behind a "Filter" button placed
+ * ABOVE the zoom control (ADDITIVE). Tapping the pill opens a frosted chip panel;
+ * while it is open the zoom (+/-) slides FURTHER DOWN so it is never covered, and
+ * slides back to just-below-the-Filter when the panel closes. The pill shows a
+ * count badge while any filter is active. Filtering is applied at render time
+ * inside app.js loadReports (EcoFilter.apply), so the clustered pins reflect the
+ * selection while EcoClean.reports (heatmap/quests/leaderboard) keeps the full
+ * dataset. Localized; tapping the map closes the panel. */
 (function () {
   'use strict';
   var CATS = ['illegal_dumping', 'water', 'air_smoke', 'plastic_marine', 'other'];
@@ -16,7 +18,13 @@
   function applyFilter(reports) { return (reports || []).filter(function (r) { return (!anyCat() || cats[r.category]) && (!onlyVerified || r.status === 'verified'); }); }
   function refresh() { if (typeof window.loadReports === 'function') window.loadReports(); }
 
-  var wrap, toggle, panel, countEl;
+  var wrap, toggle, panel, countEl, mapEl;
+  // Central open/close: also slides the zoom control out from under the panel.
+  function setOpen(open) {
+    panel.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    if (mapEl) mapEl.classList.toggle('eco-filter-open', open);
+  }
   function labels() {
     var Lg = (typeof window.getLang === 'function' ? getLang() : 'en');
     toggle.querySelector('.eco-filter-toggle-l').textContent = ({ en: 'Filter', fr: 'Filtrer', ar: 'تصفية' })[Lg] || 'Filter';
@@ -34,7 +42,7 @@
   }
 
   function build() {
-    var mapEl = document.getElementById('map'); if (!mapEl) return;
+    mapEl = document.getElementById('map'); if (!mapEl) return;
     wrap = document.createElement('div'); wrap.id = 'eco-filterwrap';
     toggle = document.createElement('button'); toggle.type = 'button'; toggle.id = 'eco-filter-toggle'; toggle.className = 'eco-filter-toggle';
     toggle.setAttribute('aria-expanded', 'false');
@@ -52,11 +60,11 @@
     wrap.appendChild(toggle); wrap.appendChild(panel);
     mapEl.appendChild(wrap);
 
-    toggle.addEventListener('click', function () { var open = !panel.classList.contains('open'); panel.classList.toggle('open', open); toggle.setAttribute('aria-expanded', String(open)); });
+    toggle.addEventListener('click', function () { setOpen(!panel.classList.contains('open')); });
     all.addEventListener('click', function () { CATS.forEach(function (c) { cats[c] = false; }); onlyVerified = false; sync(); refresh(); });
     panel.querySelectorAll('[data-cat]').forEach(function (b) { b.addEventListener('click', function () { cats[b.dataset.cat] = !cats[b.dataset.cat]; sync(); refresh(); }); });
     ver.addEventListener('click', function () { onlyVerified = !onlyVerified; sync(); refresh(); });
-    mapEl.addEventListener('click', function (e) { if (panel.classList.contains('open') && !wrap.contains(e.target)) { panel.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); } });
+    mapEl.addEventListener('click', function (e) { if (panel.classList.contains('open') && !wrap.contains(e.target)) setOpen(false); });
     labels(); sync();
   }
 
@@ -77,7 +85,8 @@
       '.eco-filter-panel::-webkit-scrollbar{height:0;}' +
       '.eco-fchip{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border:1px solid #cfe2d8;background:#fff;color:#0a5c3f;border-radius:999px;padding:6px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;flex:0 0 auto;}' +
       '.eco-fchip.on{background:linear-gradient(135deg,#198754,#0d9488);color:#fff;border-color:transparent;}' +
-      '.leaflet-top.leaflet-left{top:46px!important;}';
+      '.leaflet-top.leaflet-left{top:46px!important;transition:top .25s ease;}' +
+      '#map.eco-filter-open .leaflet-top.leaflet-left{top:100px!important;}';
     document.head.appendChild(st);
   }
 })();
