@@ -27,9 +27,9 @@
  * already-open tabs immediately (users get fixes without a manual reload).
  * ==========================================================================*/
 
-const SHELL = 'ecoclean-shell-v9';   // same-origin app shell (pre-cached on install)
-const RUNTIME = 'ecoclean-runtime-v9'; // CDN libs + live-data cache + misc runtime gets
-const TILES = 'ecoclean-tiles-v9';   // OSM tiles, size-bounded
+const SHELL = 'ecoclean-shell-v10';   // same-origin app shell (pre-cached on install)
+const RUNTIME = 'ecoclean-runtime-v10'; // CDN libs + live-data cache + misc runtime gets
+const TILES = 'ecoclean-tiles-v10';   // OSM tiles, size-bounded
 const MAX_TILES = 400;               // cap so offline map tiles can't blow the quota
 
 // Pre-cache the same-origin app shell. IMPORTANT: only same-origin URLs go here,
