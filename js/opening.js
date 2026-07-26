@@ -1,12 +1,21 @@
-/* opening.js — app opening experience (index only).
- * (1) Hides the splash screen once the page is ready, keeping it up for a minimum
- *     time so the brand registers. The splash ALSO self-hides via a CSS fallback if
- *     JS never runs, so it can never trap the user.
- * (2) Runs a one-time onboarding overlay on the first visit (stored in localStorage),
- *     explaining the report -> verify -> earn loop. Additive + reduced-motion aware. */
+/* opening.js — app opening experience (index only), trilingual: a branded splash
+ * (self-hiding via CSS fallback so it never traps users) + a one-time onboarding
+ * overlay (report -> verify -> earn). The splash tagline is localized immediately. */
 (function () {
   'use strict';
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var L10N = {
+    en: { splash_tag: 'Report pollution. Mobilize your community.', skip: 'Skip', next: 'Next', done: 'Get started',
+      steps: [ { emoji: '📍', t: 'Report in seconds', d: 'Open the map and tap where you see pollution — or use your location. Add a photo and a category.' }, { emoji: '✅', t: 'Clean-ups get verified', d: 'Community leaders confirm the fix with an after-photo. Watch the pins turn green in real time.' }, { emoji: '🎁', t: 'Earn civic rewards', d: 'Verified clean-ups earn points you can redeem for local reward vouchers. Every report counts.' } ] },
+    fr: { splash_tag: 'Signalez la pollution. Mobilisez votre communauté.', skip: 'Passer', next: 'Suivant', done: 'Commencer',
+      steps: [ { emoji: '📍', t: 'Signalez en quelques secondes', d: 'Ouvrez la carte et touchez l’endroit pollué — ou utilisez votre position. Ajoutez une photo et une catégorie.' }, { emoji: '✅', t: 'Les nettoyages sont vérifiés', d: 'Des responsables confirment la correction avec une photo après. Regardez les repères devenir verts en direct.' }, { emoji: '🎁', t: 'Gagnez des récompenses', d: 'Les nettoyages vérifiés rapportent des points échangeables contre des bons locaux. Chaque signalement compte.' } ] },
+    ar: { splash_tag: 'بلّغ عن التلوث. حرّك مجتمعك.', skip: 'تخطٍّ', next: 'التالي', done: 'ابدأ',
+      steps: [ { emoji: '📍', t: 'بلّغ في ثوانٍ', d: 'افتح الخريطة والمس مكان التلوث — أو استخدم موقعك. أضف صورة وفئة.' }, { emoji: '✅', t: 'التحقق من التنظيف', d: 'يؤكد القادة الإصلاح بصورة بعد التنظيف. راقب العلامات تتحول إلى الأخضر مباشرة.' }, { emoji: '🎁', t: 'اكسب مكافآت', d: 'عمليات التنظيف المتحققة تكسبك نقاطًا تستبدلها بقسائم محلية. كل بلاغ يُحدث فرقًا.' } ] },
+  };
+  var lang = () => (typeof window.getLang === 'function' ? getLang() : 'en');
+  var S = () => L10N[lang()] || L10N.en;
+
+  var stag = document.querySelector('#eco-splash .es-tag'); if (stag) stag.textContent = S().splash_tag;
 
   if (!document.getElementById('eco-onb-style')) {
     var st = document.createElement('style'); st.id = 'eco-onb-style';
@@ -27,10 +36,9 @@
     document.head.appendChild(st);
   }
 
-  // (1) hide splash ----------------------------------------------------------
   function hideSplash() {
     var el = document.getElementById('eco-splash'); if (!el || el.dataset.hiding) return; el.dataset.hiding = '1';
-    el.style.animation = 'none';                 // cancel the CSS auto-hide fallback cleanly
+    el.style.animation = 'none';
     if (reduce) { if (el.parentNode) el.parentNode.removeChild(el); return; }
     el.style.transition = 'opacity .45s ease, visibility .45s ease';
     requestAnimationFrame(function () { el.style.opacity = '0'; el.style.visibility = 'hidden'; });
@@ -39,41 +47,29 @@
   var minShow = 900, t0 = Date.now();
   function readyHide() { setTimeout(hideSplash, Math.max(0, minShow - (Date.now() - t0))); }
   if (document.readyState === 'complete') readyHide(); else window.addEventListener('load', readyHide);
-  setTimeout(hideSplash, 4000);                  // safety net
+  setTimeout(hideSplash, 4000);
 
-  // (2) first-run onboarding -------------------------------------------------
   function onboard() {
     try { if (localStorage.getItem('eco_onboarded')) return; } catch (e) { return; }
-    var steps = [
-      { emoji: '📍', t: 'Report in seconds', d: 'Open the map and tap where you see pollution — or use your location. Add a photo and a category.' },
-      { emoji: '✅', t: 'Clean-ups get verified', d: 'Community leaders confirm the fix with an after-photo. Watch the pins turn green in real time.' },
-      { emoji: '🎁', t: 'Earn civic rewards', d: 'Verified clean-ups earn points you can redeem for local reward vouchers. Every report counts.' }
-    ];
-    var i = 0;
+    var steps = S().steps; var i = 0;
     var ov = document.createElement('div'); ov.className = 'eco-onb';
-    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Welcome to EcoClean Connect');
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'EcoClean Connect');
     function draw() {
-      var s = steps[i];
-      ov.innerHTML =
-        '<div class="eco-onb-card">' +
-          '<div class="eco-onb-emoji" aria-hidden="true">' + s.emoji + '</div>' +
-          '<h2>' + s.t + '</h2><p>' + s.d + '</p>' +
-          '<div class="eco-onb-dots" aria-hidden="true">' + steps.map(function (_, k) { return '<span class="' + (k === i ? 'on' : '') + '"></span>'; }).join('') + '</div>' +
-          '<div class="eco-onb-actions"><button class="eco-onb-skip" type="button">Skip</button>' +
-          '<button class="eco-onb-next primary-btn" type="button">' + (i === steps.length - 1 ? 'Get started' : 'Next') + '</button></div>' +
-        '</div>';
+      var s = steps[i]; var tx = S();
+      ov.innerHTML = '<div class="eco-onb-card">' +
+        '<div class="eco-onb-emoji" aria-hidden="true">' + s.emoji + '</div>' +
+        '<h2>' + s.t + '</h2><p>' + s.d + '</p>' +
+        '<div class="eco-onb-dots" aria-hidden="true">' + steps.map(function (_, k) { return '<span class="' + (k === i ? 'on' : '') + '"></span>'; }).join('') + '</div>' +
+        '<div class="eco-onb-actions"><button class="eco-onb-skip" type="button">' + tx.skip + '</button>' +
+        '<button class="eco-onb-next primary-btn" type="button">' + (i === steps.length - 1 ? tx.done : tx.next) + '</button></div>' +
+      '</div>';
       ov.querySelector('.eco-onb-skip').addEventListener('click', done);
       ov.querySelector('.eco-onb-next').addEventListener('click', function () { if (i < steps.length - 1) { i++; draw(); } else done(); });
     }
-    function done() {
-      try { localStorage.setItem('eco_onboarded', '1'); } catch (e) {}
-      ov.classList.add('eco-onb-hide');
-      setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, reduce ? 0 : 300);
-    }
+    function done() { try { localStorage.setItem('eco_onboarded', '1'); } catch (e) {} ov.classList.add('eco-onb-hide'); setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, reduce ? 0 : 300); }
     draw(); document.body.appendChild(ov);
     requestAnimationFrame(function () { ov.classList.add('eco-onb-show'); });
   }
-  // Start onboarding only after the splash is gone.
   var ob = setInterval(function () { if (!document.getElementById('eco-splash')) { clearInterval(ob); onboard(); } }, 120);
   setTimeout(function () { clearInterval(ob); onboard(); }, 4200);
 })();

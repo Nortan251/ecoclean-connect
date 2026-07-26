@@ -1,12 +1,16 @@
-/* map-place.js — click/tap the map to drop a pin & set the report location (ADDITIVE).
- * An alternative to "Use my location": tap the map to choose the exact spot. A
- * manual placement raises a global EcoManualPin flag so the GPS/EXIF auto-logic in
- * camera-location.js will NOT overwrite the chosen point — explicit user intent
- * wins over sensors. A pulsing temporary marker shows the chosen point and a hint
- * chip invites the action. Both clear after a successful submit. Clicks on existing
- * markers / popups / controls are ignored (only empty map tiles place a pin). */
+/* map-place.js — click/tap the map to drop a pin & set the report location (ADDITIVE),
+ * trilingual. A manual placement raises EcoManualPin so GPS/EXIF auto-logic won't
+ * overwrite the chosen point. A pulsing temp marker + a hint chip guide the action;
+ * both clear after submit. Clicks on markers/popups/controls are ignored. */
 (function () {
   'use strict';
+  const L10N = {
+    en: { hint: '📍 Tap the map to drop a pin', here: '📍 Report here' },
+    fr: { hint: '📍 Touchez la carte pour placer un repère', here: '📍 Signaler ici' },
+    ar: { hint: '📍 المس الخريطة لوضع علامة', here: '📍 بلّغ هنا' },
+  };
+  const lang = () => (typeof window.getLang === 'function' ? getLang() : 'en');
+  const t = (k) => { const d = L10N[lang()] || L10N.en; return (d && d[k] != null) ? d[k] : L10N.en[k]; };
   let map = null, temp = null, hint = null;
   const modal = () => document.getElementById('reportModal');
   const modalOpen = () => { const m = modal(); return m && !m.classList.contains('hidden'); };
@@ -23,21 +27,20 @@
   function placePin(latlng) {
     window.EcoManualPin = true;
     setInputs(latlng.lat, latlng.lng);
-    if (!temp) { temp = L.marker(latlng, { icon: placeIcon(), riseOnHover: true, zIndexOffset: 1000 }); temp.bindPopup('📍 Report here'); temp.addTo(map); }
+    if (!temp) { temp = L.marker(latlng, { icon: placeIcon(), riseOnHover: true, zIndexOffset: 1000 }); temp.bindPopup(t('here')); temp.addTo(map); }
     else temp.setLatLng(latlng);
     showHint(false);
   }
   function clearPin() { window.EcoManualPin = false; if (temp) { map.removeLayer(temp); temp = null; } showHint(!modalOpen()); }
-  const isInteractive = (t) => t && t.closest && t.closest('.leaflet-interactive, .leaflet-marker-icon, .leaflet-popup, .leaflet-control, .eco-pin, .eco-cluster, .eco-place-pin, .eco-attr');
+  const isInteractive = (tg) => tg && tg.closest && tg.closest('.leaflet-interactive, .leaflet-marker-icon, .leaflet-popup, .leaflet-control, .eco-pin, .eco-cluster, .eco-place-pin, .eco-attr');
 
   window.addEventListener('ecoclean:mapready', (ev) => {
     map = ev.detail; if (!map) return;
     const host = document.getElementById('map') || document.getElementById('mapView');
-    if (host) { hint = document.createElement('div'); hint.className = 'eco-place-hint'; hint.textContent = '📍 Tap the map to drop a pin'; host.appendChild(hint); }
+    if (host) { hint = document.createElement('div'); hint.className = 'eco-place-hint'; hint.textContent = t('hint'); host.appendChild(hint); }
 
     map.on('click', (e) => { if (modalOpen()) return; if (isInteractive(e.originalEvent && e.originalEvent.target)) return; placePin(e.latlng); });
 
-    // "Use my location" is also explicit intent -> mark manual so EXIF won't override it.
     const useLoc = document.getElementById('useLoc');
     if (useLoc) useLoc.addEventListener('click', () => { window.EcoManualPin = true; if (temp) { map.removeLayer(temp); temp = null; } showHint(false); });
 
@@ -55,4 +58,5 @@
       document.head.appendChild(st);
     }
   });
+  document.addEventListener('change', (e) => { if (e.target && e.target.id === 'langSelect' && hint) hint.textContent = t('hint'); });
 })();
