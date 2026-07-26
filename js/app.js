@@ -7,14 +7,20 @@ function initMap() {
   // attributionControl:false -> we replace the default (ugly) credits bar with a
   // compact, compliant (i) chip below (Mapbox-style: credits hidden until tap/hover).
   map = L.map('map', { zoomControl: true, attributionControl: false }).setView(MAP_CENTER, 13);
-  // Clean, modern basemap (CARTO Positron) so the coloured pins / clusters /
-  // heatmap pop. The attribution string is kept on the layer and surfaced via the
-  // compact chip below (required by the OSM / CARTO / Leaflet licences).
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  // Basemap swaps with the theme: CARTO Positron (light) / dark_all (dark). The
+  // attribution stays on the layer and is surfaced via the compact (i) chip below.
+  var LIGHT_TILES = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+  var DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+  window.EcoTileUrls = { light: LIGHT_TILES, dark: DARK_TILES };
+  var tiles = L.tileLayer((window.EcoTheme && EcoTheme.get() === 'dark') ? DARK_TILES : LIGHT_TILES, {
     maxZoom: 20,
     subdomains: 'abcd',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
   }).addTo(map);
+  window.EcoTiles = tiles;
+  window.addEventListener('ecoclean:theme', function (e) {
+    if (window.EcoTiles && window.EcoTileUrls) window.EcoTiles.setUrl(window.EcoTileUrls[e.detail] || window.EcoTileUrls.light);
+  });
   markerLayer = L.layerGroup().addTo(map);
   $('#latInput').value = MAP_CENTER[0];
   $('#lngInput').value = MAP_CENTER[1];
