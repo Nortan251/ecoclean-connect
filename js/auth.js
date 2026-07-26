@@ -60,7 +60,7 @@
       slot.appendChild(chip);
     } else {
       const b = document.createElement('button'); b.className = 'eco-acct-btn'; b.type = 'button';
-      b.innerHTML = USER_ICON + '<span class="eco-acct-label">Log in / Sign up</span>';
+      b.innerHTML = USER_ICON + '<span class="eco-acct-label">Log in</span>';
       b.addEventListener('click', openAuth);
       slot.appendChild(b);
     }
