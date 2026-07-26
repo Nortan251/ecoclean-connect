@@ -24,8 +24,8 @@
  * already-open tabs quickly (a single reload then shows the fresh code).
  * ==========================================================================*/
 
-const SHELL = 'ecoclean-shell-v13';   // same-origin app shell (pre-cached on install)
-const RUNTIME = 'ecoclean-runtime-v13'; // CDN libs + live-data cache + misc runtime gets
+const SHELL = 'ecoclean-shell-v14';   // same-origin app shell (pre-cached on install)
+const RUNTIME = 'ecoclean-runtime-v14'; // CDN libs + live-data cache + misc runtime gets
 const TILES = 'ecoclean-tiles-v11';   // map tiles, size-bounded
 const MAX_TILES = 400;               // cap so offline map tiles can't blow the quota
 
@@ -45,6 +45,7 @@ const SHELL_ASSETS = [
   './js/share.js', './js/share-card.js', './js/offline-banner.js', './js/a11y.js', './js/auth.js',
   './js/account-ui.js', './js/static-i18n.js', './js/export-data.js',
   './js/dashboard.js', './js/rewards.js', './js/gamification.js', './js/analytics.js',
+  './js/streak.js', './js/weekly-board.js',
   './js/admin.js', './js/verification.js', './js/dispatch.js',
 ];
 
