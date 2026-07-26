@@ -24,8 +24,8 @@
  * already-open tabs quickly (a single reload then shows the fresh code).
  * ==========================================================================*/
 
-const SHELL = 'ecoclean-shell-v12';   // same-origin app shell (pre-cached on install)
-const RUNTIME = 'ecoclean-runtime-v12'; // CDN libs + live-data cache + misc runtime gets
+const SHELL = 'ecoclean-shell-v13';   // same-origin app shell (pre-cached on install)
+const RUNTIME = 'ecoclean-runtime-v13'; // CDN libs + live-data cache + misc runtime gets
 const TILES = 'ecoclean-tiles-v11';   // map tiles, size-bounded
 const MAX_TILES = 400;               // cap so offline map tiles can't blow the quota
 
@@ -42,7 +42,7 @@ const SHELL_ASSETS = [
   './js/map-sync.js', './js/cluster.js', './js/heatmap.js', './js/map-place.js',
   './js/compare.js', './js/map-filter.js', './js/realtime.js', './js/install-prompt.js',
   './js/offline-submit.js', './js/opening.js', './js/landing-fx.js', './js/thankyou.js',
-  './js/share.js', './js/offline-banner.js', './js/a11y.js', './js/auth.js',
+  './js/share.js', './js/share-card.js', './js/offline-banner.js', './js/a11y.js', './js/auth.js',
   './js/account-ui.js', './js/static-i18n.js', './js/export-data.js',
   './js/dashboard.js', './js/rewards.js', './js/gamification.js', './js/analytics.js',
   './js/admin.js', './js/verification.js', './js/dispatch.js',
