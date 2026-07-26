@@ -82,7 +82,8 @@
   window.EcoOnboard = { show: function () { showOnboard(false); } };
 
   // (auto-show only on first visit; the help button handles replays)
-  function autoFirst() { try { if (!localStorage.getItem('eco_onboarded')) showOnboard(true); } catch (e) { showOnboard(true); } }
+  var isLanding = !!document.getElementById('landing') || /(^|\/)(index\.html)?$/.test(location.pathname);
+  function autoFirst() { if (!isLanding) return; try { if (!localStorage.getItem('eco_onboarded')) showOnboard(true); } catch (e) { showOnboard(true); } }
   var ob = setInterval(function () { if (!document.getElementById('eco-splash')) { clearInterval(ob); autoFirst(); } }, 120);
   setTimeout(function () { clearInterval(ob); autoFirst(); }, 4200);
 
