@@ -44,29 +44,39 @@
     return r.status === 'verified' ? 'cleaned' : 'active';
   };
 
-  // Tag Leaflet markers with their report id by matching coordinates.
+  // Spatial index "lat,lng" -> report id, rebuilt whenever reports change. This is
+  // the single biggest map-perf win: the old tagMarkers() re-scanned EVERY report
+  // for EVERY marker (O(markers * reports)) on a timer, which is what made the map
+  // lag as the dataset grew. With the index, tagging is O(markers).
+  window.EcoClean._idx = new Map();
+  window.EcoClean.buildIndex = function () {
+    const m = new Map();
+    (window.EcoClean.reports || []).forEach((r) => m.set(r.lat.toFixed(6) + ',' + r.lng.toFixed(6), r.id));
+    window.EcoClean._idx = m;
+  };
   window.EcoClean.tagMarkers = function () {
+    const idx = window.EcoClean._idx;
     window.EcoClean.maps.forEach(map => {
       map.eachLayer(l => {
         if (l.getLatLng && typeof l.setStyle === 'function' && !l._reportId) {
           const ll = l.getLatLng();
-          const rep = window.EcoClean.reports.find(r => Math.abs(r.lat - ll.lat) < 1e-6 && Math.abs(r.lng - ll.lng) < 1e-6);
-          if (rep) l._reportId = rep.id;
+          const id = idx.get(ll.lat.toFixed(6) + ',' + ll.lng.toFixed(6));
+          if (id) l._reportId = id;
         }
       });
     });
   };
 
-  // Read-only fetch of core reports from your existing API. Fires a single
-  // "ecoclean:data" event afterwards so every piece of derived UI (the rewards
-  // wallet, quests, analytics) can refresh from one source of truth instead of
-  // each module polling the API on its own timer.
+  // Read-only fetch of core reports. Rebuilds the spatial index, then fires a
+  // single "ecoclean:data" event so every piece of derived UI (wallet, quests,
+  // analytics) refreshes from one source of truth instead of polling separately.
   window.EcoData = {
     async load() {
       try {
         const d = await (await fetch('/api/reports')).json();
         window.EcoClean.reports = d || [];
       } catch (e) { /* keep last-known reports so the UI never blanks offline */ }
+      window.EcoClean.buildIndex();
       window.dispatchEvent(new CustomEvent('ecoclean:data', { detail: window.EcoClean.reports }));
       return window.EcoClean.reports;
     }

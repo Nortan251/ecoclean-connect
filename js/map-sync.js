@@ -48,5 +48,7 @@
   window.addEventListener('online', flush);
   // Keep colors fresh after every report load.
   window.EcoData.load().then(() => { window.EcoClean.tagMarkers(); refreshMarkers(); });
-  setInterval(() => { window.EcoClean.tagMarkers(); refreshMarkers(); }, 5000);
+  // Periodic safety net only — realtime + the ecoclean:data event handle live
+  // updates now, and index-based tagging makes this cheap, so run it less often.
+  setInterval(() => { window.EcoClean.tagMarkers(); refreshMarkers(); }, 15000);
 })();

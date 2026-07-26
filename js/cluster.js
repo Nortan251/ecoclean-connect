@@ -115,6 +115,7 @@
         spiderfyOnMaxZoom: true,
         zoomToBoundsOnClick: true,
         disableClusteringAtZoom: 18,    // at street level, show individual pins
+        chunkedLoading: true,           // add markers in chunks -> keeps the UI responsive
         iconCreateFunction: clusterIcon,
       });
     } catch (e) { return; }              // plugin not ready -> leave default pins
@@ -143,10 +144,11 @@
           return m;
         };
 
-        // Tag the id now if we can (coordinate match), for the voting UI.
-        const reps = (window.EcoClean && EcoClean.reports) || [];
-        const rep = reps.find((r) => Math.abs(r.lat - ll.lat) < 1e-6 && Math.abs(r.lng - ll.lng) < 1e-6);
-        if (rep) m._reportId = rep.id;
+        // Tag the id via the spatial index (O(1)) instead of scanning every report
+        // (O(n)) — this runs once per marker on every render, so it matters a lot.
+        const idx = window.EcoClean && EcoClean._idx;
+        const id = idx ? idx.get(ll.lat.toFixed(6) + ',' + ll.lng.toFixed(6)) : null;
+        if (id) m._reportId = id;
 
         cluster.addLayer(m);
 
