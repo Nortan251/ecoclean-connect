@@ -43,7 +43,10 @@
     if (isReportPost(url, method) && !navigator.onLine) {
       let payload = null;
       try { payload = JSON.parse((init && init.body) || '{}'); } catch (e) { payload = null; }
-      if (payload && window.EcoOffline) window.EcoOffline.queue(payload);
+      // Carry the auth token (if signed in) so an offline report keeps its owner
+      // when it later syncs. Queued as {body, auth}; map-sync.flush unwraps it.
+      const authHdr = init && init.headers && (init.headers.Authorization || init.headers.authorization);
+      if (payload && window.EcoOffline) window.EcoOffline.queue({ body: payload, auth: authHdr || null });
       // Synthetic success: status 201, ok === true. app.js's success branch runs.
       return Promise.resolve(new Response(
         JSON.stringify({ queuedOffline: true, id: 'offline-' + Date.now() }),

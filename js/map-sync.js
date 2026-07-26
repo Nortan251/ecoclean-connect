@@ -25,8 +25,13 @@
     // could delete reports if a retry ran against a dead/captive-portal link).
     const survivors = [];
     for (const item of q) {
+      // Queued items may be {body, auth} (signed-in offline reports) or a bare
+      // payload (legacy). Re-attach the Bearer token so attribution survives offline.
+      const payload = item && item.body ? item.body : item;
+      const auth = item && item.auth ? item.auth : null;
+      const headers = { 'Content-Type': 'application/json' }; if (auth) headers['Authorization'] = auth;
       try {
-        await fetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item) });
+        await fetch('/api/reports', { method: 'POST', headers, body: JSON.stringify(payload) });
         // resolved (any HTTP status) => server received it; do not re-queue
       } catch (e) { survivors.push(item); }      // unreachable => keep for later
     }
