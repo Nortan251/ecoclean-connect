@@ -28,7 +28,7 @@
     showHint(false);
   }
   function clearPin() { window.EcoManualPin = false; if (temp) { map.removeLayer(temp); temp = null; } showHint(!modalOpen()); }
-  const isInteractive = (t) => t && t.closest && t.closest('.leaflet-interactive, .leaflet-marker-icon, .leaflet-popup, .leaflet-control, .eco-pin, .eco-cluster, .eco-place-pin');
+  const isInteractive = (t) => t && t.closest && t.closest('.leaflet-interactive, .leaflet-marker-icon, .leaflet-popup, .leaflet-control, .eco-pin, .eco-cluster, .eco-place-pin, .eco-attr');
 
   window.addEventListener('ecoclean:mapready', (ev) => {
     map = ev.detail; if (!map) return;
