@@ -39,7 +39,11 @@
       impact_nav: 'Impact', impact_hero_title: 'Real impact, measured in the open', impact_hero_sub: 'Every report, every clean-up, every citizen — counted live and published for all of Morocco.',
       kpi_total: 'Reports filed', kpi_cleaned: 'Sites cleaned', kpi_kg: 'Waste removed (est.)', kpi_citizens: 'Citizens engaged',
       impact_cat_title: 'Where we’re winning', impact_how_title: 'How EcoClean works', impact_step1_t: 'Citizens report', impact_step1_d: 'Anyone drops a pin, snaps a photo and picks a category — in about 30 seconds, from any phone.', impact_step2_t: 'Your association verifies', impact_step2_d: 'Your team logs in, sees only your city, confirms clean-ups with a before/after photo and rewards the citizen.', impact_step3_t: 'The city sees the impact', impact_step3_d: 'Every verified clean-up updates this dashboard live — proof you can show funders, the municipality and the press.', impact_demo_note: 'Live demo: the before/after gallery shows real clean-up photos once the platform runs with a partner — the verification flow that feeds it is already built.',
-      impact_map_title: 'The clean-up map', impact_cta_title: 'Bring EcoClean to your city', impact_cta_sub: 'Run by an association, a municipality or a student club? EcoClean is built to be deployed city by city across Morocco.', impact_cta_btn: 'Partner with us', impact_method: 'Methodology'
+      impact_map_title: 'The clean-up map', impact_cta_title: 'Bring EcoClean to your city', impact_cta_sub: 'Run by an association, a municipality or a student club? EcoClean is built to be deployed city by city across Morocco.', impact_cta_btn: 'Partner with us', impact_method: 'Methodology',
+      impact_net: '{cities} cities · {orgs} associations on the network', impact_net_link: 'See the network →',
+      net_nav: 'Network', net_hero_title: 'A network of associations, city by city', net_hero_sub: 'One platform, deployed city by city. Each partner runs its own city; together they form a national clean-up movement.',
+      net_kpi_cities: 'Cities', net_kpi_reports: 'Reports', net_kpi_cleaned: 'Cleaned', net_orgs_title: 'Active partners', net_empty: 'No partner associations yet — be the first.',
+      net_card_reports: 'reports', net_card_cleaned: 'cleaned', net_card_citizens: 'citizens', net_card_contact: 'Contact this partner', net_cta_title: 'Your city isn’t here yet?', net_cta_sub: 'EcoClean is built to onboard a new city in days, not months. If you run an association, a municipality or a student club, let’s talk.'
     },
     fr: {
       tagline: 'Signalez la pollution. Mobilisez votre communauté.',
@@ -78,7 +82,11 @@
       impact_nav: 'Impact', impact_hero_title: 'Un impact réel, mesuré en toute transparence', impact_hero_sub: 'Chaque signalement, chaque nettoyage, chaque citoyen — comptés en direct et publiés pour tout le Maroc.',
       kpi_total: 'Signalements', kpi_cleaned: 'Sites nettoyés', kpi_kg: 'Déchets retirés (est.)', kpi_citizens: 'Citoyens engagés',
       impact_cat_title: 'Là où nous gagnons', impact_how_title: 'Comment EcoClean fonctionne', impact_step1_t: 'Les citoyens signalent', impact_step1_d: 'Chacun dépose un repère, prend une photo et choisit une catégorie — en ~30 secondes, depuis n’importe quel téléphone.', impact_step2_t: 'Votre association vérifie', impact_step2_d: 'Votre équipe se connecte, ne voit que sa ville, confirme les nettoyages avec une photo avant/après et récompense le citoyen.', impact_step3_t: 'La ville voit l’impact', impact_step3_d: 'Chaque nettoyage vérifié met ce tableau à jour en direct — une preuve pour les financeurs, la commune et la presse.', impact_demo_note: 'Démo : la galerie avant/après affichera de vraies photos de nettoyage dès que la plateforme tournera avec un partenaire — le flux de vérification qui l’alimente est déjà construit.',
-      impact_map_title: 'La carte des nettoyages', impact_cta_title: 'Amenez EcoClean dans votre ville', impact_cta_sub: 'Géré par une association, une commune ou un club étudiant ? EcoClean est conçu pour être déployé ville par ville au Maroc.', impact_cta_btn: 'Devenez partenaire', impact_method: 'Méthodologie'
+      impact_map_title: 'La carte des nettoyages', impact_cta_title: 'Amenez EcoClean dans votre ville', impact_cta_sub: 'Géré par une association, une commune ou un club étudiant ? EcoClean est conçu pour être déployé ville par ville au Maroc.', impact_cta_btn: 'Devenez partenaire', impact_method: 'Méthodologie',
+      impact_net: '{cities} villes · {orgs} associations sur le réseau', impact_net_link: 'Voir le réseau →',
+      net_nav: 'Réseau', net_hero_title: 'Un réseau d’associations, ville par ville', net_hero_sub: 'Une plateforme, déployée ville par ville. Chaque partenaire gère sa ville ; ensemble, ils forment un mouvement national de nettoyage.',
+      net_kpi_cities: 'Villes', net_kpi_reports: 'Signalements', net_kpi_cleaned: 'Nettoyés', net_orgs_title: 'Partenaires actifs', net_empty: 'Aucune association partenaire pour l’instant — soyez le premier.',
+      net_card_reports: 'signalements', net_card_cleaned: 'nettoyés', net_card_citizens: 'citoyens', net_card_contact: 'Contacter ce partenaire', net_cta_title: 'Votre ville n’y est pas encore ?', net_cta_sub: 'EcoClean est conçu pour intégrer une nouvelle ville en quelques jours. Si vous gérez une association, une commune ou un club étudiant, parlons-en.'
     },
     ar: {
       tagline: 'أبلغ عن التلوث. حشّد مجتمعك.',
@@ -117,7 +125,11 @@
       impact_nav: 'الأثر', impact_hero_title: 'أثر حقيقي، مقاس بشفافية', impact_hero_sub: 'كل بلاغ، كل عملية تنظيف، كل مواطن — تُحسب مباشرة وتُنشر لكل المغرب.',
       kpi_total: 'بلاغات مُقدَّمة', kpi_cleaned: 'مواقع منظَّفة', kpi_kg: 'نفايات مُزالة (تقدير)', kpi_citizens: 'مواطنون مشاركون',
       impact_cat_title: 'حيث ننتصر', impact_how_title: 'كيف يعمل EcoClean', impact_step1_t: 'المواطنون يبلّغون', impact_step1_d: 'أي شخص يضع دبوسًا ويلتقط صورة ويختار فئة — في نحو 30 ثانية، من أي هاتف.', impact_step2_t: 'جمعيتك تتحقّق', impact_step2_d: 'فريقك يسجّل الدخول، يرى مدينته فقط، يؤكّد عمليات التنظيف بصورة قبل/بعد ويكافئ المواطن.', impact_step3_t: 'المدينة ترى الأثر', impact_step3_d: 'كل عملية تنظيف متحققة تحدّث هذه اللوحة مباشرة — دليل تُظهره للمموّلين والبلدية والصحافة.', impact_demo_note: 'عرض تجريبي: معرض قبل/بعد سيعرض صور تنظيف حقيقية حين تعمل المنصة مع شريك — تدفق التحقق الذي يغذّيه مبنيّ بالفعل.',
-      impact_map_title: 'خريطة التنظيف', impact_cta_title: 'اجلب EcoClean إلى مدينتك', impact_cta_sub: 'تديرها جمعية أو بلدية أو نادٍ طلابي؟ صُمم EcoClean ليُنشَر مدينةً مدينةً عبر المغرب.', impact_cta_btn: 'كن شريكًا', impact_method: 'المنهجية'
+      impact_map_title: 'خريطة التنظيف', impact_cta_title: 'اجلب EcoClean إلى مدينتك', impact_cta_sub: 'تديرها جمعية أو بلدية أو نادٍ طلابي؟ صُمم EcoClean ليُنشَر مدينةً مدينةً عبر المغرب.', impact_cta_btn: 'كن شريكًا', impact_method: 'المنهجية',
+      impact_net: '{cities} مدن · {orgs} جمعيات على الشبكة', impact_net_link: '← عرض الشبكة',
+      net_nav: 'الشبكة', net_hero_title: 'شبكة جمعيات، مدينةً مدينة', net_hero_sub: 'منصة واحدة، تُنشَر مدينةً مدينة. كل شريك يدير مدينته؛ ومعًا يشكّلون حركة تنظيف وطنية.',
+      net_kpi_cities: 'مدن', net_kpi_reports: 'بلاغات', net_kpi_cleaned: 'منظَّفة', net_orgs_title: 'شركاء نشطون', net_empty: 'لا جمعيات شريكة بعد — كن الأول.',
+      net_card_reports: 'بلاغات', net_card_cleaned: 'منظَّفة', net_card_citizens: 'مواطنون', net_card_contact: 'تواصل مع هذا الشريك', net_cta_title: 'أليست مدينتك هنا بعد؟', net_cta_sub: 'صُمم EcoClean لإضافة مدينة جديدة في أيام لا أشهر. إن كنت تدير جمعية أو بلدية أو نادٍ طلابي، لنتحدّث.'
     }
   };
 

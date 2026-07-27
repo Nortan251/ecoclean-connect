@@ -32,11 +32,17 @@ module.exports = async (req, res) => {
     if (nm && nm.toLowerCase() !== 'anonymous') citizens.add(nm.toLowerCase());
   });
 
+  // Public partner roster for the /associations "network" page. Folded into /api/stats
+  // (NOT a new endpoint) so we stay at the 12-function Hobby cap. Only non-sensitive
+  // org fields; per-city counts are computed client-side from /api/reports.
+  let associations = [];
+  try { const ar = await supabase.from('associations').select('name, city, lat, lng, radius_km, contact_email').order('city'); associations = ar.data || []; } catch (e) {}
+
   return res
     .status(200)
     .json({
       total: (data || []).length, reported, verified, byCategory,
-      kgRemoved, citizens: citizens.size,
+      kgRemoved, citizens: citizens.size, associations,
       kgMethod: 'estimated kg per verified clean-up by category (illegal_dumping 35, plastic_marine 18, water 10, other 12, air_smoke 0)',
     });
 };

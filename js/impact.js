@@ -132,7 +132,15 @@
     a.href = 'mailto:contact@ecoclean-connect.org?subject=' + subj + '&body=' + bodyTxt;
   }
 
-  function renderStatic() { renderKPIs(); renderCats(); renderHow(); }
+  function renderNet() {
+    var el = document.getElementById('impNet'); if (!el || !stats) return;
+    var orgs = (stats.associations || []).length;
+    var cities = new Set((stats.associations || []).map(function (a) { return a.city; })).size || orgs;
+    var tmpl = T('impact_net');
+    el.innerHTML = esc(tmpl.replace('{cities}', cities).replace('{orgs}', orgs)) + ' <span class="imp-net-lk">' + esc(T('impact_net_link')) + '</span>';
+  }
+
+  function renderStatic() { renderKPIs(); renderCats(); renderHow(); renderNet(); }
 
   function load() {
     var base = (typeof window.getLang === 'function') ? getLang() : 'en';
@@ -165,6 +173,8 @@
       '.skel-card{position:relative;overflow:hidden;}.skel-card .n,.skel-card .l{visibility:hidden;}' +
       '.skel-card::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(var(--accent-rgb,25,135,84),.10),transparent);transform:translateX(-100%);animation:imp-shim 1.2s infinite;}' +
       '@keyframes imp-shim{to{transform:translateX(100%);}}' +
+      '.imp-net{display:block;text-align:center;margin:0 0 8px;padding:11px 14px;background:var(--surface-2,#eef7f2);border:1px solid var(--border,#e3ece7);border-radius:12px;color:var(--accent-dark,#0a5c3f);font-weight:700;font-size:.86rem;text-decoration:none;transition:background .2s;}' +
+      '.imp-net:hover{background:var(--accent-soft,#e8f3ec);}.imp-net .imp-net-lk{color:var(--accent-2,#0d9488);}' +
       '.imp-block{margin:30px 0;}.imp-block h2{font-size:1.18rem;font-weight:800;color:var(--text,#14241d);margin:0 0 14px;}' +
       '.imp-cats{display:flex;flex-direction:column;gap:11px;}' +
       '.imp-bar{display:grid;grid-template-columns:130px 1fr 42px;align-items:center;gap:10px;}' +

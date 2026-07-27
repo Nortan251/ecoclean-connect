@@ -24,8 +24,8 @@
  * already-open tabs quickly (a single reload then shows the fresh code).
  * ==========================================================================*/
 
-const SHELL = 'ecoclean-shell-v16';   // same-origin app shell (pre-cached on install)
-const RUNTIME = 'ecoclean-runtime-v16'; // CDN libs + live-data cache + misc runtime gets
+const SHELL = 'ecoclean-shell-v17';   // same-origin app shell (pre-cached on install)
+const RUNTIME = 'ecoclean-runtime-v17'; // CDN libs + live-data cache + misc runtime gets
 const TILES = 'ecoclean-tiles-v11';   // map tiles, size-bounded
 const MAX_TILES = 400;               // cap so offline map tiles can't blow the quota
 
@@ -35,7 +35,7 @@ const MAX_TILES = 400;               // cap so offline map tiles can't blow the 
 // CDN libs (incl. markercluster and the Supabase realtime client) are cached lazily
 // at runtime by the cache-first rule.
 const SHELL_ASSETS = [
-  './', './index.html', './dashboard.html', './admin.html', './impact.html',
+  './', './index.html', './dashboard.html', './admin.html', './impact.html', './associations.html',
   './css/styles.css', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png',
   './js/i18n.js', './js/ecoclean-addons.js', './js/app.js',
   './js/camera-location.js', './js/validation.js', './js/photo-trust.js', './js/photo-quality.js', './js/dup-detect.js', './js/trust-system.js',

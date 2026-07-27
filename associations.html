@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="js/theme.js"></script>
+  <meta name="theme-color" content="#198754" />
+  <title>EcoClean Connect — Our network</title>
+  <meta name="description" content="EcoClean Connect — the growing network of associations running citizen clean-ups city by city across Morocco." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" />
+  <link rel="stylesheet" href="css/styles.css?v=5" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <img src="icon.svg" class="brand-icon" />
+      <div><h1>EcoClean Connect</h1><p class="tagline" data-i18n="net_hero_sub">One platform, deployed city by city.</p></div>
+    </div>
+    <nav class="topnav">
+      <a href="index.html" data-i18n="btn_open_map">Map</a>
+      <a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="impact.html" data-i18n="impact_nav">Impact</a>
+      <a href="associations.html" data-i18n="net_nav">Network</a>
+      <a href="admin.html" data-i18n="nav_admin">Admin</a>
+      <select id="langSelect" class="lang-select" aria-label="Language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="ar">العربية</option>
+      </select>
+    </nav>
+  </header>
+
+  <main class="assoc">
+    <section class="assoc-hero">
+      <span class="assoc-badge">🇲🇦 Morocco · expanding</span>
+      <h1 data-i18n="net_hero_title">A network of associations, city by city</h1>
+      <p data-i18n="net_hero_sub">One platform, deployed city by city. Each partner runs its own city; together they form a national clean-up movement.</p>
+      <div id="assocNetStats" class="assoc-netstats"></div>
+    </section>
+
+    <section class="assoc-block">
+      <h2 data-i18n="net_orgs_title">Active partners</h2>
+      <div id="assocGrid" class="assoc-grid"></div>
+    </section>
+
+    <section class="assoc-cta">
+      <h2 data-i18n="net_cta_title">Your city isn’t here yet?</h2>
+      <p data-i18n="net_cta_sub">EcoClean is built to onboard a new city in days, not months. If you run an association, a municipality or a student club, let’s talk.</p>
+      <a id="assocPartner" class="primary-btn" href="#">🤝 <span data-i18n="impact_cta_btn">Partner with us</span></a>
+    </section>
+  </main>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/associations.js"></script>
+</body>
+</html>
