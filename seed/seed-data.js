@@ -13,7 +13,11 @@ const { encode } = require('./_jpeg');
 const URL = process.env.SUPABASE_URL;
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!URL || !KEY) { console.error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars first.'); process.exit(1); }
-const supabase = createClient(URL, KEY);
+// Node < 22 lacks a global WebSocket, which @supabase/supabase-js v2 needs for its
+// Realtime client (it initialises eagerly). The 'ws' package is already a project
+// dependency, so hand it in as the transport. On Node 22+ this is a harmless no-op.
+let WS; try { WS = require('ws'); } catch (e) { WS = undefined; }
+const supabase = createClient(URL, KEY, WS ? { realtime: { transport: WS } } : undefined);
 const BUCKET = 'ecoclean';
 const SEED_TAG = '[seed]';
 const W = 80, H = 60;
