@@ -5,7 +5,7 @@
  * no table or something" into a precise, shareable diagnosis. It only READS
  * (select limit 1 / getBucket) so it is safe to hit any time. */
 const { supabase } = require('./_lib/supabase');
-const { BUCKET } = require('./_lib/helpers');
+const { BUCKET, readJson } = require('./_lib/helpers');
 
 async function tableCheck(name) {
   try {
@@ -25,8 +25,14 @@ module.exports = async (req, res) => {
   // on the service endpoint. RLS allows anon INSERT but never anon SELECT on the
   // partner_applications table, so submissions are private. GET (below) is unchanged.
   if (req.method === 'POST') {
+    // Vercel may hand us the body already parsed (object), as a string, or as a raw
+    // stream — handle all three so the funnel works regardless of body-parsing mode.
     let body;
-    try { body = JSON.parse(req.body || '{}'); } catch (e) { return res.status(400).json({ error: 'invalid json' }); }
+    try {
+      if (req.body && typeof req.body === 'object') body = req.body;
+      else if (typeof req.body === 'string') body = JSON.parse(req.body || '{}');
+      else body = await readJson(req);
+    } catch (e) { return res.status(400).json({ error: 'invalid json' }); }
     const clean = (s) => String(s == null ? '' : s).replace(/[<>]/g, '').trim();
     const org_name = clean(body.orgName), city = clean(body.city), email = clean(body.email);
     if (!org_name || !city || !email) return res.status(400).json({ error: 'org, city and email are required' });
