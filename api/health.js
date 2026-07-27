@@ -44,7 +44,14 @@ module.exports = async (req, res) => {
       message: clean(body.message).slice(0, 2000) || null,
     };
     const { error } = await supabase.from('partner_applications').insert(row);
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      // Table not created yet (accounts_part6.sql not run) -> degrade gracefully so the
+      // public form never shows a raw 500; the client maps 503 to "opening soon".
+      if (/schema cache|does not exist|42P01|PGRST204|PGRST205/i.test(error.message || '')) {
+        return res.status(503).json({ error: 'applications opening soon' });
+      }
+      return res.status(500).json({ error: error.message });
+    }
     return res.status(201).json({ ok: true });
   }
   if (req.method !== 'GET') return res.status(405).end();

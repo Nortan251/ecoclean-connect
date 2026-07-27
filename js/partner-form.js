@@ -12,9 +12,9 @@
 (function () {
   'use strict';
   var L = {
-    en: { title: 'Bring EcoClean to your city', org: 'Organisation name', city: 'City', contact: 'Your name', email: 'Email', type: 'Organisation type', type_ph: 'Association / Municipality / Student club / Other', msg: 'Message (optional)', msg_ph: 'Tell us about your city and your team…', submit: 'Send application', sending: 'Sending…', ok: '✅ Thank you! We’ll be in touch about bringing EcoClean to your city.', err: '❌ Something went wrong — please try again or email us.', open: '🤝 Become a partner', close: 'Close' },
-    fr: { title: 'Amenez EcoClean dans votre ville', org: 'Nom de l’organisation', city: 'Ville', contact: 'Votre nom', email: 'E-mail', type: 'Type d’organisation', type_ph: 'Association / Commune / Club étudiant / Autre', msg: 'Message (facultatif)', msg_ph: 'Parlez-nous de votre ville et de votre équipe…', submit: 'Envoyer la candidature', sending: 'Envoi…', ok: '✅ Merci ! Nous vous contacterons pour amener EcoClean dans votre ville.', err: '❌ Une erreur est survenue — réessayez ou écrivez-nous.', open: '🤝 Devenir partenaire', close: 'Fermer' },
-    ar: { title: 'اجلب EcoClean إلى مدينتك', org: 'اسم المنظمة', city: 'المدينة', contact: 'اسمك', email: 'البريد الإلكتروني', type: 'نوع المنظمة', type_ph: 'جمعية / بلدية / نادٍ طلابي / أخرى', msg: 'رسالة (اختياري)', msg_ph: 'أخبرنا عن مدينتك وفريقك…', submit: 'إرسال الطلب', sending: 'جارٍ الإرسال…', ok: '✅ شكرًا لك! سنتواصل بشأن جلب EcoClean إلى مدينتك.', err: '❌ حدث خطأ — حاول مجددًا أو راسلنا.', open: '🤝 كن شريكًا', close: 'إغلاق' },
+    en: { title: 'Bring EcoClean to your city', org: 'Organisation name', city: 'City', contact: 'Your name', email: 'Email', type: 'Organisation type', type_ph: 'Association / Municipality / Student club / Other', msg: 'Message (optional)', msg_ph: 'Tell us about your city and your team…', submit: 'Send application', sending: 'Sending…', ok: '✅ Thank you! We’ll be in touch about bringing EcoClean to your city.', err: '❌ Something went wrong — please try again or email us.', soon: '🌱 Applications open very soon — meanwhile, email contact@ecoclean-connect.org.', open: '🤝 Become a partner', close: 'Close' },
+    fr: { title: 'Amenez EcoClean dans votre ville', org: 'Nom de l’organisation', city: 'Ville', contact: 'Votre nom', email: 'E-mail', type: 'Type d’organisation', type_ph: 'Association / Commune / Club étudiant / Autre', msg: 'Message (facultatif)', msg_ph: 'Parlez-nous de votre ville et de votre équipe…', submit: 'Envoyer la candidature', sending: 'Envoi…', ok: '✅ Merci ! Nous vous contacterons pour amener EcoClean dans votre ville.', err: '❌ Une erreur est survenue — réessayez ou écrivez-nous.', soon: '🌱 Les candidatures ouvrent très bientôt — en attendant, écrivez à contact@ecoclean-connect.org.', open: '🤝 Devenir partenaire', close: 'Fermer' },
+    ar: { title: 'اجلب EcoClean إلى مدينتك', org: 'اسم المنظمة', city: 'المدينة', contact: 'اسمك', email: 'البريد الإلكتروني', type: 'نوع المنظمة', type_ph: 'جمعية / بلدية / نادٍ طلابي / أخرى', msg: 'رسالة (اختياري)', msg_ph: 'أخبرنا عن مدينتك وفريقك…', submit: 'إرسال الطلب', sending: 'جارٍ الإرسال…', ok: '✅ شكرًا لك! سنتواصل بشأن جلب EcoClean إلى مدينتك.', err: '❌ حدث خطأ — حاول مجددًا أو راسلنا.', soon: '🌱 الطلبات تُفتح قريبًا جدًا — حتى ذلك الحين راسل contact@ecoclean-connect.org.', open: '🤝 كن شريكًا', close: 'إغلاق' },
   };
   var lang = function () { return (typeof window.getLang === 'function' ? getLang() : 'en'); };
   var t = function () { return L[lang()] || L.en; };
@@ -60,8 +60,11 @@
     };
     msg.className = 'pf-msg'; msg.textContent = T.sending; btn.disabled = true;
     fetch('/api/health', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
-      .then(function () { msg.className = 'pf-msg ok'; msg.textContent = T.ok; f.reset(); btn.disabled = false; setTimeout(close, 2600); })
+      .then(function (r) { return r.status === 503 ? { soon: true } : (r.ok ? r.json() : Promise.reject(r)); })
+      .then(function (j) {
+        if (j && j.soon) { msg.className = 'pf-msg ok'; msg.textContent = T.soon; btn.disabled = false; return; }
+        msg.className = 'pf-msg ok'; msg.textContent = T.ok; f.reset(); btn.disabled = false; setTimeout(close, 2600);
+      })
       .catch(function () { msg.className = 'pf-msg err'; msg.textContent = T.err; btn.disabled = false; });
   }
   function open() {
