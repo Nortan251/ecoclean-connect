@@ -174,12 +174,25 @@
    * arrives via a reset link (we detect that through PASSWORD_RECOVERY below). */
   function openSetPassword() { inject(); closeAuth(); openAuth('setpw'); }
 
-  function signOut() { closeMenu(); cfgClient().then((c) => { if (c) c.auth.signOut(); }); }
+  // ---- session cache: kill the "logged-out for a second on reload" flash ----
+  // On reload the nav first paints with current=null ("Log in"), then the async
+  // Supabase getSession()/refreshMe() resolves and flips it to the chip — that
+  // flip is the flicker. We persist the last known identity to sessionStorage and
+  // paint it SYNCHRONOUSLY in start() so the chip is there on first frame; the
+  // real session then confirms (or clears, if expired) without any visible jump.
+  const CACHE_KEY = 'ecoclean_session_cache';
+  function cacheSession() {
+    try { if (current) sessionStorage.setItem(CACHE_KEY, JSON.stringify({ id: current.id, email: current.email, displayName: current.displayName, points: current.points })); } catch (e) {}
+  }
+  function readCache() { try { const v = sessionStorage.getItem(CACHE_KEY); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function clearCache() { try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {} }
+
+  function signOut() { closeMenu(); clearCache(); cfgClient().then((c) => { if (c) c.auth.signOut(); }); }
 
   function refreshMe() {
     return fetch('/api/me', { headers: { Authorization: 'Bearer ' + current.accessToken } })
       .then((r) => (r.ok ? r.json() : null)).then((me) => {
-        if (me && current) { current.displayName = me.displayName; current.points = me.points; current.vouchers = me.vouchers; current.myReports = me.myReports; current.claimedQuests = me.claimedQuests || []; current.myReportsList = me.myReportsList || []; current.streakCur = me.streakCur || 0; current.streakBest = me.streakBest || 0; current.admin = me.admin || null; }
+        if (me && current) { current.displayName = me.displayName; current.points = me.points; current.vouchers = me.vouchers; current.myReports = me.myReports; current.claimedQuests = me.claimedQuests || []; current.myReportsList = me.myReportsList || []; current.streakCur = me.streakCur || 0; current.streakBest = me.streakBest || 0; current.admin = me.admin || null; cacheSession(); }
         renderNav(); emit(); return current;
       }).catch(() => { renderNav(); emit(); return current; });
   }
@@ -188,15 +201,21 @@
     // Scope the LOCAL store to this account BEFORE anything reads it, so each user
     // gets isolated quests / points / streak-fallback (and logout returns to anon).
     if (window.EcoStore && EcoStore.setUserScope) EcoStore.setUserScope(current ? current.id : null);
-    if (current) refreshMe(); else { renderNav(); emit(); }
+    if (current) { cacheSession(); refreshMe(); } else { clearCache(); renderNav(); emit(); }
   }
   function start() {
-    inject(); renderNav();
+    inject();
+    // Paint the cached identity on the FIRST frame so a reload never flashes the
+    // logged-out nav. getSession() below confirms it (and clears the cache if the
+    // session is gone), so this is purely a no-flash optimisation.
+    const cached = readCache();
+    if (cached && cached.id) { current = { id: cached.id, email: cached.email, displayName: cached.displayName, accessToken: null }; renderNav(); }
+    else renderNav();
     cfgClient().then((c) => {
       if (!c) { bootDone = true; emit(); return; }
       c.auth.getSession().then(({ data }) => { setSession(data && data.session); bootDone = true; });
       c.auth.onAuthStateChange((ev, sess) => {
-        if (ev === 'SIGNED_OUT') { current = null; renderNav(); emit(); }
+        if (ev === 'SIGNED_OUT') { current = null; clearCache(); renderNav(); emit(); }
         else if (ev === 'PASSWORD_RECOVERY' && sess) { setSession(sess); openSetPassword(); }   // arrived via reset link -> show "set new password"
         else if (sess) setSession(sess);
       });
