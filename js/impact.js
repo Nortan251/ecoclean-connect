@@ -78,28 +78,19 @@
     });
   }
 
-  /* Inlined before/after slider (same DOM contract as compare.js) so the page
-   * needs no other module. Drag = range input over a clipped before layer. */
-  function slider(b, a) {
-    return '<div class="ba-slider"><img class="ba-after" src="' + esc(a) + '" alt="after">' +
-      '<div class="ba-before-wrap"><img class="ba-before" src="' + esc(b) + '" alt="before"></div>' +
-      '<div class="ba-handle"></div><input type="range" min="0" max="100" value="50" class="ba-range" aria-label="compare"></div>';
-  }
-  function wireSlider(box) {
-    var r = box.querySelector('.ba-range'), w = box.querySelector('.ba-before-wrap'), h = box.querySelector('.ba-handle');
-    if (!r) return;
-    var apply = function (v) { w.style.width = v + '%'; h.style.left = v + '%'; };
-    r.addEventListener('input', function () { apply(r.value); }); apply(50);
-  }
-  function renderGallery() {
-    var box = document.getElementById('impGallery'); if (!box) return;
-    var items = reports.filter(function (r) { return r.status === 'verified' && r.beforePhoto && r.afterPhoto; }).slice(0, 12);
-    if (!items.length) { box.innerHTML = '<p class="imp-empty"></p>'; box.querySelector('.imp-empty').textContent = T('impact_gal_empty'); return; }
-    box.innerHTML = items.map(function (r) {
-      return '<figure class="imp-gitem">' + slider(r.beforePhoto, r.afterPhoto) +
-        '<figcaption>' + esc((typeof window.catLabel === 'function') ? window.catLabel(r.category) : r.category) + '</figcaption></figure>';
+  /* "How it works" — the operating MODEL an association needs to understand
+   * (citizen reports -> association verifies -> city sees impact). Replaces the
+   * before/after gallery, which is parked until the platform runs with real photos. */
+  function renderHow() {
+    var box = document.getElementById('impHow'); if (!box) return;
+    var steps = [
+      ['📍', T('impact_step1_t'), T('impact_step1_d')],
+      ['✅', T('impact_step2_t'), T('impact_step2_d')],
+      ['📈', T('impact_step3_t'), T('impact_step3_d')],
+    ];
+    box.innerHTML = steps.map(function (s, i) {
+      return '<div class="imp-step"><div class="imp-step-n">' + (i + 1) + '</div><div class="imp-step-i">' + s[0] + '</div><h3>' + esc(s[1]) + '</h3><p>' + esc(s[2]) + '</p></div>';
     }).join('');
-    box.querySelectorAll('.ba-slider').forEach(wireSlider);
   }
 
   function tileUrl() {
@@ -141,7 +132,7 @@
     a.href = 'mailto:contact@ecoclean-connect.org?subject=' + subj + '&body=' + bodyTxt;
   }
 
-  function renderStatic() { renderKPIs(); renderCats(); renderGallery(); }
+  function renderStatic() { renderKPIs(); renderCats(); renderHow(); }
 
   function load() {
     var base = (typeof window.getLang === 'function') ? getLang() : 'en';
@@ -181,11 +172,13 @@
       '.imp-bar-track{height:12px;background:var(--surface-2,#eef7f2);border-radius:99px;overflow:hidden;}' +
       '.imp-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent,#198754),var(--accent-2,#0d9488));border-radius:99px;transition:width .9s cubic-bezier(.2,.8,.2,1);}' +
       '.imp-bar-v{font-weight:800;color:var(--text,#14241d);text-align:right;}' +
-      '.imp-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}' +
-      '.imp-gitem{margin:0;background:var(--surface,#fff);border:1px solid var(--border,#e3ece7);border-radius:14px;overflow:hidden;box-shadow:var(--shadow,0 6px 18px rgba(16,40,30,.06));}' +
-      '.imp-gitem .ba-slider{width:100%;height:160px;margin:0;border-radius:0;}' +
-      '.imp-gitem figcaption{padding:8px 10px;font-size:.78rem;font-weight:700;color:var(--muted,#5d7268);}' +
-      '.imp-empty{color:var(--muted,#5d7268);font-size:.9rem;}' +
+      '.imp-how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}' +
+      '.imp-step{position:relative;background:var(--surface,#fff);border:1px solid var(--border,#e3ece7);border-radius:16px;padding:20px 16px 16px;box-shadow:var(--shadow,0 6px 18px rgba(16,40,30,.06));}' +
+      '.imp-step-n{position:absolute;top:-12px;left:16px;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent,#198754),var(--accent-2,#0d9488));color:#fff;display:grid;place-items:center;font-weight:800;font-size:.82rem;box-shadow:0 4px 10px rgba(13,148,136,.4);}' +
+      '.imp-step-i{font-size:1.7rem;margin:6px 0 8px;}' +
+      '.imp-step h3{margin:0 0 6px;font-size:1rem;font-weight:800;color:var(--text,#14241d);}' +
+      '.imp-step p{margin:0;font-size:.85rem;color:var(--muted,#5d7268);line-height:1.55;}' +
+      '.imp-demo-note{margin:14px 0 0;font-size:.78rem;color:var(--muted,#5d7268);background:var(--surface-2,#eef7f2);border:1px dashed var(--border-strong,#cfe2d8);border-radius:12px;padding:10px 14px;line-height:1.5;}' +
       '.imp-map{height:380px;border-radius:16px;overflow:hidden;border:1px solid var(--border,#e3ece7);box-shadow:var(--shadow,0 6px 18px rgba(16,40,30,.06));}' +
       /* dark-mode map polish: Leaflet ships the attribution + zoom as white boxes;
        * force them to the dark surfaces so the embedded map matches the theme. */
@@ -205,7 +198,7 @@
       '.ba-handle{position:absolute;top:0;bottom:0;left:50%;width:3px;margin-left:-1.5px;background:#fff;box-shadow:0 0 4px rgba(0,0,0,.45);pointer-events:none;}' +
       '.ba-handle::after{content:"\\21C4";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#0a5c3f;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.3);}' +
       '.ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;}' +
-      '@media (max-width:680px){.imp-kpis{grid-template-columns:repeat(2,1fr);}.imp-bar{grid-template-columns:96px 1fr 36px;}}' +
+      '@media (max-width:680px){.imp-kpis{grid-template-columns:repeat(2,1fr);}.imp-bar{grid-template-columns:96px 1fr 36px;}.imp-how{grid-template-columns:1fr;}}' +
       '@media (prefers-reduced-motion: reduce){.skel-card::after{animation:none;}.imp-bar-fill{transition:none;}}';
     document.head.appendChild(st);
   }
