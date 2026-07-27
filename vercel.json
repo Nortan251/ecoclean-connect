@@ -1,7 +1,6 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/push/:id", "destination": "/api/push?id=:id" },
-    { "source": "/api/partner-apply", "destination": "/api/partner-apply" }
+    { "source": "/api/push/:id", "destination": "/api/push?id=:id" }
   ]
 }

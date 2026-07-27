@@ -59,7 +59,7 @@
       contactName: f.contactName.value.trim(), orgType: f.orgType.value.trim(), message: f.message.value.trim(),
     };
     msg.className = 'pf-msg'; msg.textContent = T.sending; btn.disabled = true;
-    fetch('/api/partner-apply', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    fetch('/api/health', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
       .then(function () { msg.className = 'pf-msg ok'; msg.textContent = T.ok; f.reset(); btn.disabled = false; setTimeout(close, 2600); })
       .catch(function () { msg.className = 'pf-msg err'; msg.textContent = T.err; btn.disabled = false; });

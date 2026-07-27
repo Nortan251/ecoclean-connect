@@ -17,6 +17,31 @@ async function tableCheck(name) {
 }
 
 module.exports = async (req, res) => {
+  // POST /api/health doubles as the PUBLIC partner-application funnel. We piggyback
+  // here (instead of a dedicated file) because the Vercel Hobby plan caps us at 12
+  // serverless functions and we are exactly at 12 — a 13th file makes Vercel REJECT
+  // the whole deployment (a silent "Deployment has failed" with no code error). A
+  // public, write-only application is operationally a "service" action, so it lives
+  // on the service endpoint. RLS allows anon INSERT but never anon SELECT on the
+  // partner_applications table, so submissions are private. GET (below) is unchanged.
+  if (req.method === 'POST') {
+    let body;
+    try { body = JSON.parse(req.body || '{}'); } catch (e) { return res.status(400).json({ error: 'invalid json' }); }
+    const clean = (s) => String(s == null ? '' : s).replace(/[<>]/g, '').trim();
+    const org_name = clean(body.orgName), city = clean(body.city), email = clean(body.email);
+    if (!org_name || !city || !email) return res.status(400).json({ error: 'org, city and email are required' });
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: 'invalid email' });
+    const row = {
+      org_name, city, email,
+      contact_name: clean(body.contactName) || null,
+      org_type: clean(body.orgType) || null,
+      message: clean(body.message).slice(0, 2000) || null,
+    };
+    const { error } = await supabase.from('partner_applications').insert(row);
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(201).json({ ok: true });
+  }
+  if (req.method !== 'GET') return res.status(405).end();
   const env = {
     SUPABASE_URL: !!process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
