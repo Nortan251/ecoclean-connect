@@ -70,6 +70,7 @@
       countUp(c.querySelector('.n'), vals[i], suffixes[i]);
     });
     var m = document.getElementById('impMethod'); if (m) m.textContent = stats.kgMethod || '';
+    var u = document.getElementById('impUpdated'); if (u) u.textContent = new Date().toLocaleString();
   }
 
   function renderCats() {
@@ -216,6 +217,7 @@
       '.imp-cta h2{color:#fff;margin:0 0 8px;font-size:1.5rem;}.imp-cta p{color:rgba(255,255,255,.92);max-width:560px;margin:0 auto 18px;line-height:1.6;}' +
       '.imp-cta .primary-btn{background:#fff;color:var(--accent-dark,#0a5c3f);box-shadow:0 8px 22px rgba(0,0,0,.22);}' +
       '.imp-method{font-size:.72rem;color:var(--muted,#5d7268);text-align:center;margin-top:8px;line-height:1.5;}' +
+      '.imp-updated{font-size:.72rem;color:var(--muted,#5d7268);text-align:center;margin:4px 0 0;}' +
       /* inlined compare-slider styles (standalone page) */
       '.ba-slider{position:relative;width:200px;height:130px;overflow:hidden;border-radius:8px;margin:6px auto;user-select:none;-webkit-user-select:none;}' +
       '.ba-slider img{position:absolute;top:0;left:0;height:100%;object-fit:cover;}.ba-after{width:100%;}' +
