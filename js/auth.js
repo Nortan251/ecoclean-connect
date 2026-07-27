@@ -185,6 +185,9 @@
   }
   function setSession(sess) {
     current = sess ? { id: sess.user.id, email: sess.user.email, accessToken: sess.access_token } : null;
+    // Scope the LOCAL store to this account BEFORE anything reads it, so each user
+    // gets isolated quests / points / streak-fallback (and logout returns to anon).
+    if (window.EcoStore && EcoStore.setUserScope) EcoStore.setUserScope(current ? current.id : null);
     if (current) refreshMe(); else { renderNav(); emit(); }
   }
   function start() {

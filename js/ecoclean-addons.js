@@ -6,10 +6,34 @@
   window.EcoClean = window.EcoClean || { maps: [], reports: [] };
   const NS = 'ecoclean:';
 
-  // Additive key/value store (JSON serialized).
+  // Additive key/value store (JSON serialized) — NOW USER-SCOPED.
+  // ----------------------------------------------------------------------------
+  // BUG FIX (per-account isolation): the old store used ONE global namespace, so
+  // on a shared device every account saw the SAME local quest claims / local
+  // points / local vouchers / streak fallback ("same data for everyone"). Server
+  // data was always per-user, but this local layer was not. Now, when someone is
+  // signed in, keys are namespaced by their user id (ecoclean:u:<uid>:<key>) so
+  // each account gets a clean, independent local state — exactly like "a real
+  // account". When signed out, keys stay global (ecoclean:<key>) = the anonymous
+  // cooperative wallet. auth.js calls setUserScope(id) on login / null on logout.
+  //
+  // GLOBAL_KEYS are the EXCEPTIONS: values that are genuinely device- / app-level
+  // and must NOT differ per account — theme, language, one-time onboarding, the
+  // anti-spam cooldown (rate-limit is per-device on purpose), and the local
+  // "cleaned" cache (a device-side mirror of verified status). Everything else is
+  // per-account by default, which is the safe direction (a new key is isolated
+  // unless you explicitly opt it into sharing).
+  const GLOBAL_KEYS = { eco_theme: 1, ecoclean_lang: 1, eco_onboarded: 1, lastReportAt: 1, cleanedStatus: 1, dupDismissedAt: 1 };
+  let _uid = null;
+  function _prefix(k) { return (_uid && !GLOBAL_KEYS[k]) ? NS + 'u:' + _uid + ':' : NS; }
   window.EcoStore = {
-    get(k, fb) { try { const v = localStorage.getItem(NS + k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } },
-    set(k, v) { localStorage.setItem(NS + k, JSON.stringify(v)); }
+    get(k, fb) { try { const v = localStorage.getItem(_prefix(k) + k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } },
+    set(k, v) { try { localStorage.setItem(_prefix(k) + k, JSON.stringify(v)); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(_prefix(k) + k); } catch (e) {} },
+    // (Re)scope the store to a user (pass null/undefined for anonymous). Called by
+    // auth.js whenever the session changes so reads/writes hit the right bucket.
+    setUserScope(id) { _uid = id || null; },
+    uid() { return _uid; },
   };
 
   // Haversine great-circle distance (km) — used by dispatch clustering.
