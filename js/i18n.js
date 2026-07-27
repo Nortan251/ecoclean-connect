@@ -35,7 +35,11 @@
       after_photo: 'After photo', notes: 'Notes', reward_code: 'Reward code (optional)', verify_btn: 'Verify & issue reward',
       dash_title: 'Dashboard', dash_sub: 'Impact at a glance',
       total_reports: 'Total reports', reported_red: 'Reported (red)', verified_green: 'Verified (green)',
-      by_category: 'By category', recent_activity: 'Recent activity', no_reports: 'No reports yet', no_activity: 'No activity yet'
+      by_category: 'By category', recent_activity: 'Recent activity', no_reports: 'No reports yet', no_activity: 'No activity yet',
+      impact_nav: 'Impact', impact_hero_title: 'Real impact, measured in the open', impact_hero_sub: 'Every report, every clean-up, every citizen — counted live and published for all of Morocco.',
+      kpi_total: 'Reports filed', kpi_cleaned: 'Sites cleaned', kpi_kg: 'Waste removed (est.)', kpi_citizens: 'Citizens engaged',
+      impact_cat_title: 'Where we’re winning', impact_gal_title: 'Before → After', impact_gal_empty: 'Verified clean-ups with photos will appear here.',
+      impact_map_title: 'The clean-up map', impact_cta_title: 'Bring EcoClean to your city', impact_cta_sub: 'Run by an association, a municipality or a student club? EcoClean is built to be deployed city by city across Morocco.', impact_cta_btn: 'Partner with us', impact_method: 'Methodology'
     },
     fr: {
       tagline: 'Signalez la pollution. Mobilisez votre communauté.',
@@ -70,7 +74,11 @@
       after_photo: 'Photo après', notes: 'Notes', reward_code: 'Code de récompense', verify_btn: 'Vérifier et récompenser',
       dash_title: 'Tableau de bord', dash_sub: 'Impact en un coup d\'œil',
       total_reports: 'Total des signalements', reported_red: 'Signalé (rouge)', verified_green: 'Vérifié (vert)',
-      by_category: 'Par catégorie', recent_activity: 'Activité récente', no_reports: 'Aucun signalement', no_activity: 'Aucune activité'
+      by_category: 'Par catégorie', recent_activity: 'Activité récente', no_reports: 'Aucun signalement', no_activity: 'Aucune activité',
+      impact_nav: 'Impact', impact_hero_title: 'Un impact réel, mesuré en toute transparence', impact_hero_sub: 'Chaque signalement, chaque nettoyage, chaque citoyen — comptés en direct et publiés pour tout le Maroc.',
+      kpi_total: 'Signalements', kpi_cleaned: 'Sites nettoyés', kpi_kg: 'Déchets retirés (est.)', kpi_citizens: 'Citoyens engagés',
+      impact_cat_title: 'Là où nous gagnons', impact_gal_title: 'Avant → Après', impact_gal_empty: 'Les nettoyages vérifiés avec photos apparaîtront ici.',
+      impact_map_title: 'La carte des nettoyages', impact_cta_title: 'Amenez EcoClean dans votre ville', impact_cta_sub: 'Géré par une association, une commune ou un club étudiant ? EcoClean est conçu pour être déployé ville par ville au Maroc.', impact_cta_btn: 'Devenez partenaire', impact_method: 'Méthodologie'
     },
     ar: {
       tagline: 'أبلغ عن التلوث. حشّد مجتمعك.',
@@ -105,7 +113,11 @@
       after_photo: 'صورة بعد', notes: 'ملاحظات', reward_code: 'رمز المكافأة', verify_btn: 'تحقق ومنح المكافأة',
       dash_title: 'لوحة المعلومات', dash_sub: 'الأثر في لمحة',
       total_reports: 'إجمالي البلاغات', reported_red: 'تم الإبلاغ (أحمر)', verified_green: 'مؤكد (أخضر)',
-      by_category: 'حسب الفئة', recent_activity: 'النشاط الأخير', no_reports: 'لا بلاغات بعد', no_activity: 'لا نشاط بعد'
+      by_category: 'حسب الفئة', recent_activity: 'النشاط الأخير', no_reports: 'لا بلاغات بعد', no_activity: 'لا نشاط بعد',
+      impact_nav: 'الأثر', impact_hero_title: 'أثر حقيقي، مقاس بشفافية', impact_hero_sub: 'كل بلاغ، كل عملية تنظيف، كل مواطن — تُحسب مباشرة وتُنشر لكل المغرب.',
+      kpi_total: 'بلاغات مُقدَّمة', kpi_cleaned: 'مواقع منظَّفة', kpi_kg: 'نفايات مُزالة (تقدير)', kpi_citizens: 'مواطنون مشاركون',
+      impact_cat_title: 'حيث ننتصر', impact_gal_title: 'قبل ← بعد', impact_gal_empty: 'ستظهر هنا عمليات التنظيف المتحققة مع الصور.',
+      impact_map_title: 'خريطة التنظيف', impact_cta_title: 'اجلب EcoClean إلى مدينتك', impact_cta_sub: 'تديرها جمعية أو بلدية أو نادٍ طلابي؟ صُمم EcoClean ليُنشَر مدينةً مدينةً عبر المغرب.', impact_cta_btn: 'كن شريكًا', impact_method: 'المنهجية'
     }
   };
 

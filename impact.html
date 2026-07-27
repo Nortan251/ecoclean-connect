@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="js/theme.js"></script>
+  <meta name="theme-color" content="#198754" />
+  <title>EcoClean Connect — Impact</title>
+  <meta name="description" content="EcoClean Connect — live, open impact metrics for crowdsourced pollution reporting and community clean-ups across Morocco." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/styles.css?v=5" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <img src="icon.svg" class="brand-icon" />
+      <div><h1>EcoClean Connect</h1><p class="tagline" data-i18n="impact_hero_sub">Real impact, measured in the open.</p></div>
+    </div>
+    <nav class="topnav">
+      <a href="index.html" data-i18n="btn_open_map">Map</a>
+      <a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="impact.html" data-i18n="impact_nav">Impact</a>
+      <a href="admin.html" data-i18n="nav_admin">Admin</a>
+      <select id="langSelect" class="lang-select" aria-label="Language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="ar">العربية</option>
+      </select>
+    </nav>
+  </header>
+
+  <main class="impact">
+    <section class="imp-hero">
+      <span class="imp-badge">🌍 Morocco · live</span>
+      <h1 data-i18n="impact_hero_title">Real impact, measured in the open</h1>
+      <p data-i18n="impact_hero_sub">Every report, every clean-up, every citizen — counted live and published for all of Morocco.</p>
+    </section>
+
+    <section class="imp-kpis" id="impKpis" aria-live="polite">
+      <div class="imp-kpi skel-card"><div class="n">—</div><div class="l" data-i18n="kpi_total">Reports filed</div></div>
+      <div class="imp-kpi skel-card"><div class="n">—</div><div class="l" data-i18n="kpi_cleaned">Sites cleaned</div></div>
+      <div class="imp-kpi skel-card"><div class="n">—</div><div class="l" data-i18n="kpi_kg">Waste removed (est.)</div></div>
+      <div class="imp-kpi skel-card"><div class="n">—</div><div class="l" data-i18n="kpi_citizens">Citizens engaged</div></div>
+    </section>
+
+    <section class="imp-block">
+      <h2 data-i18n="impact_cat_title">Where we’re winning</h2>
+      <div id="impCats" class="imp-cats"></div>
+    </section>
+
+    <section class="imp-block">
+      <h2 data-i18n="impact_gal_title">Before → After</h2>
+      <div id="impGallery" class="imp-gallery"></div>
+    </section>
+
+    <section class="imp-block">
+      <h2 data-i18n="impact_map_title">The clean-up map</h2>
+      <div id="impMap" class="imp-map" role="img" aria-label="Map of verified clean-ups"></div>
+    </section>
+
+    <section class="imp-cta">
+      <h2 data-i18n="impact_cta_title">Bring EcoClean to your city</h2>
+      <p data-i18n="impact_cta_sub">Run by an association, a municipality or a student club? EcoClean is built to be deployed city by city across Morocco.</p>
+      <a id="impPartner" class="primary-btn" href="#">🤝 <span data-i18n="impact_cta_btn">Partner with us</span></a>
+    </section>
+
+    <p class="imp-method"><b data-i18n="impact_method">Methodology</b>: <span id="impMethod"></span></p>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/impact.js"></script>
+</body>
+</html>
