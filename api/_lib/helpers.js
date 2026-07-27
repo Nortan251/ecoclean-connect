@@ -1,4 +1,5 @@
 const { supabase } = require('./supabase');
+const { verifyUser } = require('./auth');
 
 const BUCKET = 'ecoclean';
 
@@ -51,6 +52,44 @@ function requireAdmin(req, res) {
   return true;
 }
 
+// admin v2 access control. Returns an access object (never null):
+//   { ok:true,  kind:'super' }                -> legacy ADMIN_KEY header (full access)
+//   { ok:true,  kind:'super', uid }           -> signed-in SUPER_ADMIN_EMAIL / role=super
+//   { ok:true,  kind:'assoc', uid, ctx }      -> signed-in association admin (city-scoped)
+//   { ok:false, status, error }               -> creds present but invalid / not an admin
+// A request with NO admin credentials at all resolves to {ok:false,status:401}; callers
+// that also serve the PUBLIC map (GET /api/reports) use the softer adminContextOrNull().
+async function requireAdminContext(req, res) {
+  const key = req.headers['x-admin-key'];
+  if (key && key === (process.env.ADMIN_KEY || 'ecoclean-admin')) return { ok: true, kind: 'super' };
+  const user = await verifyUser(req);
+  if (!user) {
+    if (key) { res.status(401).json({ error: 'unauthorized' }); return { ok: false }; }
+    res.status(401).json({ error: 'admin sign-in required' }); return { ok: false };
+  }
+  const { data: ctx, error } = await supabase.rpc('admin_context', { uid: user.id });
+  if (error || !ctx) { res.status(401).json({ error: 'unauthorized' }); return { ok: false }; }
+  if (ctx.is_super) return { ok: true, kind: 'super', uid: user.id };
+  if (ctx.role === 'admin' && ctx.association_id) return { ok: true, kind: 'assoc', uid: user.id, ctx };
+  res.status(403).json({ error: 'not an admin' }); return { ok: false };
+}
+// Same as above but a missing-credentials request yields null (NOT a 401), so public
+// endpoints can fall through to their public behaviour. A present-but-invalid cred
+// still 401s (we don't silently downgrade a bad token to public).
+async function adminContextOrNull(req, res) {
+  const key = req.headers['x-admin-key'];
+  const hasKey = !!(key && key === (process.env.ADMIN_KEY || 'ecoclean-admin'));
+  const hasBearer = /^Bearer\s+/i.test(req.headers.authorization || '');
+  if (!hasKey && !hasBearer) return null;
+  const r = await requireAdminContext(req, res);
+  return r.ok ? r : { ok: false };
+}
+function inCityBounds(report, ctx) {
+  if (!ctx || !ctx.lat || !ctx.lng) return true;
+  const dLat = Math.abs(report.lat - ctx.lat), dLng = Math.abs(report.lng - ctx.lng);
+  return dLat <= (ctx.radius_km / 111.0) && dLng <= (ctx.radius_km / Math.max(1, 111.0 * Math.cos(ctx.lat * Math.PI / 180)));
+}
+
 // Turn raw Supabase/Postgres errors into a message that tells the operator
 // exactly what to fix. A solo founder (or a grader clicking the live demo)
 // should never have to decode "relation public.reports does not exist".
@@ -71,4 +110,4 @@ function friendlyDbError(msg) {
   return msg || 'Unknown database error.';
 }
 
-module.exports = { BUCKET, REPORT_SELECT, ALERT_SELECT, readJson, uploadPhoto, requireAdmin, friendlyDbError };
+module.exports = { BUCKET, REPORT_SELECT, ALERT_SELECT, readJson, uploadPhoto, requireAdmin, requireAdminContext, adminContextOrNull, inCityBounds, friendlyDbError };

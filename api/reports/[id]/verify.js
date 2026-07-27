@@ -1,10 +1,11 @@
 const { supabase } = require('../../_lib/supabase');
-const { REPORT_SELECT, readJson, uploadPhoto, requireAdmin } = require('../../_lib/helpers');
+const { REPORT_SELECT, readJson, uploadPhoto, requireAdminContext, inCityBounds } = require('../../_lib/helpers');
 const push = require('../../_lib/push');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();
-  if (!requireAdmin(req, res)) return;
+  const ac = await requireAdminContext(req, res);   // super (key or SUPER_ADMIN_EMAIL) OR association admin
+  if (!ac.ok) return;
 
   const id = req.query.id;
   let body;
@@ -18,6 +19,10 @@ module.exports = async (req, res) => {
   // exactly once and can notify the right person. (auth.users is readable by the
   // service role; we only ever use the email to look up push subscriptions.)
   const { data: cur } = await supabase.from('reports').select('reporter_user_id, rewarded, category').eq('id', id).single();
+  // admin v2: an association admin may only verify reports inside their city.
+  if (ac.kind === 'assoc' && ac.ctx && (!cur || !inCityBounds(cur, ac.ctx))) {
+    return res.status(403).json({ error: 'outside your association’s city' });
+  }
   let reporterEmail = null;
   if (cur && cur.reporter_user_id) {
     const { data: u } = await supabase.from('users').select('email').eq('id', cur.reporter_user_id).maybeSingle();

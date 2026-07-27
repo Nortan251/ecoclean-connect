@@ -43,7 +43,9 @@ function showToast(m) {
 }
 
 async function api(path, opts = {}) {
-  opts.headers = { ...(opts.headers || {}), 'x-admin-key': ADMIN_KEY };
+    opts.headers = { ...(opts.headers || {}) };
+    if (ADMIN_KEY) opts.headers['x-admin-key'] = ADMIN_KEY;               // legacy super-admin
+    if (window.EcoAuth && EcoAuth.getToken && EcoAuth.getToken()) opts.headers['Authorization'] = 'Bearer ' + EcoAuth.getToken(); // association admin (admin v2)
   const res = await fetch(path, opts);
   if (res.status === 401) {
     alert('Unauthorized — ' + t('admin_key'));
@@ -96,7 +98,7 @@ async function load() {
       }
       const r = await fetch('/api/reports/' + id + '/verify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, ADMIN_KEY ? { 'x-admin-key': ADMIN_KEY } : {}, (window.EcoAuth && EcoAuth.getToken && EcoAuth.getToken()) ? { 'Authorization': 'Bearer ' + EcoAuth.getToken() } : {}),
         body: JSON.stringify(payload),
       });
       if (r.ok) {
@@ -141,7 +143,52 @@ window.addEventListener('DOMContentLoaded', () => {
       if ($('#panel') && !$('#panel').classList.contains('hidden')) load();
     });
   }
-  if (ADMIN_KEY) enterPanel();
+  // admin v2: show the signed-in association admin which org/city they're scoped to
+  // (and offer a one-tap Supabase sign-in so a partner can log in without the key).
+  function loadAdminContext() {
+    // admin v2 scope comes from /api/me (merged into the user by auth.js) — no extra
+    // endpoint (keeps us at the 12-function Hobby cap). Legacy key = super admin.
+    var c = null;
+    if (ADMIN_KEY) c = { scope: 'all' };
+    else { var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser(); c = u && u.admin ? u.admin : null; }
+    if (!c) return;
+    var panel = document.querySelector('#panel') || document.body;
+    var b = document.getElementById('ecoAdminCtx');
+    if (!b) { b = document.createElement('div'); b.id = 'ecoAdminCtx'; b.className = 'eco-admin-ctx'; panel.insertBefore(b, panel.firstChild); }
+    var Lg = (typeof window.getLang === 'function') ? getLang() : 'en';
+    if (c.scope === 'city') {
+      b.innerHTML = '🏢 <b></b> · ' + ({ ar: 'النطاق: ', fr: 'périmètre : ', en: 'scope: ' }[Lg] || 'scope: ') + '<span></span>';
+      b.querySelector('b').textContent = c.association_name || ''; b.querySelector('span').textContent = c.city || '';
+    } else {
+      b.textContent = '🛡️ ' + ({ ar: 'مشرف عام — وصول كامل', fr: 'Super admin — accès total', en: 'Super admin — full access' }[Lg] || 'Super admin — full access');
+    }
+  }
+  function ensureAssocLogin() {
+    if (document.getElementById('ecoAssocLogin')) return;
+    var lf = document.querySelector('#loginMsg'); if (!lf || !lf.parentNode) return;
+    var row = document.createElement('div'); row.id = 'ecoAssocLogin'; row.style.cssText = 'margin-top:10px;text-align:center;font-size:.82rem;color:#5d7268';
+    row.innerHTML = '<button type="button" class="ghost-btn" id="ecoAssocBtn" style="font-size:.8rem"></button>';
+    lf.parentNode.insertBefore(row, lf.nextSibling);
+    var label = (typeof window.getLang === 'function' && getLang() === 'ar') ? 'أو: دخول كمسرف جمعية' : ((typeof window.getLang === 'function' && getLang() === 'fr') ? 'ou : connexion admin d’association' : 'or: sign in as an association admin');
+    row.querySelector('#ecoAssocBtn').textContent = label;
+    row.querySelector('#ecoAssocBtn').addEventListener('click', function () { if (window.EcoAuth && EcoAuth.signIn) EcoAuth.signIn(); });
+  }
+  if (!document.getElementById('eco-admin-ctx-style')) {
+    var st = document.createElement('style'); st.id = 'eco-admin-ctx-style';
+    st.textContent = '.eco-admin-ctx{background:var(--accent-soft,#e8f3ec);color:var(--accent-dark,#0a5c3f);border:1px solid var(--border-strong,#bfe0cd);border-radius:10px;padding:8px 12px;font-size:.82rem;font-weight:600;margin:0 0 12px;}';
+    document.head.appendChild(st);
+  }
+  ensureAssocLogin();
+  // admin v2: a signed-in association admin (no demo key) goes straight to the panel;
+  // the server still enforces role + city scope on every call. Re-checked on auth changes.
+  function tryAssocEntry() {
+    if (ADMIN_KEY) return; // legacy key path already handled
+    var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
+    if (u) { var l = document.getElementById('login'); if (l) l.classList.add('hidden'); var p = document.getElementById('panel'); if (p) p.classList.remove('hidden'); (EcoAuth.refresh ? EcoAuth.refresh() : Promise.resolve()).then(function () { loadAdminContext(); }); }
+  }
+  window.addEventListener('ecoclean:auth', tryAssocEntry);
+  if (window.EcoAuth && EcoAuth.ready) EcoAuth.ready().then(tryAssocEntry);
+  if (ADMIN_KEY) { enterPanel(); loadAdminContext(); }
   $('#loginBtn').addEventListener('click', () => {
     ADMIN_KEY = $('#adminKey').value.trim();
     if (!ADMIN_KEY) {

@@ -1,16 +1,25 @@
 const { supabase } = require('./_lib/supabase');
-const { REPORT_SELECT, readJson, uploadPhoto, friendlyDbError } = require('./_lib/helpers');
+const { REPORT_SELECT, readJson, uploadPhoto, friendlyDbError, adminContextOrNull, inCityBounds } = require('./_lib/helpers');
 const { verifyUser } = require('./_lib/auth');
 const push = require('./_lib/push');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
-    const { data, error } = await supabase
-      .from('reports')
-      .select(REPORT_SELECT)
-      .order('created_at', { ascending: false });
+    // admin v2: an association admin calling the list sees ONLY their city's reports
+    // (server-enforced); super admins + the public map still see everything. A bad
+    // admin token 401s (adminContextOrNull returns {ok:false}); no creds = public.
+    const ac = await adminContextOrNull(req, res);
+    if (ac && !ac.ok) return; // 401 already sent
+    let q = supabase.from('reports').select(REPORT_SELECT).order('created_at', { ascending: false });
+    if (ac && ac.kind === 'assoc' && ac.ctx) {
+      const c = ac.ctx, dLat = c.radius_km / 111.0, dLng = c.radius_km / Math.max(1, 111.0 * Math.cos(c.lat * Math.PI / 180));
+      q = q.gte('lat', c.lat - dLat).lte('lat', c.lat + dLat).gte('lng', c.lng - dLng).lte('lng', c.lng + dLng);
+    }
+    const { data, error } = await q;
     if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
-    return res.status(200).json(data || []);
+    let list = data || [];
+    if (ac && ac.kind === 'assoc' && ac.ctx) list = list.filter((r) => inCityBounds(r, ac.ctx)); // precise pass after the cheap bbox
+    return res.status(200).json(list);
   }
 
   if (req.method === 'POST') {
