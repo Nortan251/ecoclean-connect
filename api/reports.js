@@ -1,6 +1,7 @@
 const { supabase } = require('./_lib/supabase');
 const { REPORT_SELECT, readJson, uploadPhoto, friendlyDbError } = require('./_lib/helpers');
 const { verifyUser } = require('./_lib/auth');
+const push = require('./_lib/push');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -48,6 +49,15 @@ module.exports = async (req, res) => {
       if (user && user.id) {
         supabase.rpc('record_daily_activity', { uid: user.id }).catch(() => {});
       }
+      // AUTO NOTIFICATION: ping ADMINS (ADMIN_EMAILS env var) that a new report
+      // needs verification, so nothing sits un-reviewed. Fire-and-forget; dormant
+      // until VAPID + ADMIN_EMAILS are set.
+      push.toAdmins({
+        title: 'New report 📍',
+        body: 'A ' + (body.category || 'pollution') + ' report was just submitted and needs verification.',
+        url: '/admin.html',
+        icon: '/icon-192.png',
+      }).catch(() => {});
       return res.status(201).json(data);
     } catch (e) {
       return res.status(500).json({ error: friendlyDbError(e && e.message ? e.message : String(e)) });
