@@ -28,7 +28,12 @@
   var T = function (k) { return (typeof window.t === 'function') ? window.t(k) : k; };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
   var ICONS = { illegal_dumping: '🗑️', water: '💧', air_smoke: '💨', plastic_marine: '🌊', other: '📍' };
-  var MOROCCO = [31.7, -7.1];
+  // Fixed, intentional framing on Agadir (the demo city). We deliberately do NOT
+  // fitBounds: with a small, tight point set + a container that finishes sizing
+  // late, Leaflet's auto-zoom can jump to a wrong region (it once showed Marrakesh).
+  // A fixed city view is deterministic and reads as "this is Agadir's data" — which
+  // is exactly the story an association needs to see.
+  var AGADIR = [30.421, -9.598];
   var stats = null, reports = [], map = null, layer = null;
 
   function countUp(el, to, suffix) {
@@ -104,22 +109,29 @@
   function renderMap() {
     var el = document.getElementById('impMap'); if (!el || !window.L) return;
     if (!map) {
-      map = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView(MOROCCO, 5);
+      map = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView(AGADIR, 12);
       layer = L.tileLayer(tileUrl(), { maxZoom: 19, attribution: '© OpenStreetMap © CARTO' }).addTo(map);
+      // Container may report 0 size before CSS layout settles; invalidate so tiles +
+      // view compute against the real box (the usual cause of a mis-zoomed map).
+      setTimeout(function () { if (map) map.invalidateSize(); }, 0);
+      setTimeout(function () { if (map) map.invalidateSize(); }, 250);
     }
-    if (window.EcoTheme && EcoTheme.setUrl) EcoTheme.setUrl(map);   // honour current theme
     var pts = reports.filter(function (r) { return r.status === 'verified' && r.lat != null && r.lng != null; });
     if (layer._impMarkers) layer._impMarkers.forEach(function (m) { map.removeLayer(m); });
     layer._impMarkers = pts.map(function (r) {
-      var mk = L.circleMarker([r.lat, r.lng], { radius: 7, color: '#198754', fillColor: '#198754', fillOpacity: 0.9, weight: 2 });
+      var mk = L.circleMarker([r.lat, r.lng], { radius: 7, color: '#198754', fillColor: '#2fd089', fillOpacity: 0.95, weight: 2 });
       mk.bindPopup('<b>' + esc((typeof window.catLabel === 'function') ? window.catLabel(r.category) : r.category) + '</b> ✅');
       mk.addTo(map); return mk;
     });
-    if (pts.length) {
-      var b = L.latLngBounds(pts.map(function (r) { return [r.lat, r.lng]; }));
-      if (b.isValid()) map.fitBounds(b.pad(0.25));
-    }
-    setTimeout(function () { map.invalidateSize(); }, 200);
+    map.setView(AGADIR, 12, { animate: false });   // deterministic city view every render
+    setTimeout(function () { if (map) map.invalidateSize(); }, 200);
+  }
+  // Rebuild the tile layer on theme change so dark tiles actually load (setUrl alone
+  // can leave a half-swapped layer on some WebViews).
+  function applyThemeTiles() {
+    if (!map) return;
+    if (layer) { map.removeLayer(layer); }
+    layer = L.tileLayer(tileUrl(), { maxZoom: 19, attribution: '© OpenStreetMap © CARTO' }).addTo(map);
   }
 
   function wirePartner() {
@@ -145,7 +157,7 @@
   }
 
   document.addEventListener('change', function (e) { if (e.target && e.target.id === 'langSelect') { if (typeof window.setLang === 'function') window.setLang(e.target.value); load(); } });
-  document.addEventListener('ecoclean:theme', function () { if (map && layer) { layer.setUrl(tileUrl()); } });
+  document.addEventListener('ecoclean:theme', function () { applyThemeTiles(); });
 
   if (!document.getElementById('eco-impact-style')) {
     var st = document.createElement('style'); st.id = 'eco-impact-style';
@@ -175,6 +187,13 @@
       '.imp-gitem figcaption{padding:8px 10px;font-size:.78rem;font-weight:700;color:var(--muted,#5d7268);}' +
       '.imp-empty{color:var(--muted,#5d7268);font-size:.9rem;}' +
       '.imp-map{height:380px;border-radius:16px;overflow:hidden;border:1px solid var(--border,#e3ece7);box-shadow:var(--shadow,0 6px 18px rgba(16,40,30,.06));}' +
+      /* dark-mode map polish: Leaflet ships the attribution + zoom as white boxes;
+       * force them to the dark surfaces so the embedded map matches the theme. */
+      'html[data-theme="dark"] .imp-map .leaflet-control-attribution{background:rgba(13,21,18,.82)!important;color:var(--muted,#93a89c)!important;}' +
+      'html[data-theme="dark"] .imp-map .leaflet-control-attribution a{color:var(--accent-2,#22b8a6)!important;}' +
+      'html[data-theme="dark"] .imp-map .leaflet-control-zoom a{background:var(--surface-2,#1d2a23)!important;color:var(--text,#e7f1ea)!important;border-color:var(--border,#2a3a31)!important;}' +
+      'html[data-theme="dark"] .imp-map .leaflet-control-zoom a:hover{background:var(--surface-3,#24342b)!important;}' +
+      'html[data-theme="dark"] .imp-map .leaflet-bar{box-shadow:0 1px 4px rgba(0,0,0,.5)!important;}' +
       '.imp-cta{margin:40px 0 18px;text-align:center;background:var(--header-grad,linear-gradient(135deg,rgba(25,135,84,.92),rgba(13,148,136,.92)));color:var(--on-header,#fff);border-radius:22px;padding:34px 22px;}' +
       '.imp-cta h2{color:#fff;margin:0 0 8px;font-size:1.5rem;}.imp-cta p{color:rgba(255,255,255,.92);max-width:560px;margin:0 auto 18px;line-height:1.6;}' +
       '.imp-cta .primary-btn{background:#fff;color:var(--accent-dark,#0a5c3f);box-shadow:0 8px 22px rgba(0,0,0,.22);}' +
