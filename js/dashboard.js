@@ -16,7 +16,11 @@ async function load() {
       '.skel-l{width:90px;height:.9rem;}.skel-fill{width:60%;height:100%;}' +
       '.skel-thumb{width:96px;height:72px;border-radius:8px;flex:0 0 auto;}' +
       '.skel-line{height:.85rem;width:80%;margin:6px 0;}.skel-line.short{width:45%;}' +
-      '@keyframes eco-shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}';
+      '@keyframes eco-shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}' +
+      '.eco-empty-dash{grid-column:1/-1;text-align:center;background:var(--surface,#fff);border:1px solid var(--border,#e3ece7);border-radius:18px;padding:30px 20px;box-shadow:var(--shadow,0 6px 18px rgba(16,40,30,.06));}' +
+      '.eco-empty-dash .eed-i{font-size:2.4rem;}.eco-empty-dash .eed-t{margin:8px 0 6px;font-size:1.2rem;font-weight:800;color:var(--text,#14241d);}' +
+      '.eco-empty-dash .eed-s{margin:0 auto 16px;max-width:440px;color:var(--muted,#5d7268);font-size:.92rem;line-height:1.55;}' +
+      '.eco-empty-dash .eed-btn{display:inline-block;text-decoration:none;}';
     document.head.appendChild(sk);
   }
   $('#stats').innerHTML = '<div class="stat"><div class="skel skel-b"></div><div class="skel skel-s"></div></div><div class="stat"><div class="skel skel-b"></div><div class="skel skel-s"></div></div><div class="stat"><div class="skel skel-b"></div><div class="skel skel-s"></div></div>';
@@ -31,6 +35,25 @@ async function load() {
     ]);
   } catch (e) {
     $('#stats').innerHTML = `<p class="muted">${t('no_activity')}</p>`;
+    $('#cats').innerHTML = '';
+    $('#recent').innerHTML = '';
+    return;
+  }
+
+  // Honest empty state: with no reports yet (e.g. after a clean reset, or a fresh
+  // deployment), don't show a wall of zeros — show a warm "ready when you are" card
+  // with the one action that matters. The personal cards (wallet/quests/streak/
+  // account-ui) still render below, so the page never feels broken.
+  if (!stats.total) {
+    $('#stats').innerHTML =
+      '<div class="eco-empty-dash">' +
+        '<div class="eed-i">🌱</div>' +
+        '<h3 class="eed-t"></h3><p class="eed-s"></p>' +
+        '<a class="primary-btn eed-btn" href="index.html#map"></a>' +
+      '</div>';
+    $('#stats').querySelector('.eed-t').textContent = t('empty_dash_title');
+    $('#stats').querySelector('.eed-s').textContent = t('empty_dash_sub');
+    $('#stats').querySelector('.eed-btn').textContent = t('empty_dash_btn');
     $('#cats').innerHTML = '';
     $('#recent').innerHTML = '';
     return;

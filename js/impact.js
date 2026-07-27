@@ -51,6 +51,18 @@
     var box = document.getElementById('impKpis'); if (!box || !stats) return;
     var cards = box.querySelectorAll('.imp-kpi');
     cards.forEach(function (c) { c.classList.remove('skel-card'); });
+    // Empty (post-reset / fresh deploy): turn the counter row into an honest
+    // "this is a live demo, here's what it'll show" banner. The how-it-works +
+    // network + map sections below still render, so the page keeps its value.
+    if (!(stats.total || 0)) {
+      box.className = 'imp-kpis imp-empty-hero';
+      box.innerHTML = '<div class="ieh-i">🌍</div><h3 class="ieh-t"></h3><p class="ieh-s"></p>';
+      box.querySelector('.ieh-t').textContent = T('empty_impact_title');
+      box.querySelector('.ieh-s').textContent = T('empty_impact_sub');
+      var m = document.getElementById('impMethod'); if (m) m.textContent = stats.kgMethod || '';
+      return;
+    }
+    box.className = 'imp-kpis';
     var vals = [stats.total || 0, stats.verified || 0, stats.kgRemoved || 0, stats.citizens || 0];
     var suffixes = ['', '', ' kg', ''];
     cards.forEach(function (c, i) {
@@ -167,6 +179,9 @@
       '.imp-hero h1{margin:14px 0 8px;font-size:clamp(1.6rem,5vw,2.6rem);font-weight:800;letter-spacing:-.02em;color:var(--text,#14241d);}' +
       '.imp-hero p{max-width:640px;margin:0 auto;color:var(--muted,#5d7268);font-size:1.02rem;line-height:1.6;}' +
       '.imp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:26px 0;}' +
+      '.imp-empty-hero{display:block!important;text-align:center;background:var(--surface,#fff);border:1px solid var(--border,#e3ece7);border-radius:18px;padding:30px 20px;box-shadow:var(--shadow,0 6px 18px rgba(16,40,30,.06));}' +
+      '.imp-empty-hero .ieh-i{font-size:2.4rem;}.imp-empty-hero .ieh-t{margin:8px 0 6px;font-size:1.3rem;font-weight:800;color:var(--text,#14241d);}' +
+      '.imp-empty-hero .ieh-s{margin:0 auto;max-width:560px;color:var(--muted,#5d7268);font-size:.95rem;line-height:1.6;}' +
       '.imp-kpi{background:var(--surface,#fff);border:1px solid var(--border,#e3ece7);border-radius:18px;padding:20px 12px;text-align:center;box-shadow:var(--shadow,0 6px 18px rgba(16,40,30,.06));}' +
       '.imp-kpi .n{font-size:clamp(1.5rem,5vw,2.3rem);font-weight:800;background:linear-gradient(135deg,var(--accent,#198754),var(--accent-2,#0d9488));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.1;}' +
       '.imp-kpi .l{margin-top:6px;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted,#5d7268);}' +

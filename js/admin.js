@@ -72,11 +72,34 @@ function cardHtml(r) {
     <button class="primary-btn verify-btn" data-i18n="verify_btn">Verify & issue reward</button></div></div>`;
 }
 
+function renderSummary(reports) {
+  const panel = document.querySelector('#panel'); if (!panel) return;
+  let bar = document.getElementById('ecoAdminSummary');
+  if (!bar) { bar = document.createElement('div'); bar.id = 'ecoAdminSummary'; bar.className = 'eco-admin-summary'; const ctx = document.getElementById('ecoAdminCtx'); ctx ? ctx.insertAdjacentElement('afterend', bar) : panel.insertBefore(bar, panel.children[0] || null); }
+  const pending = reports.filter((r) => r.status === 'reported').length;
+  const verified = reports.filter((r) => r.status === 'verified').length;
+  if (!reports.length) {
+    bar.className = 'eco-admin-summary eco-admin-empty';
+    bar.innerHTML = '<div class="eas-i">✅</div><p class="eas-t"></p>';
+    bar.querySelector('.eas-t').textContent = t('admin_empty');
+    return;
+  }
+  bar.className = 'eco-admin-summary';
+  bar.innerHTML =
+    '<div class="eas-stat"><b>' + reports.length + '</b><span class="eas-l-total"></span></div>' +
+    '<div class="eas-stat red"><b>' + pending + '</b><span class="eas-l-pending"></span></div>' +
+    '<div class="eas-stat green"><b>' + verified + '</b><span class="eas-l-verified"></span></div>';
+  bar.querySelector('.eas-l-total').textContent = t('admin_sum_total');
+  bar.querySelector('.eas-l-pending').textContent = t('admin_sum_pending');
+  bar.querySelector('.eas-l-verified').textContent = t('admin_sum_verified');
+}
+
 async function load() {
   const res = await api('/api/reports');
   const reports = await res.json();
   const pending = reports.filter((r) => r.status === 'reported');
   const verified = reports.filter((r) => r.status === 'verified');
+  renderSummary(reports);
   $('#pending').innerHTML = pending.length
     ? pending.map(cardHtml).join('')
     : `<p class="muted">${t('all_caught')}</p>`;
@@ -175,7 +198,14 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   if (!document.getElementById('eco-admin-ctx-style')) {
     var st = document.createElement('style'); st.id = 'eco-admin-ctx-style';
-    st.textContent = '.eco-admin-ctx{background:var(--accent-soft,#e8f3ec);color:var(--accent-dark,#0a5c3f);border:1px solid var(--border-strong,#bfe0cd);border-radius:10px;padding:8px 12px;font-size:.82rem;font-weight:600;margin:0 0 12px;}';
+    st.textContent = '.eco-admin-ctx{background:var(--accent-soft,#e8f3ec);color:var(--accent-dark,#0a5c3f);border:1px solid var(--border-strong,#bfe0cd);border-radius:10px;padding:8px 12px;font-size:.82rem;font-weight:600;margin:0 0 12px;}' +
+      '.eco-admin-summary{display:flex;gap:10px;margin:0 0 14px;}' +
+      '.eco-admin-summary .eas-stat{flex:1;background:var(--surface,#fff);border:1px solid var(--border,#e3ece7);border-radius:12px;padding:12px 8px;text-align:center;}' +
+      '.eco-admin-summary .eas-stat b{display:block;font-size:1.4rem;font-weight:800;color:var(--text,#14241d);}' +
+      '.eco-admin-summary .eas-stat.red b{color:var(--red,#ef4444);}.eco-admin-summary .eas-stat.green b{color:var(--accent,#198754);}' +
+      '.eco-admin-summary .eas-stat span{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted,#5d7268);}' +
+      '.eco-admin-summary.eco-admin-empty{display:block;text-align:center;background:var(--surface,#fff);border:1px solid var(--border,#e3ece7);border-radius:14px;padding:26px 18px;}' +
+      '.eco-admin-summary.eco-admin-empty .eas-i{font-size:2rem;}.eco-admin-summary.eco-admin-empty .eas-t{margin:8px auto 0;max-width:420px;color:var(--muted,#5d7268);font-size:.9rem;line-height:1.5;}';
     document.head.appendChild(st);
   }
   ensureAssocLogin();

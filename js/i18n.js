@@ -43,7 +43,12 @@
       impact_net: '{cities} cities · {orgs} associations on the network', impact_net_link: 'See the network →',
       net_nav: 'Network', net_hero_title: 'A network of associations, city by city', net_hero_sub: 'One platform, deployed city by city. Each partner runs its own city; together they form a national clean-up movement.',
       net_kpi_cities: 'Cities', net_kpi_reports: 'Reports', net_kpi_cleaned: 'Cleaned', net_orgs_title: 'Active partners', net_empty: 'No partner associations yet — be the first.',
-      net_card_reports: 'reports', net_card_cleaned: 'cleaned', net_card_citizens: 'citizens', net_card_contact: 'Contact this partner', net_cta_title: 'Your city isn’t here yet?', net_cta_sub: 'EcoClean is built to onboard a new city in days, not months. If you run an association, a municipality or a student club, let’s talk.'
+      net_card_reports: 'reports', net_card_cleaned: 'cleaned', net_card_citizens: 'citizens', net_card_contact: 'Contact this partner', net_cta_title: 'Your city isn’t here yet?', net_cta_sub: 'EcoClean is built to onboard a new city in days, not months. If you run an association, a municipality or a student club, let’s talk.',
+      partner_open: '🤝 Become a partner',
+      empty_dash_title: 'Your dashboard is ready', empty_dash_sub: 'No activity yet. Submit the first report from the map and your impact, points and quests will appear here.', empty_dash_btn: 'Open the map & report',
+      empty_impact_title: 'This is EcoClean Connect', empty_impact_sub: 'A live demo with a partner association will fill these counters, the map and the network with real clean-ups. The platform that powers it is fully built — explore how it works below.', empty_map: 'No reports on the map yet — be the first to drop a pin and protect your neighborhood.',
+      admin_sum_total: 'Total', admin_sum_pending: 'Pending', admin_sum_verified: 'Verified', admin_empty: 'No reports in your scope yet. As citizens report pollution, they’ll appear here for verification.',
+      partner_open: '🤝 Become a partner'
     },
     fr: {
       tagline: 'Signalez la pollution. Mobilisez votre communauté.',
@@ -86,7 +91,12 @@
       impact_net: '{cities} villes · {orgs} associations sur le réseau', impact_net_link: 'Voir le réseau →',
       net_nav: 'Réseau', net_hero_title: 'Un réseau d’associations, ville par ville', net_hero_sub: 'Une plateforme, déployée ville par ville. Chaque partenaire gère sa ville ; ensemble, ils forment un mouvement national de nettoyage.',
       net_kpi_cities: 'Villes', net_kpi_reports: 'Signalements', net_kpi_cleaned: 'Nettoyés', net_orgs_title: 'Partenaires actifs', net_empty: 'Aucune association partenaire pour l’instant — soyez le premier.',
-      net_card_reports: 'signalements', net_card_cleaned: 'nettoyés', net_card_citizens: 'citoyens', net_card_contact: 'Contacter ce partenaire', net_cta_title: 'Votre ville n’y est pas encore ?', net_cta_sub: 'EcoClean est conçu pour intégrer une nouvelle ville en quelques jours. Si vous gérez une association, une commune ou un club étudiant, parlons-en.'
+      net_card_reports: 'signalements', net_card_cleaned: 'nettoyés', net_card_citizens: 'citoyens', net_card_contact: 'Contacter ce partenaire', net_cta_title: 'Votre ville n’y est pas encore ?', net_cta_sub: 'EcoClean est conçu pour intégrer une nouvelle ville en quelques jours. Si vous gérez une association, une commune ou un club étudiant, parlons-en.',
+      partner_open: '🤝 Devenir partenaire',
+      empty_dash_title: 'Votre tableau est prêt', empty_dash_sub: 'Aucune activité pour l’instant. Soumettez le premier signalement depuis la carte ; votre impact, vos points et vos quêtes apparaîtront ici.', empty_dash_btn: 'Ouvrir la carte et signaler',
+      empty_impact_title: 'Voici EcoClean Connect', empty_impact_sub: 'Une démo en direct avec une association partenaire remplira ces compteurs, la carte et le réseau de vrais nettoyages. La plateforme qui les anime est entièrement construite — découvrez son fonctionnement ci-dessous.', empty_map: 'Aucun signalement sur la carte pour l’instant — soyez le premier à déposer un repère.',
+      admin_sum_total: 'Total', admin_sum_pending: 'En attente', admin_sum_verified: 'Vérifiés', admin_empty: 'Aucun signalement dans votre périmètre pour l’instant. Dès que des citoyens signalent, ils apparaîtront ici pour vérification.',
+      partner_open: '🤝 Devenir partenaire'
     },
     ar: {
       tagline: 'أبلغ عن التلوث. حشّد مجتمعك.',
@@ -129,7 +139,12 @@
       impact_net: '{cities} مدن · {orgs} جمعيات على الشبكة', impact_net_link: '← عرض الشبكة',
       net_nav: 'الشبكة', net_hero_title: 'شبكة جمعيات، مدينةً مدينة', net_hero_sub: 'منصة واحدة، تُنشَر مدينةً مدينة. كل شريك يدير مدينته؛ ومعًا يشكّلون حركة تنظيف وطنية.',
       net_kpi_cities: 'مدن', net_kpi_reports: 'بلاغات', net_kpi_cleaned: 'منظَّفة', net_orgs_title: 'شركاء نشطون', net_empty: 'لا جمعيات شريكة بعد — كن الأول.',
-      net_card_reports: 'بلاغات', net_card_cleaned: 'منظَّفة', net_card_citizens: 'مواطنون', net_card_contact: 'تواصل مع هذا الشريك', net_cta_title: 'أليست مدينتك هنا بعد؟', net_cta_sub: 'صُمم EcoClean لإضافة مدينة جديدة في أيام لا أشهر. إن كنت تدير جمعية أو بلدية أو نادٍ طلابي، لنتحدّث.'
+      net_card_reports: 'بلاغات', net_card_cleaned: 'منظَّفة', net_card_citizens: 'مواطنون', net_card_contact: 'تواصل مع هذا الشريك', net_cta_title: 'أليست مدينتك هنا بعد؟', net_cta_sub: 'صُمم EcoClean لإضافة مدينة جديدة في أيام لا أشهر. إن كنت تدير جمعية أو بلدية أو نادٍ طلابي، لنتحدّث.',
+      partner_open: '🤝 كن شريكًا',
+      empty_dash_title: 'لوحتك جاهزة', empty_dash_sub: 'لا نشاط بعد. قدّم أول بلاغ من الخريطة وسيظهر أثرُك ونقاطك ومهماتك هنا.', empty_dash_btn: 'افتح الخريطة وبلّغ',
+      empty_impact_title: 'هذا هو EcoClean Connect', empty_impact_sub: 'عرض تجريبي مباشر مع جمعية شريكة سيملأ هذه العدّادات والخريطة والشبكة بعمليات تنظيف حقيقية. المنصة التي تشغّلها مبنيّة بالكامل — استكشف طريقة عملها أدناه.', empty_map: 'لا بلاغات على الخريطة بعد — كن أول من يضع دبوسًا ويحمي حيّه.',
+      admin_sum_total: 'الإجمالي', admin_sum_pending: 'قيد الانتظار', admin_sum_verified: 'متحققة', admin_empty: 'لا بلاغات في نطاقك بعد. حين يبلّغ المواطنون ستظهر هنا للتحقق.',
+      partner_open: '🤝 كن شريكًا'
     }
   };
 
