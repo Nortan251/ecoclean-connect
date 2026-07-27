@@ -75,9 +75,13 @@
 
   function renderCats() {
     var box = document.getElementById('impCats'); if (!box || !stats) return;
-    var bc = stats.byCategory || {}, max = 1;
-    Object.keys(bc).forEach(function (k) { if (bc[k] > max) max = bc[k]; });
-    box.innerHTML = Object.keys(bc).map(function (k) {
+    var bc = stats.byCategory || {};
+    // Only draw categories that actually have reports — zero-bars read as clutter /
+    // "broken" when the dataset is thin. Fall back to a single honest line otherwise.
+    var rows = Object.keys(bc).filter(function (k) { return bc[k] > 0; });
+    if (!rows.length) { box.innerHTML = '<p class="imp-empty">' + esc(T('no_reports')) + '</p>'; return; }
+    var max = Math.max.apply(null, rows.map(function (k) { return bc[k]; }));
+    box.innerHTML = rows.map(function (k) {
       var pct = Math.round((bc[k] / max) * 100);
       return '<div class="imp-bar"><span class="imp-bar-l">' + (ICONS[k] || '') + ' ' + esc((typeof window.catLabel === 'function') ? window.catLabel(k) : k) + '</span>' +
         '<div class="imp-bar-track"><div class="imp-bar-fill" style="width:' + (reduce ? pct : 0) + '%"></div></div>' +
@@ -85,7 +89,7 @@
     }).join('');
     if (!reduce) requestAnimationFrame(function () {
       box.querySelectorAll('.imp-bar-fill').forEach(function (f, i) {
-        var pct = Math.round((bc[Object.keys(bc)[i]] / max) * 100);
+        var pct = Math.round((bc[rows[i]] / max) * 100);
         setTimeout(function () { f.style.width = pct + '%'; }, 60 * i);
       });
     });
