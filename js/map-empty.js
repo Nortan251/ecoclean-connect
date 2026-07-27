@@ -11,7 +11,7 @@
     var map = document.getElementById('map'); if (!map) return null;
     if (!el) {
       el = document.createElement('div'); el.className = 'eco-map-empty'; el.id = 'ecoMapEmpty';
-      el.innerHTML = '<div class="eme-i">📍</div><p class="eme-t"></p>';
+      el.innerHTML = '<div class="eme-card"><div class="eme-i">📍</div><p class="eme-t"></p></div>';
       map.appendChild(el);
     }
     return el;
@@ -30,9 +30,12 @@
   if (!document.getElementById('eco-map-empty-style')) {
     var st = document.createElement('style'); st.id = 'eco-map-empty-style';
     st.textContent =
-      '.eco-map-empty{position:absolute;inset:0;z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:20px;background:linear-gradient(180deg,rgba(var(--surface-rgb,255,255,255),.78),rgba(var(--surface-rgb,255,255,255),.6));-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);pointer-events:none;}' +
+      '.eco-map-empty{position:absolute;inset:0;z-index:600;display:none;align-items:center;justify-content:center;pointer-events:none;}' +
       '.eco-map-empty.show{display:flex;}' +
-      '.eco-map-empty .eme-i{font-size:2.2rem;}.eco-map-empty .eme-t{margin:0;font-weight:700;color:var(--text,#14241d);max-width:300px;font-size:.95rem;line-height:1.5;}';
+      /* A small floating card instead of a full-map veil, so the real map tiles stay
+       * visible underneath — an empty map must still LOOK like a working map. */
+      '.eco-map-empty .eme-card{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface,#fff);border:1px solid var(--border-strong,#cfe2d8);border-radius:14px;padding:14px 20px;box-shadow:0 10px 30px rgba(0,0,0,.22);max-width:300px;text-align:center;}' +
+      '.eco-map-empty .eme-i{font-size:1.9rem;line-height:1;}.eco-map-empty .eme-t{margin:0;font-weight:700;color:var(--text,#14241d);font-size:.9rem;line-height:1.45;}';
     document.head.appendChild(st);
   }
 })();
