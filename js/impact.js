@@ -237,6 +237,7 @@
       '.ba-handle::after{content:"\\21C4";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#0a5c3f;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.3);}' +
       '.ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;}' +
       '@media (max-width:680px){.imp-kpis{grid-template-columns:repeat(2,1fr);}.imp-bar{grid-template-columns:96px 1fr 36px;}.imp-how{grid-template-columns:1fr;}}' +
+      '@media (max-width:400px){.imp-kpis{grid-template-columns:1fr;}}' +
       '@media (prefers-reduced-motion: reduce){.skel-card::after{animation:none;}.imp-bar-fill{transition:none;}}';
     document.head.appendChild(st);
   }

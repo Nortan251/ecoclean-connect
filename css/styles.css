@@ -286,5 +286,6 @@ html[data-theme="dark"] .ba-lab { background: rgba(0,0,0,.6); }
   .thumb { flex-shrink: 0; }
   .stats { flex-wrap: wrap; }
   .stat { flex: 1 1 calc(50% - 12px); }
-  .modal-card input[type="file"], .pf-card input[type="file"] { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .modal-card input, .pf-card input, .report input { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
