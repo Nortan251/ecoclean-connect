@@ -13,9 +13,9 @@
   let turfLayer = null;
 
   const L10N = {
-    en: { toggle: '🛡️ Turf Wars', guardian: 'Zone Guardian', cleanups: 'verified clean-ups' },
-    fr: { toggle: '🛡️ Guerre de Territoire', guardian: 'Gardien de Zone', cleanups: 'nettoyages vérifiés' },
-    ar: { toggle: '🛡️ حرب المناطق', guardian: 'حارس المنطقة', cleanups: 'تنظيفات مؤكدة' }
+    en: { toggle: '🛡️ Impact Zones', guardian: 'Lead Contributor', cleanups: 'verified clean-ups' },
+    fr: { toggle: '🛡️ Zones d\'Impact', guardian: 'Contributeur Principal', cleanups: 'nettoyages vérifiés' },
+    ar: { toggle: '🛡️ مناطق التأثير', guardian: 'المساهم الرئيسي', cleanups: 'تنظيفات مؤكدة' }
   };
   const lang = () => (typeof window.getLang === 'function' ? getLang() : 'en');
   const t = (k) => (L10N[lang()] || L10N.en)[k];
@@ -56,16 +56,16 @@
         ];
         
         const rect = L.rectangle(bounds, {
-          color: '#f59e0b', // Amber/Gold
-          weight: 3,
-          fillColor: '#f59e0b',
-          fillOpacity: 0.15,
+          color: '#10b981', // Professional emerald green
+          weight: 2,
+          fillColor: '#10b981',
+          fillOpacity: 0.1,
           className: 'eco-turf-pulse'
         }).addTo(turfLayer);
 
         rect.bindTooltip(`
           <div style="font-family:'Plus Jakarta Sans',sans-serif; text-align:center;">
-            <strong style="color:#f59e0b; font-size:.9rem; text-transform:uppercase; letter-spacing:.05em;">👑 ${t('guardian')}</strong>
+            <strong style="color:#10b981; font-size:.85rem; text-transform:uppercase; letter-spacing:.05em;">⭐ ${t('guardian')}</strong>
             <div style="font-size:1.1rem; font-weight:800; color:#14241d; margin:4px 0;">${topUser}</div>
             <div style="font-size:.75rem; color:#5d7268;"><b>${maxCleans}</b> ${t('cleanups')}</div>
           </div>
@@ -76,10 +76,9 @@
 
   const st = document.createElement('style');
   st.textContent = `
-    .eco-turf-pulse { animation: turf-pulse 4s infinite alternate; }
-    @keyframes turf-pulse { 0% { fill-opacity: 0.05; } 100% { fill-opacity: 0.25; } }
-    .eco-turf-tt { background: rgba(255,255,255,0.9); border: 2px solid #f59e0b; border-radius: 12px; box-shadow: 0 8px 24px rgba(245,158,11,0.3); padding: 8px 12px; }
-    html[data-theme="dark"] .eco-turf-tt { background: rgba(22,32,27,0.9); border-color: #f59e0b; }
+    .eco-turf-pulse { transition: fill-opacity 0.3s; }
+    .eco-turf-tt { background: rgba(255,255,255,0.95); border: 1px solid #10b981; border-radius: 12px; box-shadow: 0 4px 16px rgba(16,185,129,0.15); padding: 8px 12px; }
+    html[data-theme="dark"] .eco-turf-tt { background: rgba(22,32,27,0.95); border-color: #10b981; }
     html[data-theme="dark"] .eco-turf-tt div { color: #e7f1ea !important; }
   `;
   document.head.appendChild(st);

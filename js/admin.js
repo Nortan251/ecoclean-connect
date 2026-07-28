@@ -65,13 +65,14 @@ function cardHtml(r) {
     return `<div class="card report"><div class="report-imgs">${before}${after}</div><div><b>${catLabel(r.category)}</b> <span class="badge green">${t('verified')}</span><p>${escapeHtml(r.description)}</p>${reward}<small>${new Date(r.verifiedAt).toLocaleString()}</small></div></div>`;
   }
   const before = fig(r.beforePhoto, 'before', 'Before');
-  return `<div class="card report" data-id="${r.id}"><div class="report-imgs">${before}</div><div><b>${catLabel(r.category)}</b> <span class="badge red">${t('reported')}</span><p>${escapeHtml(r.description)}</p>
+  return `<div class="card report" data-id="${r.id}"><div class="report-imgs">${before}</div><div style="flex:1;"><b>${catLabel(r.category)}</b> <span class="badge red">${t('reported')}</span><p>${escapeHtml(r.description)}</p>
     <label class="field"><span data-i18n="after_photo">After photo</span><input type="file" class="afterPhoto" accept="image/*" /></label>
     <label class="field"><span data-i18n="notes">Notes</span><input type="text" class="notes" /></label>
     <label class="field"><span data-i18n="reward_code">Reward code (optional)</span><input type="text" class="rewardCode" placeholder="MARJANE-AB12" /></label>
     <div style="display:flex;gap:8px;margin-top:10px;">
       <button class="primary-btn verify-btn" style="flex:1;margin-top:0;" data-i18n="verify_btn">Verify & issue reward</button>
-      <button class="ghost-btn reject-btn" style="flex:0 0 auto;margin-top:0;padding:13px 18px;border-color:#dc3545;color:#dc3545;" title="Reject fake/spam report">✖</button>
+      <button class="ghost-btn escalate-btn" style="flex:0 0 auto;margin-top:0;padding:13px 14px;border-color:#d97706;color:#d97706;" title="Escalate to Authorities">🏛️</button>
+      <button class="ghost-btn reject-btn" style="flex:0 0 auto;margin-top:0;padding:13px 14px;border-color:#dc3545;color:#dc3545;" title="Reject fake/spam report">✖</button>
     </div></div></div>`;
 }
 
@@ -111,6 +112,15 @@ async function load() {
     ? verified.map(cardHtml).join('')
     : `<p class="muted">${t('none_yet')}</p>`;
   applyI18n(document);
+  document.querySelectorAll('.escalate-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const card = e.target.closest('.report');
+      const id = card.dataset.id;
+      const rep = reports.find(r => r.id === id);
+      showEscalateModal(rep);
+    });
+  });
+
   document.querySelectorAll('.reject-btn').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       if (!confirm('Reject this report as spam or invalid? It will be hidden from the map.')) return;
@@ -350,4 +360,59 @@ function renderAssociationStats(reports) {
   }
   html += `</div>`;
   box.innerHTML = html;
+}
+
+function showEscalateModal(rep) {
+  const m = document.createElement('div');
+  m.className = 'modal';
+  m.style.display = 'flex'; // override hidden class just in case
+  m.innerHTML = `
+    <div class="modal-card">
+      <div class="modal-head"><h2>🏛️ Escalate Report</h2><button class="icon-btn cls">&times;</button></div>
+      <p class="muted" style="font-size:.85rem; margin-bottom: 12px;">Draft a formal email to local authorities regarding this severe pollution.</p>
+      <label class="field"><span>Recipient Email</span><input type="email" id="escEmail" value="contact@commune.gov.ma"></label>
+      <label class="field"><span>Language</span>
+        <select id="escLang">
+          <option value="fr">Français</option>
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+      <button class="primary-btn" id="escSend" style="margin-top:20px;">Draft Email</button>
+    </div>
+  `;
+  document.body.appendChild(m);
+  
+  // Slide up animation
+  setTimeout(() => m.classList.remove('hidden'), 10);
+
+  const close = () => {
+    m.classList.add('hidden');
+    setTimeout(() => m.remove(), 300);
+  };
+  m.querySelector('.cls').onclick = close;
+  m.addEventListener('click', (e) => { if (e.target === m) close(); });
+
+  m.querySelector('#escSend').onclick = () => {
+    const to = m.querySelector('#escEmail').value || 'contact@commune.gov.ma';
+    const lang = m.querySelector('#escLang').value;
+    const lat = Number(rep.lat).toFixed(5);
+    const lng = Number(rep.lng).toFixed(5);
+    const link = location.origin + '?rally=' + rep.id;
+    const cat = typeof catLabel === 'function' ? catLabel(rep.category) : rep.category;
+    
+    let subject, body;
+    if (lang === 'fr') {
+      subject = `[URGENT] Signalement de pollution - Intervention requise (${lat}, ${lng})`;
+      body = `Madame, Monsieur,\n\nJe vous contacte via la plateforme EcoClean Connect pour signaler un cas de pollution nécessitant l'intervention des services municipaux.\n\nNature du problème : ${cat}\nCoordonnées GPS : ${lat}, ${lng}\nLien vers la carte : ${link}\nPhoto : ${rep.beforePhoto || 'N/A'}\nDescription : ${rep.description || 'N/A'}\n\nEn vous remerciant d'avance pour votre réactivité.\n\nCordialement,`;
+    } else if (lang === 'ar') {
+      subject = `[عاجل] بلاغ عن تلوث بيئي - طلب تدخل (${lat}, ${lng})`;
+      body = `السيد رئيس المجلس الجماعي،\n\nأتواصل معكم عبر منصة EcoClean Connect للإبلاغ عن حالة تلوث تتطلب تدخل المصالح البلدية.\n\nنوع المشكل: ${cat}\nالإحداثيات: ${lat}, ${lng}\nرابط الخريطة: ${link}\nالصورة: ${rep.beforePhoto || 'N/A'}\nالوصف: ${rep.description || 'N/A'}\n\nشكراً لجهودكم وتفاعلكم السريع.\n\nمع خالص التحيات،`;
+    } else {
+      subject = `[URGENT] Pollution Report - Intervention Required (${lat}, ${lng})`;
+      body = `To the City Council,\n\nI am contacting you via EcoClean Connect to report a pollution site that requires municipal intervention.\n\nCategory: ${cat}\nGPS Coordinates: ${lat}, ${lng}\nMap Link: ${link}\nPhoto: ${rep.beforePhoto || 'N/A'}\nDescription: ${rep.description || 'N/A'}\n\nThank you for your swift action.\n\nSincerely,`;
+    }
+    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    close();
+  };
 }
