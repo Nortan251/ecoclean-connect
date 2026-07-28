@@ -25,8 +25,8 @@ module.exports = async (req, res) => {
   }
   let reporterEmail = null;
   if (cur && cur.reporter_user_id) {
-    const { data: u } = await supabase.from('users').select('email').eq('id', cur.reporter_user_id).maybeSingle();
-    reporterEmail = u && u.email;
+    const { data: { user } } = await supabase.auth.admin.getUserById(cur.reporter_user_id);
+    reporterEmail = user && user.email;
   }
 
   const patch = { status: 'verified', verified_at: new Date().toISOString(), rewarded: true };
@@ -59,10 +59,9 @@ module.exports = async (req, res) => {
 
   // AUTO NOTIFICATION (the real feature): tell the REPORTER their clean-up was
   // verified — the "you made a difference" payoff that brings people back. Only on
-  // the verifying transition, only if they were signed in (we have their email),
-  // fire-and-forget so it can never break verification. DORMANT until VAPID is set.
+  // the verifying transition, only if they were signed in (we have their email).
   if (cur && cur.reporter_user_id && !cur.rewarded && reporterEmail) {
-    push.toUserByEmail(reporterEmail, {
+    await push.toUserByEmail(reporterEmail, {
       title: 'Your report was verified ✅',
       body: 'A ' + (cur.category || 'pollution') + ' site you reported was cleaned. Tap to see it.',
       url: '/dashboard.html',

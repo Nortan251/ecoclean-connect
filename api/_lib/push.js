@@ -41,15 +41,22 @@ async function sendToSubs(subs, payload) {
 }
 async function subsForEmails(emails) {
   if (!emails || !emails.length) return [];
-  const { data: users } = await supabase.from('users').select('id, email').in('email', emails); // auth.users via service role
-  const ids = (users || []).map((u) => u.id);
+  // auth.users cannot be queried directly from public schema without an RPC.
+  // Instead, we use the admin API (safe for demo scale).
+  const { data: { users }, error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (error || !users) return [];
+  const targetEmails = emails.map(e => e.toLowerCase());
+  const ids = users.filter(u => targetEmails.includes((u.email || '').toLowerCase())).map(u => u.id);
   if (!ids.length) return [];
   const { data: subs } = await supabase.from('push_subscriptions').select('id, endpoint, p256dh, auth').in('user_id', ids);
   return subs || [];
 }
 async function toUserByEmail(email, payload) {
   if (!email) return { sent: 0, pruned: 0 };
-  const { data: user } = await supabase.from('users').select('id').eq('email', email.toLowerCase()).maybeSingle();
+  const { data: { users }, error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (error || !users) return { sent: 0, pruned: 0 };
+  const target = email.toLowerCase();
+  const user = users.find(u => (u.email || '').toLowerCase() === target);
   if (!user) return { sent: 0, pruned: 0 };
   const { data: subs } = await supabase.from('push_subscriptions').select('id, endpoint, p256dh, auth').eq('user_id', user.id);
   return sendToSubs(subs, payload);

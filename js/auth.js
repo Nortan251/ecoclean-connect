@@ -33,7 +33,7 @@
       '.eco-acct-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 12px 5px 5px;margin-left:4px;cursor:pointer;color:#fff;font-weight:700;font-size:.82rem;font-family:inherit;}' +
       '.eco-acct-av{width:24px;height:24px;border-radius:50%;background:#fff;color:#0a5c3f;display:grid;place-items:center;font-size:.75rem;font-weight:800;}' +
       '.eco-auth-modal{position:fixed;inset:0;z-index:1500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,28,20,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}' +
-      '.eco-auth-card{position:relative;background:#fff;border-radius:20px;max-width:380px;width:100%;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.3);}' +
+      '.eco-auth-card{position:relative;background:#fff;border-radius:20px;max-width:380px;width:100%;padding:22px;padding-bottom:calc(22px + env(safe-area-inset-bottom));box-shadow:0 24px 60px rgba(0,0,0,.3);max-height:calc(100dvh - 36px);overflow:auto;-webkit-overflow-scrolling:touch;}' +
       '.eco-auth-tabs{display:flex;gap:6px;margin-bottom:14px;background:#eef5f1;border-radius:999px;padding:4px;}' +
       '.eco-auth-tabs button{flex:1;border:none;background:none;border-radius:999px;padding:9px;font-weight:700;color:#5d7268;cursor:pointer;font-family:inherit;}' +
       '.eco-auth-tabs button.on{background:#fff;color:#0a5c3f;box-shadow:0 2px 6px rgba(0,0,0,.08);}' +

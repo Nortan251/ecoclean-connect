@@ -38,7 +38,10 @@
       btn.disabled = true; const old = btn.textContent; btn.textContent = t('claiming');
       fetch('/api/quest-claim', { method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: JSON.stringify({ questId: id }) })
         .then((r) => (r.ok ? r.json() : Promise.reject(r)))
-        .then(() => { if (EcoAuth.refresh) EcoAuth.refresh(); render(); })
+        .then(() => { 
+          if (EcoAuth.refresh) return EcoAuth.refresh(); 
+        })
+        .then(() => render())
         .catch(() => { btn.disabled = false; btn.textContent = old; alert(t('claim_err')); });
     } else {
       const c = EcoStore.get('questClaimed', {}); c[id] = true; EcoStore.set('questClaimed', c);

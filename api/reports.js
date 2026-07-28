@@ -53,20 +53,22 @@ module.exports = async (req, res) => {
         .single();
       if (error) return res.status(500).json({ error: friendlyDbError(error.message) });
       // Server-side streak v2: an accepted report = an active day. Advance the
-      // reporter's streak (idempotent per day). Fire-and-forget + guarded so a
-      // missing RPC (migration not yet run) never breaks report creation.
+      // reporter's streak (idempotent per day). Guarded so a missing RPC never breaks report creation.
+      const bgTasks = [];
       if (user && user.id) {
-        supabase.rpc('record_daily_activity', { uid: user.id }).catch(() => {});
+        bgTasks.push(supabase.rpc('record_daily_activity', { uid: user.id }).catch(() => {}));
       }
       // AUTO NOTIFICATION: ping ADMINS (ADMIN_EMAILS env var) that a new report
-      // needs verification, so nothing sits un-reviewed. Fire-and-forget; dormant
-      // until VAPID + ADMIN_EMAILS are set.
-      push.toAdmins({
+      // needs verification, so nothing sits un-reviewed. Dormant until VAPID + ADMIN_EMAILS are set.
+      bgTasks.push(push.toAdmins({
         title: 'New report 📍',
         body: 'A ' + (body.category || 'pollution') + ' report was just submitted and needs verification.',
         url: '/admin.html',
         icon: '/icon-192.png',
-      }).catch(() => {});
+      }).catch(() => {}));
+      
+      await Promise.allSettled(bgTasks);
+
       return res.status(201).json(data);
     } catch (e) {
       return res.status(500).json({ error: friendlyDbError(e && e.message ? e.message : String(e)) });
