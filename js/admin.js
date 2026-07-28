@@ -222,7 +222,7 @@ window.addEventListener('DOMContentLoaded', () => {
           const headers = { 'Content-Type': 'application/json' };
           if (ADMIN_KEY) headers['x-admin-key'] = ADMIN_KEY;
           if (window.EcoAuth && EcoAuth.getToken && EcoAuth.getToken()) headers['Authorization'] = 'Bearer ' + EcoAuth.getToken();
-          const r = await fetch('/api/demo', { method: 'POST', headers });
+          const r = await fetch('/api/stats', { method: 'POST', headers });
           if (r.ok) location.reload();
           else { alert('Simulation failed.'); demoBtn.textContent = '🧪 Simulate Data (AI Demo)'; }
         };

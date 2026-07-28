@@ -1,7 +1,49 @@
 const { supabase } = require('./_lib/supabase');
-const { friendlyDbError } = require('./_lib/helpers');
+const { friendlyDbError, requireAdminContext } = require('./_lib/helpers');
 
 module.exports = async (req, res) => {
+  if (req.method === 'POST') {
+    // Only Super Admins can generate demo data
+    const ac = await requireAdminContext(req, res);
+    if (!ac.ok || ac.kind !== 'super') {
+      if (ac.ok) return res.status(403).json({ error: 'only super admins can generate demo data' });
+      return;
+    }
+
+    const centers = [
+      { lat: 30.4142, lng: -9.6045, cat: 'illegal_dumping' },
+      { lat: 30.4520, lng: -9.6260, cat: 'plastic_marine' }, 
+      { lat: 30.4210, lng: -9.5970, cat: 'water' },          
+      { lat: 30.3980, lng: -9.5400, cat: 'other' }           
+    ];
+
+    const reports = [];
+    const now = Date.now();
+
+    for (let i = 0; i < 45; i++) {
+      const c = centers[i % centers.length];
+      const rLat = c.lat + (Math.random() - 0.5) * 0.008;
+      const rLng = c.lng + (Math.random() - 0.5) * 0.008;
+      const pastDate = new Date(now - Math.random() * 14 * 86400000).toISOString();
+      const isVerified = Math.random() > 0.4;
+
+      reports.push({
+        reporter_name: 'Demo Citizen ' + Math.floor(Math.random() * 100),
+        category: c.cat,
+        description: 'Demo simulated report for portfolio presentation.',
+        lat: rLat,
+        lng: rLng,
+        status: isVerified ? 'verified' : 'reported',
+        created_at: pastDate,
+        verified_at: isVerified ? new Date(new Date(pastDate).getTime() + (Math.random() * 86400000)).toISOString() : null
+      });
+    }
+
+    const { error } = await supabase.from('reports').insert(reports);
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(201).json({ ok: true, count: 45 });
+  }
+
   if (req.method !== 'GET') return res.status(405).end();
 
   const { data, error } = await supabase.from('reports').select('status, category, reporter_name');
@@ -14,11 +56,6 @@ module.exports = async (req, res) => {
     plastic_marine: 0,
     other: 0,
   };
-  // Estimated waste removed per VERIFIED clean-up, by category (kg). This is a
-  // transparent MODEL, not a measured weight — we have no scale in the field, so
-  // we publish a stated per-category assumption (the same honest-modelling approach
-  // civic dashboards like civic-tech impact reports use; the methodology is shown on
-  // the Impact page). Tuned to be conservative/plausible for a Moroccan clean-up.
   const KG_PER_VERIFIED = { illegal_dumping: 35, plastic_marine: 18, water: 10, air_smoke: 0, other: 12 };
   let reported = 0;
   let verified = 0;
@@ -33,17 +70,12 @@ module.exports = async (req, res) => {
     if (nm && nm.toLowerCase() !== 'anonymous') citizens.add(nm.toLowerCase());
   });
 
-  // Public partner roster for the /associations "network" page. Folded into /api/stats
-  // (NOT a new endpoint) so we stay at the 12-function Hobby cap. Only non-sensitive
-  // org fields; per-city counts are computed client-side from /api/reports.
   let associations = [];
   try { const ar = await supabase.from('associations').select('name, city, lat, lng, radius_km, contact_email').order('city'); associations = ar.data || []; } catch (e) {}
 
-  return res
-    .status(200)
-    .json({
-      total: (data || []).length, reported, verified, byCategory,
-      kgRemoved, citizens: citizens.size, associations,
-      kgMethod: 'estimated kg per verified clean-up by category (illegal_dumping 35, plastic_marine 18, water 10, other 12, air_smoke 0)',
-    });
+  return res.status(200).json({
+    total: (data || []).length, reported, verified, byCategory,
+    kgRemoved, citizens: citizens.size, associations,
+    kgMethod: 'estimated kg per verified clean-up by category (illegal_dumping 35, plastic_marine 18, water 10, other 12, air_smoke 0)',
+  });
 };
