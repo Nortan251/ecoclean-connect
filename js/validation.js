@@ -102,19 +102,14 @@
    * a timestamp IS present AND is stale. This keeps honest users from being
    * locked out while still catching the lazy "upload an old photo" attack.
    * ---------------------------------------------------------------------- */
-  function parseExifDate(raw) {
-    if (!raw) return null;
-    const m = String(raw).match(/(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
-    if (!m) return null;
-    return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
-  }
+
 
   function readExifTimestamp(file) {
     return new Promise((resolve) => {
       if (!file || !window.EXIF) return resolve(null);
       try {
         EXIF.getData(file, function () {
-          resolve(parseExifDate(EXIF.getTag(this, 'DateTimeOriginal')));
+          resolve(window.EcoClean.parseExifDate(EXIF.getTag(this, 'DateTimeOriginal')));
         });
       } catch (e) {
         resolve(null); // never let EXIF parsing break the flow

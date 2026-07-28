@@ -27,8 +27,14 @@ module.exports = async (req, res) => {
 
   // Map the raw admin_context row to a small, UI-friendly object (or null = not admin).
   let admin = null;
+  let applications = [];
   if (adminCtx) {
-    if (adminCtx.is_super) admin = { scope: 'all', role: 'super' };
+    if (adminCtx.is_super) {
+      admin = { scope: 'all', role: 'super' };
+      // Super admins also get the inbox of partner applications
+      const { data: apps } = await supabase.from('partner_applications').select('*').order('created_at', { ascending: false }).limit(50);
+      if (apps) applications = apps;
+    }
     else if (adminCtx.role === 'admin' && adminCtx.association_id) admin = { scope: 'city', role: 'admin', association_name: adminCtx.association_name, city: adminCtx.city, lat: adminCtx.lat, lng: adminCtx.lng, radius_km: adminCtx.radius_km };
   }
 
@@ -44,5 +50,6 @@ module.exports = async (req, res) => {
     myReports: myReports || 0,
     myReportsList: myReportsList || [],
     admin: admin,
+    applications: applications
   });
 };

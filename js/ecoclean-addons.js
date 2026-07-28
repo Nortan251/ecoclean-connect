@@ -109,3 +109,10 @@
   window.addEventListener('ecoclean:mapready', () => setTimeout(window.EcoClean.tagMarkers, 800));
   window.EcoData.load().then(() => setTimeout(window.EcoClean.tagMarkers, 800));
 })();
+
+// Shared EXIF Date Parser
+window.EcoClean.parseExifDate = function(raw) {
+  if (!raw) return null;
+  const m = String(raw).match(/(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null;
+};

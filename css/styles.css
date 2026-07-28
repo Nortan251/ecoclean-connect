@@ -269,3 +269,22 @@ html[data-theme="dark"] .leaflet-control-attribution { background: rgba(22,32,27
 html[data-theme="dark"] .leaflet-control-attribution a { color: var(--accent-2) !important; }
 html[data-theme="dark"] .eco-help-btn { box-shadow: 0 6px 16px rgba(0,0,0,.5); }
 html[data-theme="dark"] .ba-lab { background: rgba(0,0,0,.6); }
+
+/* Mobile Fixes */
+@media (max-width: 768px) {
+  .app-header { flex-wrap: wrap; padding: 10px 12px; }
+  .topnav { width: 100%; overflow-x: auto; padding-top: 10px; justify-content: flex-start; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .topnav::-webkit-scrollbar { display: none; }
+  .topnav a { white-space: nowrap; }
+}
+
+/* Extra Mobile Modals & Card Fixes */
+@media (max-width: 480px) {
+  .report { flex-direction: column; }
+  .report-imgs { width: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .report-imgs::-webkit-scrollbar { display: none; }
+  .thumb { flex-shrink: 0; }
+  .stats { flex-wrap: wrap; }
+  .stat { flex: 1 1 calc(50% - 12px); }
+  .modal-card input[type="file"], .pf-card input[type="file"] { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

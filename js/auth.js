@@ -192,7 +192,7 @@
   function refreshMe() {
     return fetch('/api/me', { headers: { Authorization: 'Bearer ' + current.accessToken } })
       .then((r) => (r.ok ? r.json() : null)).then((me) => {
-        if (me && current) { current.displayName = me.displayName; current.points = me.points; current.vouchers = me.vouchers; current.myReports = me.myReports; current.claimedQuests = me.claimedQuests || []; current.myReportsList = me.myReportsList || []; current.streakCur = me.streakCur || 0; current.streakBest = me.streakBest || 0; current.admin = me.admin || null; cacheSession(); }
+        if (me && current) { current.displayName = me.displayName; current.points = me.points; current.vouchers = me.vouchers; current.myReports = me.myReports; current.claimedQuests = me.claimedQuests || []; current.myReportsList = me.myReportsList || []; current.streakCur = me.streakCur || 0; current.streakBest = me.streakBest || 0; current.admin = me.admin || null; current.applications = me.applications || []; cacheSession(); }
         renderNav(); emit(); return current;
       }).catch(() => { renderNav(); emit(); return current; });
   }

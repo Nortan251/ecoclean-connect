@@ -46,11 +46,7 @@
   const t = () => STR[(typeof window.getLang === 'function' ? getLang() : 'en')] || STR.en;
   const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (_, k) => (k in o ? o[k] : ''));
 
-  function parseExifDate(raw) {
-    if (!raw) return null;
-    const m = String(raw).match(/(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
-    return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null;
-  }
+
   function readExif(file) {
     return new Promise((res) => {
       if (!file || !window.EXIF) return res(null);
@@ -62,7 +58,7 @@
             const d = (v, ref) => { const x = v[0] + v[1] / 60 + v[2] / 3600; return (ref === 'S' || ref === 'W') ? -x : x; };
             gps = { lat: d(g, EXIF.getTag(this, 'GPSLatitudeRef')), lng: d(EXIF.getTag(this, 'GPSLongitude'), EXIF.getTag(this, 'GPSLongitudeRef')) };
           }
-          res({ gps: gps, time: parseExifDate(EXIF.getTag(this, 'DateTimeOriginal')) });
+          res({ gps: gps, time: window.EcoClean.parseExifDate(EXIF.getTag(this, 'DateTimeOriginal')) });
         });
       } catch (e) { res(null); }
     });

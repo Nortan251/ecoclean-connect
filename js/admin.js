@@ -172,8 +172,9 @@ window.addEventListener('DOMContentLoaded', () => {
     // admin v2 scope comes from /api/me (merged into the user by auth.js) — no extra
     // endpoint (keeps us at the 12-function Hobby cap). Legacy key = super admin.
     var c = null;
+    var apps = [];
     if (ADMIN_KEY) c = { scope: 'all' };
-    else { var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser(); c = u && u.admin ? u.admin : null; }
+    else { var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser(); c = u && u.admin ? u.admin : null; apps = u && u.applications ? u.applications : []; }
     if (!c) return;
     var panel = document.querySelector('#panel') || document.body;
     var b = document.getElementById('ecoAdminCtx');
@@ -184,7 +185,28 @@ window.addEventListener('DOMContentLoaded', () => {
       b.querySelector('b').textContent = c.association_name || ''; b.querySelector('span').textContent = c.city || '';
     } else {
       b.textContent = '🛡️ ' + ({ ar: 'مشرف عام — وصول كامل', fr: 'Super admin — accès total', en: 'Super admin — full access' }[Lg] || 'Super admin — full access');
+      renderPartnerApplications(apps, panel);
     }
+  }
+
+  function renderPartnerApplications(apps, panel) {
+    if (!apps || !apps.length) return;
+    let box = document.getElementById('ecoPartnerApps');
+    if (!box) {
+      box = document.createElement('div'); box.id = 'ecoPartnerApps';
+      box.innerHTML = '<h2 style="margin-top: 30px;">🤝 Partner Applications</h2><div id="ecoPartnerList" class="report-list"></div>';
+      panel.appendChild(box);
+    }
+    const list = box.querySelector('#ecoPartnerList');
+    list.innerHTML = apps.map(a => `
+      <div class="card" style="font-size: .9rem;">
+        <b>${escapeHtml(a.org_name)}</b> (${escapeHtml(a.city)})<br/>
+        <span class="muted">${escapeHtml(a.org_type || 'Unknown type')}</span><br/>
+        Contact: ${escapeHtml(a.contact_name || 'N/A')} &lt;<a href="mailto:${escapeHtml(a.email)}">${escapeHtml(a.email)}</a>&gt;<br/>
+        ${a.message ? `<p style="margin: 8px 0 0; background: var(--surface-2); padding: 8px; border-radius: 8px; font-style: italic;">"${escapeHtml(a.message)}"</p>` : ''}
+        <small class="muted" style="display:block; margin-top: 6px;">${new Date(a.created_at).toLocaleString()}</small>
+      </div>
+    `).join('');
   }
   function ensureAssocLogin() {
     if (document.getElementById('ecoAssocLogin')) return;
