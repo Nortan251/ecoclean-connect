@@ -313,3 +313,6 @@ html[data-theme="dark"] .ba-lab { background: rgba(0,0,0,.6); }
 input, select, textarea {
   font-size: 16px !important; /* Prevents iOS Safari from auto-zooming on focus */
 }
+
+/* Hide internal technical messages from the citizen form */
+#trustMsg, #compressionMsg, #qualityMsg, #dupMsg { display: none !important; }
