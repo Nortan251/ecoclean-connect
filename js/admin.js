@@ -100,6 +100,7 @@ async function load() {
   const pending = reports.filter((r) => r.status === 'reported');
   const verified = reports.filter((r) => r.status === 'verified');
   renderSummary(reports);
+  renderAssociationStats(reports);
   $('#pending').innerHTML = pending.length
     ? pending.map(cardHtml).join('')
     : `<p class="muted">${t('all_caught')}</p>`;
@@ -252,3 +253,58 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   $('#postAlert').addEventListener('click', postAlert);
 });
+
+function renderAssociationStats(reports) {
+  var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
+  var c = u && u.admin ? u.admin : null;
+  if (!c || c.scope !== 'city') return; // Only show for association admins
+  
+  const panel = document.querySelector('#panel'); if (!panel) return;
+  let box = document.getElementById('ecoAssocStats');
+  if (!box) {
+    box = document.createElement('div'); box.id = 'ecoAssocStats';
+    const dispatchNode = document.getElementById('dispatch');
+    if (dispatchNode && dispatchNode.nextSibling) {
+      dispatchNode.parentNode.insertBefore(box, dispatchNode.nextSibling);
+    } else {
+      panel.appendChild(box);
+    }
+  }
+  
+  const cleaners = {};
+  reports.forEach(r => {
+    const name = r.reporterName || 'Anonymous';
+    if (!cleaners[name]) cleaners[name] = { reported: 0, verified: 0 };
+    cleaners[name].reported++;
+    if (r.status === 'verified') cleaners[name].verified++;
+  });
+  
+  const sorted = Object.entries(cleaners).sort((a, b) => b[1].verified - a[1].verified || b[1].reported - a[1].reported);
+  
+  const Lg = (typeof window.getLang === 'function') ? getLang() : 'en';
+  const title = { ar: 'متطوعو مجتمعنا', fr: 'Nos nettoyeurs', en: 'Our Community Cleaners' }[Lg] || 'Our Community Cleaners';
+  const thRep = { ar: 'مبلَّغ', fr: 'Signalés', en: 'Reported' }[Lg] || 'Reported';
+  const thVer = { ar: 'منظَّف', fr: 'Nettoyés', en: 'Verified' }[Lg] || 'Verified';
+  
+  let html = `<div class="card" style="margin-bottom: 20px;"><h2>👥 ${title}</h2>`;
+  if (sorted.length === 0) {
+    html += `<p class="muted">No reports yet in your area.</p>`;
+  } else {
+    html += `<div style="overflow-x:auto;"><table style="width:100%; border-collapse: collapse; font-size:.9rem; text-align: left;" dir="${Lg === 'ar' ? 'rtl' : 'ltr'}">
+      <tr style="border-bottom: 1px solid var(--border); color: var(--muted);">
+        <th style="padding: 8px;">Name</th>
+        <th style="padding: 8px; text-align:center;">${thRep}</th>
+        <th style="padding: 8px; text-align:center;">${thVer} ✅</th>
+      </tr>`;
+    sorted.forEach(([name, stats]) => {
+      html += `<tr style="border-bottom: 1px solid var(--border-strong);">
+        <td style="padding: 8px; font-weight:600;">${escapeHtml(name)}</td>
+        <td style="padding: 8px; text-align:center;">${stats.reported}</td>
+        <td style="padding: 8px; text-align:center; color: var(--accent); font-weight: 700;">${stats.verified}</td>
+      </tr>`;
+    });
+    html += `</table></div>`;
+  }
+  html += `</div>`;
+  box.innerHTML = html;
+}
