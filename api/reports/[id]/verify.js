@@ -29,6 +29,26 @@ module.exports = async (req, res) => {
     reporterEmail = user && user.email;
   }
 
+  if (body.action === 'reject') {
+    const { data, error } = await supabase
+      .from('reports')
+      .update({ status: 'rejected', verification_notes: body.notes || 'Rejected by admin' })
+      .eq('id', id)
+      .select(REPORT_SELECT)
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+
+    if (cur && cur.reporter_user_id && reporterEmail) {
+      await push.toUserByEmail(reporterEmail, {
+        title: 'Report Rejected ❌',
+        body: 'A report you submitted could not be verified and was marked as invalid.',
+        url: '/dashboard.html',
+        icon: '/icon-192.png',
+      }).catch(() => {});
+    }
+    return res.status(200).json(data);
+  }
+
   const patch = { status: 'verified', verified_at: new Date().toISOString(), rewarded: true };
   if (body.notes) patch.verification_notes = body.notes;
   if (body.photo) {

@@ -69,7 +69,10 @@ function cardHtml(r) {
     <label class="field"><span data-i18n="after_photo">After photo</span><input type="file" class="afterPhoto" accept="image/*" /></label>
     <label class="field"><span data-i18n="notes">Notes</span><input type="text" class="notes" /></label>
     <label class="field"><span data-i18n="reward_code">Reward code (optional)</span><input type="text" class="rewardCode" placeholder="MARJANE-AB12" /></label>
-    <button class="primary-btn verify-btn" data-i18n="verify_btn">Verify & issue reward</button></div></div>`;
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="primary-btn verify-btn" style="flex:1;margin-top:0;" data-i18n="verify_btn">Verify & issue reward</button>
+      <button class="ghost-btn reject-btn" style="flex:0 0 auto;margin-top:0;padding:13px 18px;border-color:#dc3545;color:#dc3545;" title="Reject fake/spam report">✖</button>
+    </div></div></div>`;
 }
 
 function renderSummary(reports) {
@@ -108,6 +111,26 @@ async function load() {
     ? verified.map(cardHtml).join('')
     : `<p class="muted">${t('none_yet')}</p>`;
   applyI18n(document);
+  document.querySelectorAll('.reject-btn').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      if (!confirm('Reject this report as spam or invalid? It will be hidden from the map.')) return;
+      const card = e.target.closest('.report');
+      const id = card.dataset.id;
+      const notes = card.querySelector('.notes').value || 'Rejected as spam';
+      const r = await fetch('/api/reports/' + id + '/verify', {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, ADMIN_KEY ? { 'x-admin-key': ADMIN_KEY } : {}, (window.EcoAuth && EcoAuth.getToken && EcoAuth.getToken()) ? { 'Authorization': 'Bearer ' + EcoAuth.getToken() } : {}),
+        body: JSON.stringify({ action: 'reject', notes: notes }),
+      });
+      if (r.ok) {
+        showToast('Report rejected');
+        load();
+      } else {
+        showToast('Error rejecting report');
+      }
+    });
+  });
+
   document.querySelectorAll('.verify-btn').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       const card = e.target.closest('.report');

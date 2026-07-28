@@ -116,3 +116,23 @@ window.EcoClean.parseExifDate = function(raw) {
   const m = String(raw).match(/(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
   return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null;
 };
+
+// Badge Tier System
+window.EcoClean.getBadge = function(points) {
+  const p = points || 0;
+  if (p >= 1000) return { label: 'Forest Guardian', icon: '👑', color: '#f59e0b', id: 'tier-4' };
+  if (p >= 500) return { label: 'Tree', icon: '🌳', color: '#10b981', id: 'tier-3' };
+  if (p >= 100) return { label: 'Sprout', icon: '🌿', color: '#34d399', id: 'tier-2' };
+  return { label: 'Seedling', icon: '🌱', color: '#6ee7b7', id: 'tier-1' };
+};
+
+// Trilingual Badge Titles
+window.EcoClean.getBadgeLabel = function(id, lang) {
+  const dict = {
+    'tier-4': { en: 'Forest Guardian', fr: 'Gardien de la Forêt', ar: 'حارس الغابة' },
+    'tier-3': { en: 'Tree', fr: 'Arbre', ar: 'شجرة' },
+    'tier-2': { en: 'Sprout', fr: 'Pousse', ar: 'برعم' },
+    'tier-1': { en: 'Seedling', fr: 'Jeune pousse', ar: 'بذرة' }
+  };
+  return dict[id][lang] || dict[id].en;
+};

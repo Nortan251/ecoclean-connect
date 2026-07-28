@@ -25,9 +25,10 @@ module.exports = async (req, res) => {
   let kgRemoved = 0;
   const citizens = new Set();
   (data || []).forEach((r) => {
+    if (r.status === 'rejected') return;
     if (byCategory[r.category] !== undefined) byCategory[r.category]++;
     if (r.status === 'verified') { verified++; kgRemoved += KG_PER_VERIFIED[r.category] || 0; }
-    else reported++;
+    else if (r.status === 'reported') reported++;
     const nm = (r.reporter_name || '').trim();
     if (nm && nm.toLowerCase() !== 'anonymous') citizens.add(nm.toLowerCase());
   });

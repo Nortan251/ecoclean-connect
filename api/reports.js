@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
     // admin token 401s (adminContextOrNull returns {ok:false}); no creds = public.
     const ac = await adminContextOrNull(req, res);
     if (ac && !ac.ok) return; // 401 already sent
-    let q = supabase.from('reports').select(REPORT_SELECT).order('created_at', { ascending: false });
+    let q = supabase.from('reports').select(REPORT_SELECT).neq('status', 'rejected').order('created_at', { ascending: false });
     if (ac && ac.kind === 'assoc' && ac.ctx) {
       const c = ac.ctx, dLat = c.radius_km / 111.0, dLng = c.radius_km / Math.max(1, 111.0 * Math.cos(c.lat * Math.PI / 180));
       q = q.gte('lat', c.lat - dLat).lte('lat', c.lat + dLat).gte('lng', c.lng - dLng).lte('lng', c.lng + dLng);

@@ -39,12 +39,20 @@
       var b = body.querySelector('#acu-login'); b.textContent = t('login_btn'); b.onclick = function () { EcoAuth.signIn(); };
       return;
     }
+    var badge = window.EcoClean.getBadge(u.points || 0);
+    var badgeLabel = window.EcoClean.getBadgeLabel(badge.id, lang());
+    
     body.innerHTML =
       '<div class="acu-stats">' +
         '<div class="acu-stat"><b>' + (u.points || 0) + '</b><span class="acu-l1"></span></div>' +
         '<div class="acu-stat"><b>' + (u.myReports || 0) + '</b><span class="acu-l2"></span></div>' +
         '<div class="acu-stat"><b>' + ((u.vouchers && u.vouchers.length) || 0) + '</b><span class="acu-l3"></span></div>' +
-      '</div><p class="muted" style="margin:10px 0 0"><span class="acu-np"></span><b class="acu-dn"></b><span class="acu-ns"></span></p>';
+      '</div><p class="muted" style="margin:10px 0 0"><span class="acu-np"></span><b class="acu-dn"></b><span class="acu-ns"></span></p>' +
+      '<div style="margin-top:14px; background:var(--surface-2); padding:10px 14px; border-radius:12px; border:1px solid var(--border-strong); display:flex; align-items:center; gap:10px;">' +
+        '<span style="font-size:2rem; line-height:1;">' + badge.icon + '</span>' +
+        '<div><div style="font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);">' + {en:'Current Rank', fr:'Rang actuel', ar:'الرتبة الحالية'}[lang()] + '</div>' +
+        '<div style="font-size:1.1rem; font-weight:800; color:' + badge.color + ';">' + badgeLabel + '</div></div>' +
+      '</div>';
     body.querySelector('.acu-l1').textContent = t('s_points');
     body.querySelector('.acu-l2').textContent = t('s_reports');
     body.querySelector('.acu-l3').textContent = t('s_vouchers');
@@ -57,7 +65,10 @@
     var body = lbCard.querySelector('.acu-body');
     fetch('/api/leaderboard', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : []; }).then(function (list) {
       if (!list || !list.length) { body.innerHTML = '<p class="muted acu-le"></p>'; body.querySelector('.acu-le').textContent = t('leaders_empty'); return; }
-      body.innerHTML = '<ol class="acu-lb">' + list.map(function (p, i) { return '<li><span class="acu-rank">' + (i + 1) + '</span><span class="acu-name"></span><b>' + p.points + '</b></li>'; }).join('') + '</ol>';
+      body.innerHTML = '<ol class="acu-lb">' + list.map(function (p, i) { 
+        var badge = window.EcoClean.getBadge(p.points || 0);
+        return '<li><span class="acu-rank">' + (i + 1) + '</span><span class="acu-name" style="flex:1;"></span><span title="' + window.EcoClean.getBadgeLabel(badge.id, lang()) + '" style="margin-right:6px; font-size:1.1rem;">' + badge.icon + '</span><b>' + p.points + '</b></li>'; 
+      }).join('') + '</ol>';
       var names = body.querySelectorAll('.acu-name'); list.forEach(function (p, i) { if (names[i]) names[i].textContent = p.display_name || p.displayName || 'Guardian'; });
     }).catch(function () { body.innerHTML = '<p class="muted acu-le2"></p>'; body.querySelector('.acu-le2').textContent = t('leaders_err'); });
   }
