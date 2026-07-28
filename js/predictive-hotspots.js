@@ -155,11 +155,24 @@
 
     toggleBtn = document.createElement('button');
     toggleBtn.className = 'eco-filter-toggle';
-    toggleBtn.style.marginTop = '6px';
     toggleBtn.style.background = 'var(--surface)';
     toggleBtn.style.color = '#ef4444';
     toggleBtn.style.borderColor = '#ef4444';
     toggleBtn.innerHTML = t('toggle');
+
+    const container = document.querySelector('.leaflet-bottom.leaflet-left') || document.querySelector('.leaflet-control-container');
+    if (!container) return;
+    
+    let wrap = document.getElementById('eco-special-tools');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = 'eco-special-tools';
+      wrap.style.cssText = 'position: absolute; bottom: 30px; left: 10px; z-index: 1000; display:flex; flex-direction:column; gap:6px; pointer-events:none;';
+      container.appendChild(wrap);
+    }
+
+    toggleBtn.style.pointerEvents = 'auto';
+    toggleBtn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
 
     toggleBtn.onclick = () => {
       isEnabled = !isEnabled;
@@ -174,7 +187,7 @@
       }
     };
 
-    filterWrap.appendChild(toggleBtn);
+    wrap.appendChild(toggleBtn);
   }
 
   // CSS for pulsing animation
