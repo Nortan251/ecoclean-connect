@@ -160,14 +160,14 @@
     toggleBtn.style.borderColor = '#ef4444';
     toggleBtn.innerHTML = t('toggle');
 
-    const container = document.querySelector('.leaflet-bottom.leaflet-left') || document.querySelector('.leaflet-control-container');
+    const container = document.getElementById('map');
     if (!container) return;
     
     let wrap = document.getElementById('eco-special-tools');
     if (!wrap) {
       wrap = document.createElement('div');
       wrap.id = 'eco-special-tools';
-      wrap.style.cssText = 'position: absolute; bottom: 30px; left: 10px; z-index: 1000; display:flex; flex-direction:column; gap:6px; pointer-events:none;';
+      wrap.style.cssText = 'position: absolute; top: 16px; right: 16px; z-index: 1000; display:flex; flex-direction:column; gap:8px; pointer-events:none; align-items: flex-end;';
       container.appendChild(wrap);
     }
 

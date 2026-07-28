@@ -97,16 +97,14 @@
     btn.style.marginTop = '6px';
     btn.innerHTML = t('toggle');
     
-    // Put it inside the bottom-left controls area (Leaflet puts Zoom in top-left)
-    const container = document.querySelector('.leaflet-bottom.leaflet-left') || document.querySelector('.leaflet-control-container');
+    const container = document.getElementById('map');
     if (!container) return;
     
-    // Make a wrapper if needed so it sits above Leaflet attribution
     let wrap = document.getElementById('eco-special-tools');
     if (!wrap) {
       wrap = document.createElement('div');
       wrap.id = 'eco-special-tools';
-      wrap.style.cssText = 'position: absolute; bottom: 30px; left: 10px; z-index: 1000; display:flex; flex-direction:column; gap:6px; pointer-events:none;';
+      wrap.style.cssText = 'position: absolute; top: 16px; right: 16px; z-index: 1000; display:flex; flex-direction:column; gap:8px; pointer-events:none; align-items: flex-end;';
       container.appendChild(wrap);
     }
 
