@@ -12,7 +12,11 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
-    if (!requireAdmin(req, res)) return;
+    const ac = await requireAdminContext(req, res);
+    if (!ac.ok || ac.kind !== 'super') {
+      if (ac.ok) return res.status(403).json({ error: 'only super admins can post global alerts' });
+      return; // 401 already sent
+    }
     let body;
     try {
       body = await readJson(req);
