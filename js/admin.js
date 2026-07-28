@@ -209,6 +209,26 @@ window.addEventListener('DOMContentLoaded', () => {
       b.querySelector('b').textContent = c.association_name || ''; b.querySelector('span').textContent = c.city || '';
     } else {
       b.textContent = '🛡️ ' + ({ ar: 'مشرف عام — وصول كامل', fr: 'Super admin — accès total', en: 'Super admin — full access' }[Lg] || 'Super admin — full access');
+      
+      let demoBtn = document.getElementById('eco-demo-btn');
+      if (!demoBtn) {
+        demoBtn = document.createElement('button');
+        demoBtn.id = 'eco-demo-btn';
+        demoBtn.className = 'ghost-btn';
+        demoBtn.style.marginTop = '10px';
+        demoBtn.textContent = '🧪 Simulate Data (AI Demo)';
+        demoBtn.onclick = async () => {
+          demoBtn.textContent = 'Generating...';
+          const headers = { 'Content-Type': 'application/json' };
+          if (ADMIN_KEY) headers['x-admin-key'] = ADMIN_KEY;
+          if (window.EcoAuth && EcoAuth.getToken && EcoAuth.getToken()) headers['Authorization'] = 'Bearer ' + EcoAuth.getToken();
+          const r = await fetch('/api/demo', { method: 'POST', headers });
+          if (r.ok) location.reload();
+          else { alert('Simulation failed.'); demoBtn.textContent = '🧪 Simulate Data (AI Demo)'; }
+        };
+        b.appendChild(demoBtn);
+      }
+
       renderPartnerApplications(apps, panel);
     }
   }
