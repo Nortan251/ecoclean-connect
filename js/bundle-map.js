@@ -275,6 +275,7 @@
     options: { position: 'topright' },
     onAdd: function () {
       const c = L.DomUtil.create('div', 'eco-heat-ctl');
+      c.style.display = 'none'; // We'll move the button to eco-special-tools manually instead
       c.innerHTML = '<button type="button" class="eco-heat-pill" aria-pressed="false"><span aria-hidden="true">🔥</span> <span class="eco-heat-label"></span></button>';
       pillLabel = c.querySelector('.eco-heat-label'); if (pillLabel) pillLabel.textContent = t('btn');
       L.DomEvent.disableClickPropagation(c);   // toggling must never drop a pin
