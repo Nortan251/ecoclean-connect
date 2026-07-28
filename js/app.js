@@ -106,7 +106,7 @@ function popupHtml(r) {
   return `<div class="popup"><div>${badge} <b>${catLabel(r.category)}</b></div><p>${desc}</p><div class="pop-imgs">${before}${after}</div>${reward}<small>${date}</small></div>`;
 }
 
-async function loadReports() {
+let _lrTimer=null; async function loadReports() { if(_lrTimer) clearTimeout(_lrTimer); return new Promise(r => { _lrTimer = setTimeout(() => _doLoadReports().then(r), 100); }); } async function _doLoadReports() {
   if (!mapInited) return;
   try {
     const res = await fetch('/api/reports');
@@ -328,4 +328,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  
+  // Expose global so realtime.js and map filters can trigger redraws
+  window.loadReports = loadReports;
 });

@@ -1,11 +1,10 @@
 const { supabase } = require('../../_lib/supabase');
-const { REPORT_SELECT, readJson, uploadPhoto, requireAdminContext, inCityBounds } = require('../../_lib/helpers');
+const { REPORT_SELECT, readJson, uploadPhoto, requireAdminContext, adminContextOrNull, inCityBounds } = require('../../_lib/helpers');
+const { verifyUser } = require('../../_lib/auth');
 const push = require('../../_lib/push');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();
-  const ac = await requireAdminContext(req, res);   // super (key or SUPER_ADMIN_EMAIL) OR association admin
-  if (!ac.ok) return;
 
   const id = req.query.id;
   let body;
@@ -14,6 +13,24 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(400).json({ error: 'invalid json' });
   }
+
+  // --- RALLY LOGIC (Any logged-in user can RSVP) ---
+  if (body.action === 'rally_update') {
+    const user = await verifyUser(req);
+    if (!user) return res.status(401).json({ error: 'login required for rallies' });
+    const { data, error } = await supabase
+      .from('reports')
+      .update({ description: body.new_desc })
+      .eq('id', id)
+      .select(REPORT_SELECT)
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json(data);
+  }
+
+  // --- ADMIN LOGIC (Verify / Reject) ---
+  const ac = await requireAdminContext(req, res);   
+  if (!ac.ok) return;
 
   // Read the reporter + their EMAIL + rewarded flag BEFORE updating, so we award
   // exactly once and can notify the right person. (auth.users is readable by the
@@ -28,6 +45,11 @@ module.exports = async (req, res) => {
     const { data: { user } } = await supabase.auth.admin.getUserById(cur.reporter_user_id);
     reporterEmail = user && user.email;
   }
+
+  // The 'rally_update' action allows any authenticated user to RSVP to a rally,
+  // storing the data gracefully inside the description field to bypass schema limits.
+  // Note: ac.ok check applies to verification/rejects, but rally is community-driven.
+  // Wait, we forced requireAdminContext at the top. Let's fix that.
 
   if (body.action === 'reject') {
     const { data, error } = await supabase

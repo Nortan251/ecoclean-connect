@@ -136,3 +136,12 @@ window.EcoClean.getBadgeLabel = function(id, lang) {
   };
   return dict[id][lang] || dict[id].en;
 };
+
+
+// Performance: prevent background tabs from CPU/Network thrashing
+const originalSetInterval = window.setInterval;
+window.setInterval = function(fn, delay, ...args) {
+  return originalSetInterval(() => {
+    if (!document.hidden) fn(...args);
+  }, delay);
+};
