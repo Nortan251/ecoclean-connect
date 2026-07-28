@@ -98,53 +98,16 @@
   /* "How it works" — the operating MODEL an association needs to understand
    * (citizen reports -> association verifies -> city sees impact). Replaces the
    * before/after gallery, which is parked until the platform runs with real photos. */
-  function slider(before, after) {
-    return '<div class="ba-slider" style="width:100%; height:200px; margin:0 auto; border-radius:12px; box-shadow:var(--shadow);">' +
-      '<img class="ba-after" src="' + esc(after) + '" alt="After" loading="lazy" style="width:100%; height:100%; object-fit:cover;">' +
-      '<div class="ba-before-wrap" style="position:absolute; top:0; left:0; bottom:0; overflow:hidden;"><img class="ba-before" src="' + esc(before) + '" alt="Before" loading="lazy" style="height:100%; object-fit:cover; max-width:none;"></div>' +
-      '<div class="ba-handle" style="position:absolute; top:0; bottom:0; width:3px; margin-left:-1.5px; background:#fff; pointer-events:none; box-shadow:0 0 4px rgba(0,0,0,.45);"></div>' +
-      '<input type="range" min="0" max="100" value="50" class="ba-range" aria-label="compare" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:ew-resize; margin:0;">' +
-      '</div>';
-  }
-
-  function wireSliders(box) {
-    box.querySelectorAll('.ba-slider').forEach(function(slider) {
-      var range = slider.querySelector('.ba-range'), wrap = slider.querySelector('.ba-before-wrap'), handle = slider.querySelector('.ba-handle');
-      var img = wrap.querySelector('.ba-before');
-      var apply = function(v) { 
-        wrap.style.width = v + '%'; 
-        handle.style.left = v + '%'; 
-        img.style.width = slider.offsetWidth + 'px';
-      };
-      range.addEventListener('input', function() { apply(range.value); });
-      window.addEventListener('resize', function() { apply(range.value); });
-      apply(50);
-    });
-  }
-
-  function renderGallery() {
-    var box = document.getElementById('impGallery'); if (!box) return;
-    var verified = reports.filter(function(r) { return r.status === 'verified' && r.afterPhoto; });
-    if (verified.length === 0) {
-      box.innerHTML = '<p class="imp-demo-note">' + T('impact_demo_note') + '</p>';
-      return;
-    }
-    
-    // Sort newest first and take top 6
-    verified.sort(function(a, b) { return new Date(b.verifiedAt || 0) - new Date(a.verifiedAt || 0); });
-    verified = verified.slice(0, 6);
-    
-    var html = '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">';
-    verified.forEach(function(r) {
-      html += '<div>';
-      html += slider(r.beforePhoto, r.afterPhoto);
-      html += '<p style="text-align:center; font-size:.85rem; font-weight:700; color:var(--text); margin:8px 0 0;">' + esc((typeof window.catLabel === 'function') ? window.catLabel(r.category) : r.category) + ' <span style="color:var(--accent);">✅</span></p>';
-      html += '<p style="text-align:center; font-size:.75rem; color:var(--muted); margin:2px 0 0;">' + new Date(r.verifiedAt).toLocaleDateString() + '</p>';
-      html += '</div>';
-    });
-    html += '</div>';
-    box.innerHTML = html;
-    wireSliders(box);
+  function renderHow() {
+    var box = document.getElementById('impHow'); if (!box) return;
+    var steps = [
+      ['📍', T('impact_step1_t'), T('impact_step1_d')],
+      ['✅', T('impact_step2_t'), T('impact_step2_d')],
+      ['📈', T('impact_step3_t'), T('impact_step3_d')],
+    ];
+    box.innerHTML = steps.map(function (s, i) {
+      return '<div class="imp-step"><div class="imp-step-n">' + (i + 1) + '</div><div class="imp-step-i">' + s[0] + '</div><h3>' + esc(s[1]) + '</h3><p>' + esc(s[2]) + '</p></div>';
+    }).join('');
   }
 
   function tileUrl() {
@@ -201,7 +164,7 @@
     }
   }
 
-  function renderStatic() { renderKPIs(); renderCats(); renderGallery(); renderNet(); }
+  function renderStatic() { renderKPIs(); renderCats(); renderHow(); renderNet(); }
 
   function load() {
     var base = (typeof window.getLang === 'function') ? getLang() : 'en';
