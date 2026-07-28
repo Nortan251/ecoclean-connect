@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
   // Read the reporter + their EMAIL + rewarded flag BEFORE updating, so we award
   // exactly once and can notify the right person. (auth.users is readable by the
   // service role; we only ever use the email to look up push subscriptions.)
-  const { data: cur } = await supabase.from('reports').select('reporter_user_id, rewarded, category').eq('id', id).single();
+  const { data: cur } = await supabase.from('reports').select('reporter_user_id, rewarded, category, lat, lng').eq('id', id).single();
   // admin v2: an association admin may only verify reports inside their city.
   if (ac.kind === 'assoc' && ac.ctx && (!cur || !inCityBounds(cur, ac.ctx))) {
     return res.status(403).json({ error: 'outside your association’s city' });

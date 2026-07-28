@@ -68,6 +68,9 @@
 
   async function generatePDF() {
     // 1. Fetch current scope data
+    const u = window.EcoAuth && window.EcoAuth.getUser ? window.EcoAuth.getUser() : null;
+    const adminCtx = u && u.admin ? u.admin : (sessionStorage.getItem('ecoclean_admin') ? { scope: 'all' } : null);
+    
     const res = await fetch('/api/reports', {
       headers: (window.EcoAuth && window.EcoAuth.getToken && window.EcoAuth.getToken()) 
         ? { 'Authorization': 'Bearer ' + window.EcoAuth.getToken() } 
@@ -112,7 +115,12 @@
     doc.setFillColor(25, 135, 84); // EcoClean Green
     doc.rect(0, 0, W, 40, 'F');
     write(t('t_title'), 24, margin, 22, 'helvetica', 'bold', [255,255,255]);
-    write(t('t_sub') + ' — ' + new Date().toLocaleDateString(), 11, margin, 32, 'helvetica', 'normal', [230,243,239]);
+    
+    let scopeText = "Morocco (National)";
+    if (adminCtx && adminCtx.scope === 'city') {
+      scopeText = `${adminCtx.association_name} — ${adminCtx.city}`;
+    }
+    write(t('t_sub') + ' | ' + scopeText + ' | ' + new Date().toLocaleDateString(), 10, margin, 32, 'helvetica', 'normal', [230,243,239]);
     
     y = 60;
     write(t('s_kpi'), 16, margin, y, 'helvetica', 'bold');
