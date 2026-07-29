@@ -1,5 +1,5 @@
 const { supabase } = require('./_lib/supabase');
-const { ALERT_SELECT, readJson, requireAdmin, friendlyDbError } = require('./_lib/helpers');
+const { ALERT_SELECT, readJson, requireAdminContext, friendlyDbError } = require('./_lib/helpers');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
