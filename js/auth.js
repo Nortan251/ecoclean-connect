@@ -187,7 +187,15 @@
   function readCache() { try { const v = sessionStorage.getItem(CACHE_KEY); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
   function clearCache() { try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {} }
 
-  function signOut() { closeMenu(); clearCache(); cfgClient().then((c) => { if (c) c.auth.signOut(); }); }
+  function signOut() { 
+    closeMenu(); 
+    clearCache(); 
+    current = null;
+    if (window.EcoStore && EcoStore.setUserScope) EcoStore.setUserScope(null);
+    renderNav(); 
+    emit();
+    cfgClient().then((c) => { if (c) c.auth.signOut(); }); 
+  }
 
   function refreshMe() {
     return fetch('/api/me', { headers: { Authorization: 'Bearer ' + current.accessToken } })
@@ -197,7 +205,15 @@
       }).catch(() => { renderNav(); emit(); return current; });
   }
   function setSession(sess) {
-    current = sess ? { id: sess.user.id, email: sess.user.email, accessToken: sess.access_token } : null;
+    if (!sess) {
+      current = null;
+    } else {
+      if (!current) current = {};
+      current.id = sess.user.id;
+      current.email = sess.user.email;
+      current.accessToken = sess.access_token;
+      // Do not destroy current.admin or current.points if they were already cached!
+    }
     // Scope the LOCAL store to this account BEFORE anything reads it, so each user
     // gets isolated quests / points / streak-fallback (and logout returns to anon).
     if (window.EcoStore && EcoStore.setUserScope) EcoStore.setUserScope(current ? current.id : null);
