@@ -290,8 +290,31 @@ window.addEventListener('DOMContentLoaded', () => {
   function tryAssocEntry() {
     if (ADMIN_KEY) return; // legacy key path already handled
     var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
-    if (u) { var l = document.getElementById('login'); if (l) l.classList.add('hidden'); var p = document.getElementById('panel'); if (p) p.classList.remove('hidden'); (EcoAuth.refresh ? EcoAuth.refresh() : Promise.resolve()).then(function () { loadAdminContext(); }); }
+    
+    // If not logged in, ensure we show the login screen (fixes the "flicker out of admin" bug)
+    if (!u) {
+      var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
+      var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
+      return;
+    }
+
+    // Must be an admin to enter the panel
+    if (!u.admin) {
+      var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
+      var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
+      $('#loginMsg').textContent = 'Your account does not have Admin privileges.';
+      return;
+    }
+
+    // Is an admin: enter panel and load data
+    var l = document.getElementById('login'); if (l) l.classList.add('hidden'); 
+    var p = document.getElementById('panel'); if (p) p.classList.remove('hidden'); 
+    loadAdminContext();
+    load(); // Force load the data now that we know they are allowed in
   }
+
+  // Hook into auth.js events. auth.js first boots with a cached session (which may lack u.admin)
+  // then fetches /api/me and fires ecoclean:auth AGAIN with the full user object.
   window.addEventListener('ecoclean:auth', tryAssocEntry);
   if (window.EcoAuth && EcoAuth.ready) EcoAuth.ready().then(tryAssocEntry);
   if (ADMIN_KEY) { enterPanel(); loadAdminContext(); }
