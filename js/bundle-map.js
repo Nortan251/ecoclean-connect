@@ -275,7 +275,6 @@
     options: { position: 'topright' },
     onAdd: function () {
       const c = L.DomUtil.create('div', 'eco-heat-ctl');
-      c.style.display = 'none'; // We'll move the button to eco-special-tools manually instead
       c.innerHTML = '<button type="button" class="eco-heat-pill" aria-pressed="false"><span aria-hidden="true">🔥</span> <span class="eco-heat-label"></span></button>';
       pillLabel = c.querySelector('.eco-heat-label'); if (pillLabel) pillLabel.textContent = t('btn');
       L.DomEvent.disableClickPropagation(c);   // toggling must never drop a pin
@@ -285,7 +284,46 @@
   });
   window.addEventListener('ecoclean:mapready', (ev) => {
     map = ev.detail; if (!map) return;
-    new HeatCtl().addTo(map);
+    
+    // Move Density button out of Leaflet native controls and into eco-special-tools stack
+    const container = document.getElementById('map');
+    if (container) {
+      let wrap = document.getElementById('eco-special-tools');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.id = 'eco-special-tools';
+        wrap.style.cssText = 'position: absolute; top: 16px; right: 16px; z-index: 1000; display:flex; flex-direction:column; gap:8px; pointer-events:none; align-items: flex-end;';
+        container.appendChild(wrap);
+      }
+      
+      const btn = document.createElement('button');
+      btn.className = 'eco-filter-toggle eco-heat-pill'; 
+      btn.type = 'button';
+      btn.innerHTML = '<span aria-hidden="true">🔥</span> <span class="eco-heat-label"></span>';
+      pillLabel = btn.querySelector('.eco-heat-label'); 
+      if (pillLabel) pillLabel.textContent = t('btn');
+      btn.style.pointerEvents = 'auto';
+      btn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
+      btn.style.background = 'var(--surface)';
+      btn.style.color = '#198754';
+      btn.style.borderColor = '#198754';
+      
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggle();
+        if (on) {
+          btn.style.background = '#198754';
+          btn.style.color = '#fff';
+        } else {
+          btn.style.background = 'var(--surface)';
+          btn.style.color = '#198754';
+        }
+      });
+      
+      // Ensure it's the very first button in the stack
+      wrap.insertBefore(btn, wrap.firstChild);
+    }
+
     const host = document.getElementById('map') || document.getElementById('mapView');
     if (host) { caption = document.createElement('div'); caption.className = 'eco-heat-caption'; caption.style.display = 'none'; host.appendChild(caption); }
     if (!document.getElementById('eco-heat-style3')) {
