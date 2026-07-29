@@ -287,22 +287,34 @@ window.addEventListener('DOMContentLoaded', () => {
   ensureAssocLogin();
   // admin v2: a signed-in association admin (no demo key) goes straight to the panel;
   // the server still enforces role + city scope on every call. Re-checked on auth changes.
+  let _adminLoadTimer = null;
   function tryAssocEntry() {
     if (ADMIN_KEY) return; // legacy key path already handled
+    
+    // Auth loads in two phases:
+    // 1. Synchronous cache load (fires ecoclean:auth instantly)
+    // 2. Async backend verification /api/me (fires ecoclean:auth again)
+    // We don't want to flash the "Access Denied" screen during phase 1 if they are waiting for phase 2.
+    if (_adminLoadTimer) clearTimeout(_adminLoadTimer);
+    
     var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
     
-    // If not logged in, ensure we show the login screen (fixes the "flicker out of admin" bug)
     if (!u) {
       var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
       var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
       return;
     }
 
-    // Must be an admin to enter the panel
     if (!u.admin) {
-      var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
-      var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
-      $('#loginMsg').textContent = 'Your account does not have Admin privileges.';
+      // Give auth.js 1 second to fetch /api/me before we definitively lock them out
+      _adminLoadTimer = setTimeout(() => {
+        var u2 = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
+        if (!u2 || !u2.admin) {
+          var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
+          var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
+          $('#loginMsg').textContent = 'Your account does not have Admin privileges.';
+        }
+      }, 1000);
       return;
     }
 

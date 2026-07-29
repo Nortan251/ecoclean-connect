@@ -182,7 +182,7 @@
   // real session then confirms (or clears, if expired) without any visible jump.
   const CACHE_KEY = 'ecoclean_session_cache';
   function cacheSession() {
-    try { if (current) sessionStorage.setItem(CACHE_KEY, JSON.stringify({ id: current.id, email: current.email, displayName: current.displayName, points: current.points })); } catch (e) {}
+    try { if (current) sessionStorage.setItem(CACHE_KEY, JSON.stringify({ id: current.id, email: current.email, displayName: current.displayName, points: current.points, admin: current.admin })); } catch (e) {}
   }
   function readCache() { try { const v = sessionStorage.getItem(CACHE_KEY); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
   function clearCache() { try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {} }
@@ -209,7 +209,7 @@
     // logged-out nav. getSession() below confirms it (and clears the cache if the
     // session is gone), so this is purely a no-flash optimisation.
     const cached = readCache();
-    if (cached && cached.id) { current = { id: cached.id, email: cached.email, displayName: cached.displayName, accessToken: null }; renderNav(); }
+    if (cached && cached.id) { current = { id: cached.id, email: cached.email, displayName: cached.displayName, accessToken: null, admin: cached.admin || null }; renderNav(); emit(); }
     else renderNav();
     cfgClient().then((c) => {
       if (!c) { bootDone = true; emit(); return; }
