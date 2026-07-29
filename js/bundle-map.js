@@ -292,7 +292,7 @@
       if (!wrap) {
         wrap = document.createElement('div');
         wrap.id = 'eco-special-tools';
-        wrap.style.cssText = 'position: absolute; top: 16px; right: 16px; z-index: 1000; display:flex; flex-direction:column; gap:8px; pointer-events:none; align-items: flex-end;';
+        wrap.style.cssText = 'position: absolute; top: 16px; right: 16px; z-index: 1000; display:flex; flex-direction:column; gap:8px; pointer-events:none; align-items: flex-end; transition: top 0.25s ease;';
         container.appendChild(wrap);
       }
       
@@ -578,7 +578,8 @@
       '.eco-fchip{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border:1px solid var(--border-strong,#cfe2d8);background:var(--surface,#fff);color:var(--accent-dark,#0a5c3f);border-radius:999px;padding:6px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;flex:0 0 auto;}' +
       '.eco-fchip.on{background:var(--accent-grad,linear-gradient(135deg,#198754,#0d9488));color:var(--on-accent,#fff);border-color:transparent;}' +
       '.leaflet-top.leaflet-left{top:46px!important;transition:top .25s ease;}' +
-      '#map.eco-filter-open .leaflet-top.leaflet-left{top:100px!important;}';
+      '#map.eco-filter-open .leaflet-top.leaflet-left{top:125px!important;}' +
+      '#map.eco-filter-open #eco-special-tools{top:125px!important;}';
     document.head.appendChild(st);
   }
 })();

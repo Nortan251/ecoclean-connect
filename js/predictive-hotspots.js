@@ -167,7 +167,7 @@
     if (!wrap) {
       wrap = document.createElement('div');
       wrap.id = 'eco-special-tools';
-      wrap.style.cssText = 'position: absolute; top: 16px; right: 16px; z-index: 1000; display:flex; flex-direction:column; gap:8px; pointer-events:none; align-items: flex-end;';
+      wrap.style.cssText = 'position: absolute; top: 16px; right: 16px; z-index: 1000; display:flex; flex-direction:column; gap:8px; pointer-events:none; align-items: flex-end; transition: top 0.25s ease;';
       container.appendChild(wrap);
     }
 
