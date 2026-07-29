@@ -210,7 +210,7 @@
         const id = idx ? idx.get(ll.lat.toFixed(6) + ',' + ll.lng.toFixed(6)) : null;
         if (id) m._reportId = id;
 
-        cluster.addLayer(m);
+        if (!cluster._pendingMarkers) { cluster._pendingMarkers = []; setTimeout(() => { if (cluster._pendingMarkers.length) { cluster.addLayers(cluster._pendingMarkers); cluster._pendingMarkers = []; } }, 10); } cluster._pendingMarkers.push(m);
 
         // app.js chains .bindPopup(html) AFTER .addTo(); forward it to our marker
         // so the rich before/after popup (and vote buttons) still appear.

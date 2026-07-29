@@ -124,15 +124,17 @@
       const email = f.email ? f.email.value.trim() : '';
       const password = f.password ? f.password.value : '';
       const dn = f.displayName ? f.displayName.value.trim() : '';
+      const btn = f.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
 
       // ---- FORGOT: send a password-reset email (no sign-in) ----
       if (mode === 'forgot') {
-        if (!email) { setMsg(false, t('f_email')); return; }
+        if (!email) { setMsg(false, t('f_email')); if (btn) btn.disabled = false; return; }
         setMsg(true, t('msg_wait'));
         cfgClient().then((c) => {
-          if (!c) { setMsg(false, t('msg_unavail')); return; }
+          if (!c) { setMsg(false, t('msg_unavail')); if (btn) btn.disabled = false; return; }
           c.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }).then(({ error }) => {
-            if (error) { setMsg(false, error.message); return; }
+            if (error) { setMsg(false, error.message); if (btn) btn.disabled = false; return; }
             setMsg(true, t('msg_reset_sent'));   // link lands the user back here -> PASSWORD_RECOVERY opens setpw
           });
         });
@@ -145,9 +147,9 @@
         if (password !== confirm) { setMsg(false, t('err_pw_match')); return; }
         setMsg(true, t('msg_wait'));
         cfgClient().then((c) => {
-          if (!c) { setMsg(false, t('msg_unavail')); return; }
+          if (!c) { setMsg(false, t('msg_unavail')); if (btn) btn.disabled = false; return; }
           c.auth.updateUser({ password: password }).then(({ error }) => {
-            if (error) { setMsg(false, error.message); return; }
+            if (error) { setMsg(false, error.message); if (btn) btn.disabled = false; return; }
             setMsg(true, t('msg_pw_set')); refreshMe(); setTimeout(closeAuth, 700);
           });
         });
@@ -156,12 +158,12 @@
       // ---- normal LOGIN / SIGNUP ----
       setMsg(true, t('msg_wait'));
       cfgClient().then((c) => {
-        if (!c) { setMsg(false, t('msg_unavail')); return; }
+        if (!c) { setMsg(false, t('msg_unavail')); if (btn) btn.disabled = false; return; }
         const p = mode === 'up'
           ? c.auth.signUp({ email: email, password: password, options: { data: { display_name: dn || undefined } } })
           : c.auth.signInWithPassword({ email: email, password: password });
         p.then(({ data, error }) => {
-          if (error) { setMsg(false, error.message); return; }
+          if (error) { setMsg(false, error.message); if (btn) btn.disabled = false; return; }
           if (mode === 'up' && data && data.user && !data.session) { setMsg(true, t('msg_confirm')); return; }
           setMsg(true, t('msg_success')); setTimeout(closeAuth, 400);
         });

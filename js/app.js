@@ -109,8 +109,15 @@ function popupHtml(r) {
 let _lrTimer=null; async function loadReports() { if(_lrTimer) clearTimeout(_lrTimer); return new Promise(r => { _lrTimer = setTimeout(() => _doLoadReports().then(r), 100); }); } async function _doLoadReports() {
   if (!mapInited) return;
   try {
-    const res = await fetch('/api/reports');
-    const reports = await res.json();
+    let reports;
+    if (window.EcoClean && window.EcoClean.reports && window.EcoClean.reports.length > 0) {
+      reports = window.EcoClean.reports;
+    } else if (window.EcoData && EcoData.load) {
+      reports = await EcoData.load();
+    } else {
+      reports = await (await fetch('/api/reports')).json();
+      if (window.EcoClean) window.EcoClean.reports = reports;
+    }
     // Optional map filter (category / verified-only), applied at render time only.
     // EcoClean.reports (heatmap / quests / leaderboard) still sees the full dataset.
     const list = window.EcoFilter ? EcoFilter.apply(reports) : reports;
@@ -220,12 +227,16 @@ async function handleReport(e) {
   e.preventDefault();
   const form = e.target;
   const msg = $('#formMsg');
+  const btn = form.querySelector('button[type="submit"]');
   const file = form.photo.files[0];
   if (!file || !form.lat.value || !form.lng.value) {
     msg.textContent = t('err_required');
     return;
   }
   msg.textContent = t('submitting');
+  const ogText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = t('submitting');
   try {
     const photo = await fileToResizedDataUrl(file);
     const payload = {
@@ -244,6 +255,8 @@ async function handleReport(e) {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       msg.textContent = '❌ ' + (err.error || t('err_fail'));
+      btn.disabled = false;
+      btn.textContent = ogText;
       return;
     }
     // Additive hook: tell the thank-you module what was just reported.
@@ -263,6 +276,11 @@ async function handleReport(e) {
     showToast(t('success'));
   } catch (err) {
     msg.textContent = t('err_network');
+  } finally {
+    if (btn.disabled) {
+      btn.disabled = false;
+      btn.textContent = ogText;
+    }
   }
 }
 
@@ -270,7 +288,7 @@ const openModal = () => {
   $('#reportModal').classList.remove('hidden');
   if (mapInited) setTimeout(() => map.invalidateSize(), 50);
 };
-const closeModal = () => $('#reportModal').classList.add('hidden');
+const closeModal = () => { const m = $('#reportModal'); m.classList.add('closing'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('closing'); }, 300); };
 
 function showMap() {
   $('#landing').classList.add('hidden');

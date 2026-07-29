@@ -127,6 +127,10 @@ async function load() {
       const card = e.target.closest('.report');
       const id = card.dataset.id;
       const notes = card.querySelector('.notes').value || 'Rejected as spam';
+      const ogText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
       const r = await fetch('/api/reports/' + id + '/verify', {
         method: 'POST',
         headers: Object.assign({ 'Content-Type': 'application/json' }, ADMIN_KEY ? { 'x-admin-key': ADMIN_KEY } : {}, (window.EcoAuth && EcoAuth.getToken && EcoAuth.getToken()) ? { 'Authorization': 'Bearer ' + EcoAuth.getToken() } : {}),
@@ -138,6 +142,7 @@ async function load() {
       } else {
         showToast('Error rejecting report');
       }
+      } catch(err) { showToast('Network error'); } finally { if(btn) { btn.disabled = false; btn.textContent = ogText; } }
     });
   });
 
@@ -153,6 +158,10 @@ async function load() {
       if (af) {
         try { payload.photo = await fileToResizedDataUrl(af); } catch (err) {}
       }
+      const ogText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
       const r = await fetch('/api/reports/' + id + '/verify', {
         method: 'POST',
         headers: Object.assign({ 'Content-Type': 'application/json' }, ADMIN_KEY ? { 'x-admin-key': ADMIN_KEY } : {}, (window.EcoAuth && EcoAuth.getToken && EcoAuth.getToken()) ? { 'Authorization': 'Bearer ' + EcoAuth.getToken() } : {}),
@@ -164,6 +173,7 @@ async function load() {
       } else {
         alert('Verify failed');
       }
+      } catch(err) { alert('Network error'); } finally { if(btn) { btn.disabled = false; btn.textContent = ogText; } }
     });
   });
 }
@@ -171,15 +181,28 @@ async function load() {
 async function postAlert() {
   const title = $('#alertTitle').value.trim();
   if (!title) return;
-  const r = await api('/api/alerts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, body: $('#alertBody').value }),
-  });
-  if (r.ok) {
-    $('#alertTitle').value = '';
-    $('#alertBody').value = '';
-    showToast(t('post_alert_btn'));
+  const btn = $('#postAlert');
+  const ogText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const r = await api('/api/alerts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body: $('#alertBody').value.trim() }),
+    });
+    if (r.ok) {
+      $('#alertTitle').value = '';
+      $('#alertBody').value = '';
+      showToast(t('post_alert_btn'));
+    } else {
+      showToast('Error posting alert');
+    }
+  } catch (err) {
+    showToast('Network error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = ogText;
   }
 }
 
@@ -322,7 +345,10 @@ window.addEventListener('DOMContentLoaded', () => {
     if (l) l.classList.add('hidden'); 
     if (p) p.classList.remove('hidden'); 
     loadAdminContext();
-    load(); // Force load the data now that we know they are allowed in
+    if (!window._adminLoadedOnce) {
+      window._adminLoadedOnce = true;
+      load(); // Load the data only once
+    }
   }
 
   // Hook into auth.js events. auth.js first boots with a cached session (which may lack u.admin)
@@ -419,11 +445,11 @@ function showEscalateModal(rep) {
   document.body.appendChild(m);
   
   // Slide up animation
-  setTimeout(() => m.classList.remove('hidden'), 10);
+  m.classList.add('closing'); m.classList.remove('hidden'); requestAnimationFrame(() => requestAnimationFrame(() => m.classList.remove('closing')));
 
   const close = () => {
-    m.classList.add('hidden');
-    setTimeout(() => m.remove(), 300);
+    m.classList.add('closing');
+    setTimeout(() => { m.classList.add('hidden'); m.remove(); }, 300);
   };
   m.querySelector('.cls').onclick = close;
   m.addEventListener('click', (e) => { if (e.target === m) close(); });
