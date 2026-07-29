@@ -291,43 +291,36 @@ window.addEventListener('DOMContentLoaded', () => {
   function tryAssocEntry() {
     if (ADMIN_KEY) return; // legacy key path already handled
     
-    // Auth loads in two phases:
-    // 1. Synchronous cache load (fires ecoclean:auth instantly)
-    // 2. Async backend verification /api/me (fires ecoclean:auth again)
-    // We don't want to flash the "Access Denied" screen during phase 1 if they are waiting for phase 2.
     if (_adminLoadTimer) clearTimeout(_adminLoadTimer);
     
     var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
+    var l = document.getElementById('login');
+    var p = document.getElementById('panel');
     
     if (!u) {
-      // If we don't have a user, wait briefly to see if Supabase's async getSession resolves.
-      // If they really aren't logged in, show the login form.
-      _adminLoadTimer = setTimeout(() => {
-        var u2 = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
-        if (!u2) {
-          var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
-          var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
-        }
-      }, 500);
+      // Instantly show login if not logged in (fixes "slow to log off" bug)
+      if (l) l.classList.remove('hidden'); 
+      if (p) p.classList.add('hidden');
       return;
     }
 
     if (!u.admin) {
-      // Give auth.js 1 second to fetch /api/me before we definitively lock them out
+      // Give auth.js 1.5 seconds to fetch /api/me before we definitively lock them out.
+      // This prevents flashing the access denied screen while the network loads their admin status.
       _adminLoadTimer = setTimeout(() => {
         var u2 = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
         if (!u2 || !u2.admin) {
-          var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
-          var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
+          if (l) l.classList.remove('hidden'); 
+          if (p) p.classList.add('hidden');
           $('#loginMsg').textContent = 'Your account does not have Admin privileges.';
         }
-      }, 1000);
+      }, 1500);
       return;
     }
 
     // Is an admin: enter panel and load data
-    var l = document.getElementById('login'); if (l) l.classList.add('hidden'); 
-    var p = document.getElementById('panel'); if (p) p.classList.remove('hidden'); 
+    if (l) l.classList.add('hidden'); 
+    if (p) p.classList.remove('hidden'); 
     loadAdminContext();
     load(); // Force load the data now that we know they are allowed in
   }
