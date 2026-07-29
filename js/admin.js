@@ -300,8 +300,15 @@ window.addEventListener('DOMContentLoaded', () => {
     var u = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
     
     if (!u) {
-      var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
-      var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
+      // If we don't have a user, wait briefly to see if Supabase's async getSession resolves.
+      // If they really aren't logged in, show the login form.
+      _adminLoadTimer = setTimeout(() => {
+        var u2 = window.EcoAuth && EcoAuth.getUser && EcoAuth.getUser();
+        if (!u2) {
+          var l = document.getElementById('login'); if (l) l.classList.remove('hidden'); 
+          var p = document.getElementById('panel'); if (p) p.classList.add('hidden');
+        }
+      }, 500);
       return;
     }
 
