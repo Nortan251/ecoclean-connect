@@ -70,7 +70,7 @@ function cardHtml(r) {
     <label class="field"><span data-i18n="notes">Notes</span><input type="text" class="notes" /></label>
     <label class="field"><span data-i18n="reward_code">Reward code (optional)</span><input type="text" class="rewardCode" placeholder="MARJANE-AB12" /></label>
     <div style="display:flex;gap:8px;margin-top:10px;">
-      <button class="primary-btn verify-btn" style="flex:1;margin-top:0;" data-i18n="verify_btn">Verify & issue reward</button>
+      <button class="primary-btn verify-btn" style="flex:1;margin-top:0;display:flex;align-items:center;justify-content:center;gap:6px;" data-i18n="verify_btn"><span aria-hidden="true" style="font-size:1.1rem">✅</span> Verify</button>
       <button class="ghost-btn escalate-btn" style="flex:0 0 auto;margin-top:0;padding:13px 14px;border-color:#d97706;color:#d97706;" title="Escalate to Authorities">🏛️</button>
       <button class="ghost-btn reject-btn" style="flex:0 0 auto;margin-top:0;padding:13px 14px;border-color:#dc3545;color:#dc3545;" title="Reject fake/spam report">✖</button>
     </div></div></div>`;
