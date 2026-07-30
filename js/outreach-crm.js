@@ -34,7 +34,7 @@
   }
 
   function renderCRM() {
-    const panel = document.getElementById('panel');
+    const panel = document.querySelector('main.admin-main'); // Append to main instead of panel to avoid getting hidden
     if (!panel || document.getElementById('eco-crm')) return;
 
     const crm = document.createElement('div');
@@ -157,9 +157,11 @@
   // Hook into auth load
   window.addEventListener('ecoclean:auth', () => {
     const u = window.EcoAuth && window.EcoAuth.getUser ? window.EcoAuth.getUser() : null;
-    if (u && u.admin && u.admin.scope === 'all') { // Super Admin ONLY
-      // Small delay to let admin.js draw the panel first
-      setTimeout(renderCRM, 500); 
+    if (u && u.admin && (u.admin.scope === 'all' || u.admin.role === 'super')) { 
+      setTimeout(renderCRM, 800); 
+    } else {
+      const crm = document.getElementById('eco-crm');
+      if (crm) crm.remove();
     }
   });
 
