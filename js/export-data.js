@@ -1,16 +1,16 @@
 /* ============================================================================
- * export-data.js — Open-Data Portal (CSV + JSON + GeoJSON) (ADDITIVE)
+ * export-data.js — Open-Data Portal (CSV + GeoJSON) (ADDITIVE)
  * ----------------------------------------------------------------------------
- * Turns the platform into a civic-data tool. Completely redesigned to look like 
- * a premium developer portal. Generates exports CLIENT-SIDE from /api/reports.
+ * Turns the platform into a civic-data tool. Designed as a premium developer
+ * portal. Generates exports CLIENT-SIDE from /api/reports.
  * ==========================================================================*/
 (function () {
   'use strict';
 
   const STR = {
-    en: { title: 'Open Data Portal', csv: 'CSV', geo: 'GeoJSON', json: 'JSON', note: 'Export the live civic dataset for researchers, journalists, and local NGOs.', empty: 'No reports to export yet.', records: 'live records available', copy_api: 'Copy API Link', copied: 'Copied!' },
-    fr: { title: 'Portail Open Data', csv: 'CSV', geo: 'GeoJSON', json: 'JSON', note: 'Exportez le jeu de données civiques pour les chercheurs, journalistes et ONG.', empty: 'Aucun signalement à exporter.', records: 'enregistrements disponibles', copy_api: 'Copier le lien API', copied: 'Copié !' },
-    ar: { title: 'بوابة البيانات المفتوحة', csv: 'CSV', geo: 'GeoJSON', json: 'JSON', note: 'قم بتصدير البيانات المدنية للباحثين والصحفيين والجمعيات المحلية.', empty: 'لا توجد بلاغات للتصدير بعد.', records: 'سجل متاح', copy_api: 'نسخ رابط API', copied: 'تم النسخ!' },
+    en: { title: 'Open Data Portal', csv: 'Download CSV', geo: 'Download GeoJSON', note: 'Export the live civic dataset. Free and open for researchers, journalists, and local municipalities.', empty: 'No reports to export yet.', records: 'Live records available', updated: 'Real-time sync active', copy_api: 'Copy API Link', copied: 'Copied!' },
+    fr: { title: 'Portail Open Data', csv: 'Télécharger CSV', geo: 'Télécharger GeoJSON', note: 'Exportez le jeu de données civiques. Gratuit et ouvert pour les chercheurs, journalistes et communes.', empty: 'Aucun signalement à exporter.', records: 'Enregistrements disponibles', updated: 'Synchro temps réel active', copy_api: 'Copier le lien API', copied: 'Copié !' },
+    ar: { title: 'بوابة البيانات المفتوحة', csv: 'تنزيل CSV', geo: 'تنزيل GeoJSON', note: 'قم بتصدير البيانات المدنية. مجاني ومفتوح للباحثين والصحفيين والبلديات.', empty: 'لا توجد بلاغات للتصدير بعد.', records: 'سجل متاح الآن', updated: 'مزامنة مباشرة نشطة', copy_api: 'نسخ رابط API', copied: 'تم النسخ!' },
   };
   const lang = () => (typeof window.getLang === 'function' ? getLang() : 'en');
   const t = (k) => (STR[lang()] || STR.en)[k];
@@ -55,24 +55,35 @@
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
       <div>
         <h2 id="expTitle" style="margin-bottom: 4px;"></h2>
-        <p class="muted" id="expNote" style="font-size: 0.85rem; margin-top: 0; max-width: 90%;"></p>
+        <p class="muted" id="expNote" style="font-size: 0.85rem; margin-top: 0; max-width: 95%; line-height: 1.5;"></p>
       </div>
-      <div style="font-size: 2rem; background: var(--surface-2); padding: 10px; border-radius: 14px; color: var(--accent-2);">🗄️</div>
+      <div style="font-size: 1.8rem; background: var(--surface-2); padding: 10px; border-radius: 14px; color: var(--accent-2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">🗄️</div>
     </div>
     
-    <div style="background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 12px; padding: 12px; margin: 12px 0; display: flex; align-items: center; justify-content: space-between;">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; animation: pulse 2s infinite;"></span>
-        <strong id="expCount" style="font-size:1.1rem; color:var(--text);">0</strong>
-        <span id="expLabel" style="font-size:0.8rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"></span>
+    <div style="background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 12px; padding: 16px; margin: 16px 0; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display:flex; align-items:center; justify-content: space-between;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981; animation: pulse 2s infinite;"></span>
+          <strong id="expCount" style="font-size:1.4rem; color:var(--text); line-height: 1;">0</strong>
+          <span id="expLabel" style="font-size:0.85rem; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.05em;"></span>
+        </div>
+        <button id="expApi" class="ghost-btn" style="width:auto; margin:0; padding:6px 14px; font-size:0.75rem; border-color:var(--accent-2); color:var(--accent-2); font-weight: 800; border-radius: 8px;">🔗 <span class="exp-api-text">API</span></button>
       </div>
-      <button id="expApi" class="ghost-btn" style="width:auto; margin:0; padding:6px 12px; font-size:0.75rem; border-color:var(--accent-2); color:var(--accent-2);">🔗 <span class="exp-api-text">API</span></button>
+      <div style="height: 1px; background: var(--border-strong); width: 100%;"></div>
+      <div style="font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 6px;">
+        <span style="color: var(--accent-2);">⚡</span> <span id="expUpdated"></span>
+      </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-      <button class="primary-btn" id="expCsv" style="margin:0; padding:10px; font-size:.85rem; background:linear-gradient(135deg, #3b82f6, #2563eb); box-shadow:0 4px 12px rgba(59,130,246,.3);">📊 CSV</button>
-      <button class="primary-btn" id="expJson" style="margin:0; padding:10px; font-size:.85rem; background:linear-gradient(135deg, #f59e0b, #d97706); box-shadow:0 4px 12px rgba(245,158,11,.3);">{ } JSON</button>
-      <button class="primary-btn" id="expGeo" style="margin:0; padding:10px; font-size:.85rem; background:linear-gradient(135deg, #10b981, #059669); box-shadow:0 4px 12px rgba(16,185,129,.3);">🌍 GeoJSON</button>
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+      <button class="primary-btn" id="expCsv" style="margin:0; padding:12px; font-size:.9rem; background:var(--surface); border: 1.5px solid var(--border-strong); color:var(--text); box-shadow:var(--shadow); transition: all 0.2s;">
+        <div style="font-size: 1.4rem; margin-bottom: 4px;">📊</div>
+        <span class="btn-label-csv" style="font-weight: 800;">CSV</span>
+      </button>
+      <button class="primary-btn" id="expGeo" style="margin:0; padding:12px; font-size:.9rem; background:var(--surface); border: 1.5px solid var(--border-strong); color:var(--text); box-shadow:var(--shadow); transition: all 0.2s;">
+        <div style="font-size: 1.4rem; margin-bottom: 4px;">🌍</div>
+        <span class="btn-label-geo" style="font-weight: 800;">GeoJSON</span>
+      </button>
     </div>
   `;
   
@@ -80,10 +91,22 @@
   if (analytics) analytics.insertAdjacentElement('beforebegin', card); 
   else host.appendChild(card);
 
+  // Add hover effects for the new buttons
+  const st = document.createElement('style');
+  st.textContent = `
+    #expCsv:hover { border-color: #3b82f6; color: #3b82f6; transform: translateY(-2px); box-shadow: 0 8px 16px rgba(59,130,246,0.15); }
+    #expGeo:hover { border-color: #10b981; color: #10b981; transform: translateY(-2px); box-shadow: 0 8px 16px rgba(16,185,129,0.15); }
+    html[data-theme="dark"] #expCsv, html[data-theme="dark"] #expGeo { background: var(--surface-2); }
+  `;
+  document.head.appendChild(st);
+
   function updateLabels() { 
     card.querySelector('#expTitle').textContent = t('title'); 
     card.querySelector('#expNote').textContent = t('note'); 
     card.querySelector('#expLabel').textContent = t('records');
+    card.querySelector('#expUpdated').textContent = t('updated');
+    card.querySelector('.btn-label-csv').textContent = t('csv');
+    card.querySelector('.btn-label-geo').textContent = t('geo');
     const apiText = card.querySelector('.exp-api-text');
     if (apiText && apiText.textContent !== t('copied')) apiText.textContent = t('copy_api');
   }
@@ -116,15 +139,12 @@
     
     if (type === 'csv') {
       download('ecoclean-reports-' + stamp() + '.csv', '﻿' + toCSV(rows), 'text/csv;charset=utf-8');
-    } else if (type === 'json') {
-      download('ecoclean-reports-' + stamp() + '.json', JSON.stringify(rows, null, 2), 'application/json');
     } else if (type === 'geo') {
       download('ecoclean-reports-' + stamp() + '.geojson', JSON.stringify(toGeoJSON(rows), null, 2), 'application/geo+json');
     }
   };
 
   card.querySelector('#expCsv').addEventListener('click', () => handleDownload('csv'));
-  card.querySelector('#expJson').addEventListener('click', () => handleDownload('json'));
   card.querySelector('#expGeo').addEventListener('click', () => handleDownload('geo'));
 
 })();
