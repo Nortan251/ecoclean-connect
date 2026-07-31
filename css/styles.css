@@ -318,3 +318,8 @@ input, select, textarea {
 
 /* Hide internal technical messages from the citizen form */
 #trustMsg, #compressionMsg, #qualityMsg, #dupMsg { display: none !important; }
+
+/* Active Cleaning Tabs */
+.eco-form-tabs { display: flex; gap: 8px; margin-bottom: 16px; background: var(--surface-2); padding: 4px; border-radius: 12px; }
+.eft-btn { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 8px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; font-size: .85rem; font-family: inherit; }
+.eft-btn.active { background: var(--surface); color: var(--accent-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }

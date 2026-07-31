@@ -109,6 +109,10 @@
         <button id="closeModal" class="icon-btn" aria-label="Close">&times;</button>
       </div>
       <form id="reportForm">
+        <div class="eco-form-tabs">
+          <button type="button" class="eft-btn active" id="tabReport" data-i18n="tab_report">📍 I'm Reporting</button>
+          <button type="button" class="eft-btn" id="tabClean" data-i18n="tab_clean">✅ I Cleaned It!</button>
+        </div>
         <label class="field">
           <span data-i18n="your_name">Your name (optional)</span>
           <input type="text" name="reporterName" data-i18n-ph="your_name_ph" placeholder="Anonymous" />
@@ -118,8 +122,11 @@
           <select name="category" id="categorySelect" required></select>
         </label>
         <label class="field">
-          <span data-i18n="photo">Photo (required)</span>
-          <input type="file" name="photo" accept="image/*" capture="environment" required />
+          <span id="lblBeforePhoto" data-i18n="photo">Photo (required)</span>
+          <input type="file" name="photo" accept="image/*" capture="environment" required /></label>
+        <label class="field hidden" id="fieldAfterPhoto">
+          <span data-i18n="after_photo">After Photo (required)</span>
+          <input type="file" name="afterPhoto" accept="image/*" capture="environment" />
         </label>
         <label class="field">
           <span data-i18n="description">Description</span>

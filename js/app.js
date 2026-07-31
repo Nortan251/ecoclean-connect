@@ -223,13 +223,18 @@ async function fileToResizedDataUrl(file, maxDim = 1280, quality = 0.78) {
   });
 }
 
+
+window.EcoReportMode = 'report';
+
 async function handleReport(e) {
   e.preventDefault();
   const form = e.target;
   const msg = $('#formMsg');
   const btn = form.querySelector('button[type="submit"]');
   const file = form.photo.files[0];
-  if (!file || !form.lat.value || !form.lng.value) {
+  const afterFile = form.afterPhoto.files[0];
+  
+  if (!file || !form.lat.value || !form.lng.value || (window.EcoReportMode === 'clean' && !afterFile)) {
     msg.textContent = t('err_required');
     return;
   }
@@ -246,7 +251,11 @@ async function handleReport(e) {
       category: form.category.value,
       description: form.description.value,
       reporterName: form.reporterName.value,
+      isSelfCleaned: window.EcoReportMode === 'clean'
     };
+    if (window.EcoReportMode === 'clean') {
+      payload.afterPhoto = await fileToResizedDataUrl(afterFile);
+    }
     const res = await fetch('/api/reports', {
       method: 'POST',
       headers: Object.assign({ 'Content-Type': 'application/json' }, (window.EcoAuth && EcoAuth.getToken()) ? { 'Authorization': 'Bearer ' + EcoAuth.getToken() } : {}),
@@ -259,8 +268,8 @@ async function handleReport(e) {
       btn.textContent = ogText;
       return;
     }
+    
     // Additive hook: tell the thank-you module what was just reported.
-    // Captured BEFORE form.reset() so the values are still available.
     window.dispatchEvent(new CustomEvent('ecoclean:reported', {
       detail: {
         category: form.category.value,
@@ -269,20 +278,40 @@ async function handleReport(e) {
         lng: form.lng.value,
       },
     }));
+    
     form.reset();
+    resetTabs();
     populateCategories($('#categorySelect'));
     closeModal();
+    
+    // If they self-cleaned and are logged in, points were awarded. Refresh auth state.
+    if (window.EcoReportMode === 'clean' && window.EcoAuth && EcoAuth.refresh) {
+      EcoAuth.refresh();
+      showToast('Hero! Clean-up Verified! ✅');
+    } else {
+      showToast(t('success'));
+    }
+    
     await loadReports();
-    showToast(t('success'));
   } catch (err) {
     msg.textContent = t('err_network');
   } finally {
-    if (btn.disabled) {
+    if (btn && btn.disabled) {
       btn.disabled = false;
       btn.textContent = ogText;
     }
   }
 }
+
+function resetTabs() {
+  window.EcoReportMode = 'report';
+  const tr = $('#tabReport'), tc = $('#tabClean'), fap = $('#fieldAfterPhoto'), lbl = $('#lblBeforePhoto');
+  if (tr) tr.classList.add('active');
+  if (tc) tc.classList.remove('active');
+  if (fap) { fap.classList.add('hidden'); fap.querySelector('input').required = false; }
+  if (lbl) lbl.textContent = t('photo');
+}
+
 
 const openModal = () => {
   $('#reportModal').classList.remove('hidden');
@@ -332,6 +361,8 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(openModal, 300);
   });
   $('#reportBtn').addEventListener('click', openModal);
+  $('#tabReport').addEventListener('click', () => { window.EcoReportMode = 'report'; $('#tabReport').classList.add('active'); $('#tabClean').classList.remove('active'); $('#fieldAfterPhoto').classList.add('hidden'); $('#fieldAfterPhoto input').required = false; $('#lblBeforePhoto').textContent = t('photo'); });
+  $('#tabClean').addEventListener('click', () => { window.EcoReportMode = 'clean'; $('#tabClean').classList.add('active'); $('#tabReport').classList.remove('active'); $('#fieldAfterPhoto').classList.remove('hidden'); $('#fieldAfterPhoto input').required = true; $('#lblBeforePhoto').textContent = t('photo_before'); });
   $('#closeModal').addEventListener('click', closeModal);
   $('#reportForm').addEventListener('submit', handleReport);
   $('#useLoc').addEventListener('click', async () => {
