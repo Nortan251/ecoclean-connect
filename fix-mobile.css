@@ -1,0 +1,21 @@
+/* Safer area insets */
+.modal-card {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  max-height: calc(100dvh - 40px); /* Use dvh to respect iOS keyboard/browser UI */
+}
+.fab {
+  bottom: calc(22px + env(safe-area-inset-bottom));
+}
+.toast {
+  bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+/* Modals should scroll smoothly */
+.modal-card {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Make sure the form doesn't get obscured */
+input, select, textarea {
+  font-size: 16px !important; /* Prevents iOS Safari from auto-zooming on focus */
+}

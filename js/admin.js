@@ -169,6 +169,7 @@ async function load() {
       });
       if (r.ok) {
         showToast(t('verified'));
+        if (window.EcoConfetti) EcoConfetti.fire();
         load();
       } else {
         alert('Verify failed');

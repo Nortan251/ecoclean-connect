@@ -41,7 +41,7 @@
         .then(() => { 
           if (EcoAuth.refresh) return EcoAuth.refresh(); 
         })
-        .then(() => render())
+        .then(() => { render(); if (window.EcoConfetti) EcoConfetti.fire(); })
         .catch(() => { btn.disabled = false; btn.textContent = old; alert(t('claim_err')); });
     } else {
       const c = EcoStore.get('questClaimed', {}); c[id] = true; EcoStore.set('questClaimed', c);

@@ -301,6 +301,7 @@ async function handleReport(e) {
     if (window.EcoReportMode === 'clean' && window.EcoAuth && EcoAuth.refresh) {
       EcoAuth.refresh();
       showToast('Hero! Clean-up Verified! ✅');
+      if (window.EcoConfetti) EcoConfetti.fire();
     } else {
       showToast(t('success'));
     }
