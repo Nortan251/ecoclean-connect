@@ -166,7 +166,7 @@ body {
 
 label { display: block; font-size: .82rem; margin: 12px 0; color: var(--text); font-weight: 600; }
 input, select, textarea { width: 100%; margin-top: 5px; padding: 11px 12px; border: 1.5px solid var(--border-strong); border-radius: 10px; font-size: .95rem; font-family: inherit; background: var(--surface); color: var(--text); transition: border-color .2s, box-shadow .2s; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-2); box-shadow: 0 0 0 4px rgba(var(--accent2-rgb), .16); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-2); box-shadow: 0 0 0 4px rgba(var(--accent2-rgb), .16); background: var(--surface-2); }
 .loc-row { display: flex; gap: 10px; }
 .loc-row label { flex: 1; }
 .primary-btn { position: relative; overflow: hidden; width: 100%; background: var(--accent-grad); color: var(--on-accent); border: none; border-radius: 999px; padding: 13px; font-size: 1rem; font-weight: 700; margin-top: 10px; cursor: pointer; box-shadow: var(--btn-shadow); transition: transform .2s cubic-bezier(0.2, 0.8, 0.2, 1), filter .2s, box-shadow .2s; }
@@ -356,3 +356,18 @@ input, select, textarea {
 
 /* Ensure empty states don't awkwardly animate */
 .muted:empty { display: none; }
+
+
+/* Soft glow for inputs on hover */
+input:hover, select:hover, textarea:hover { border-color: var(--accent-2); }
+
+/* Make the top nav bar glassy */
+.app-header {
+  background: linear-gradient(135deg, rgba(25,135,84,.85), rgba(13,148,136,.85));
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Make impact hero a bit more grand */
+.imp-hero { padding: 40px 16px 20px; text-align: center; }
+.imp-badge { box-shadow: 0 4px 12px rgba(13,148,136,0.15); }
