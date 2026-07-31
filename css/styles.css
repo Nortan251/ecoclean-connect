@@ -389,15 +389,7 @@ input:hover, select:hover, textarea:hover { border-color: var(--accent-2); }
 h1, h2, .modal-head h2 { letter-spacing: -0.02em; }
 .hero h1 { letter-spacing: -0.04em; }
 
-/* Dash Grid Overhaul */
-@media (min-width: 768px) {
-  .dash { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; max-width: 1100px; }
-  #stats, #cats, #recent { grid-column: 1 / -1; }
-  .dash > h2 { grid-column: 1 / -1; margin-bottom: 0; }
-  .dash .card { margin: 0; }
-  #analytics { grid-column: 1 / -1; }
-  #exportCard { grid-column: 1 / -1; }
-}
+
 
 /* Stunning Leaflet Map Tooltips */
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
