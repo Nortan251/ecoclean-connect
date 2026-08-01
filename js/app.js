@@ -123,7 +123,7 @@ let _lrTimer=null; async function loadReports() { if(_lrTimer) clearTimeout(_lrT
     const list = window.EcoFilter ? EcoFilter.apply(reports) : reports;
     markerLayer.clearLayers();
     list.forEach((r) => {
-      L.circleMarker([r.lat, r.lng], (window.EcoDecayPinStyle ? Object.assign(pinStyle(r.status), window.EcoDecayPinStyle(r)) : pinStyle(r.status)))
+      L.circleMarker([r.lat, r.lng], pinStyle(r.status))
         .addTo(markerLayer)
         .bindPopup(popupHtml(r));
     });
